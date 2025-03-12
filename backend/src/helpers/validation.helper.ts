@@ -2,11 +2,7 @@ import Joi from 'joi';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
 export const validateSchema = (schema: Joi.ObjectSchema) => {
-  return (
-    request: FastifyRequest,
-    reply: FastifyReply,
-    done: (err?: Error) => void,
-  ) => {
+  return (request: FastifyRequest, reply: FastifyReply, done: (err?: Error) => void) => {
     try {
       const { error } = schema.validate(request.body);
       if (error) {

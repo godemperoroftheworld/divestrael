@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import * as JWT from 'jsonwebtoken';
 import Joi from 'joi';
 import { FastifyReply, FastifyRequest } from 'fastify';
+import { JwtPayload } from 'jsonwebtoken';
 
 export const prisma = new PrismaClient();
 
@@ -10,7 +11,7 @@ export const utils = {
   isJSON: (data: string) => {
     try {
       JSON.parse(data);
-    } catch (e) {
+    } catch (_e) {
       return false;
     }
     return true;
@@ -49,24 +50,22 @@ export const utils = {
     }
   },
 
-  getTokenFromHeader: (
-    authorizationHeader: string | undefined,
-  ): string | null => {
+  getTokenFromHeader: (authorizationHeader: string | undefined): string | null => {
     if (!authorizationHeader) return null;
     const token = authorizationHeader.replace('Bearer ', '');
     return token || null;
   },
 
-  verifyToken: (token: string): any => {
+  verifyToken: (token: string): JwtPayload | string | null => {
     try {
       return JWT.verify(token, process.env.APP_JWT_SECRET as string);
-    } catch (err) {
+    } catch (_err) {
       return null;
     }
   },
 
   validateSchema: (schema: Joi.ObjectSchema) => {
-    return (data: any) => {
+    return (data: object) => {
       const { error } = schema.validate(data);
       if (error) {
         throw new Error(error.details[0].message);
@@ -75,11 +74,7 @@ export const utils = {
   },
 
   preValidation: (schema: Joi.ObjectSchema) => {
-    return (
-      request: FastifyRequest,
-      reply: FastifyReply,
-      done: (err?: Error) => void,
-    ) => {
+    return (request: FastifyRequest, reply: FastifyReply, done: (err?: Error) => void) => {
       const { error } = schema.validate(request.body);
       if (error) {
         return done(error);

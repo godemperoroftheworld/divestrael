@@ -1,43 +1,29 @@
-import { utils } from '../utils';
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { prisma } from '../utils';
+
+import { utils, prisma } from '../utils';
 import { ERRORS } from './errors.helper';
 
-export const checkValidRequest = (
-  request: FastifyRequest,
-  reply: FastifyReply,
-) => {
+export const checkValidRequest = (request: FastifyRequest, reply: FastifyReply) => {
   const token = utils.getTokenFromHeader(request.headers.authorization);
   if (!token) {
-    return reply
-      .code(ERRORS.unauthorizedAccess.statusCode)
-      .send(ERRORS.unauthorizedAccess.message);
+    return reply.code(ERRORS.unauthorizedAccess.statusCode).send(ERRORS.unauthorizedAccess.message);
   }
 
   const decoded = utils.verifyToken(token);
   if (!decoded) {
-    return reply
-      .code(ERRORS.unauthorizedAccess.statusCode)
-      .send(ERRORS.unauthorizedAccess.message);
+    return reply.code(ERRORS.unauthorizedAccess.statusCode).send(ERRORS.unauthorizedAccess.message);
   }
 };
 
-export const checkValidUser = async (
-  request: FastifyRequest,
-  reply: FastifyReply,
-) => {
+export const checkValidUser = async (request: FastifyRequest, reply: FastifyReply) => {
   const token = utils.getTokenFromHeader(request.headers.authorization);
   if (!token) {
-    return reply
-      .code(ERRORS.unauthorizedAccess.statusCode)
-      .send(ERRORS.unauthorizedAccess.message);
+    return reply.code(ERRORS.unauthorizedAccess.statusCode).send(ERRORS.unauthorizedAccess.message);
   }
 
   const decoded = utils.verifyToken(token);
   if (!decoded || !decoded.id) {
-    return reply
-      .code(ERRORS.unauthorizedAccess.statusCode)
-      .send(ERRORS.unauthorizedAccess.message);
+    return reply.code(ERRORS.unauthorizedAccess.statusCode).send(ERRORS.unauthorizedAccess.message);
   }
 
   try {
@@ -51,9 +37,7 @@ export const checkValidUser = async (
     }
 
     request['authUser'] = userData;
-  } catch (e) {
-    return reply
-      .code(ERRORS.unauthorizedAccess.statusCode)
-      .send(ERRORS.unauthorizedAccess.message);
+  } catch (_e) {
+    return reply.code(ERRORS.unauthorizedAccess.statusCode).send(ERRORS.unauthorizedAccess.message);
   }
 };

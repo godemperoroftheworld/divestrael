@@ -1,4 +1,5 @@
 import { FastifyInstance } from 'fastify';
+
 import * as controllers from '../controllers';
 import { checkValidRequest, checkValidUser } from '../helpers/auth.helper';
 import { postCreateSchema } from '../schemas/Post';
