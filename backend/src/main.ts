@@ -4,8 +4,6 @@ import formbody from '@fastify/formbody';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 
-import userRouter from './routes/user.router';
-import postRouter from './routes/post.router';
 import loadConfig from './config/env.config';
 import { utils } from './utils';
 
@@ -26,8 +24,6 @@ const startServer = async () => {
   server.register(helmet);
 
   // Register routes
-  server.register(userRouter, { prefix: '/api/user' });
-  server.register(postRouter, { prefix: '/api/post' });
 
   // Set error handler
   server.setErrorHandler((error, _request, reply) => {
