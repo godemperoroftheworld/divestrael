@@ -1,20 +1,22 @@
-import fastify from 'fastify';
+import fastify, { FastifyInstance } from 'fastify';
 import pino from 'pino';
+import formbody from '@fastify/formbody';
+import cors from '@fastify/cors';
+import helmet from '@fastify/helmet';
+
 import userRouter from './routes/user.router';
 import postRouter from './routes/post.router';
 import loadConfig from './config/env.config';
 import { utils } from './utils';
-import formbody from '@fastify/formbody';
-import cors from '@fastify/cors';
-import helmet from '@fastify/helmet';
 
 loadConfig();
 
 const port = Number(process.env.API_PORT) || 5001;
 const host = String(process.env.API_HOST);
+let server: FastifyInstance;
 
 const startServer = async () => {
-  const server = fastify({
+  server = fastify({
     logger: pino({ level: process.env.LOG_LEVEL }),
   });
 
@@ -40,7 +42,7 @@ const startServer = async () => {
       reply.status(200).send({
         message: 'Health check endpoint success.',
       });
-    } catch (e) {
+    } catch (_e) {
       reply.status(500).send({
         message: 'Health check endpoint failed.',
       });
@@ -81,7 +83,7 @@ const startServer = async () => {
 
 // Handle unhandled rejections
 process.on('unhandledRejection', (err) => {
-  console.error('Unhandled Rejection:', err);
+  server.log.error('Unhandled Rejection', err);
   process.exit(1);
 });
 

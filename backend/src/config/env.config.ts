@@ -8,18 +8,12 @@ export default function loadConfig(): void {
   const result = dotenv.config({ path: envPath });
 
   if (result.error) {
-    throw new Error(
-      `Failed to load .env file from path ${envPath}: ${result.error.message}`,
-    );
+    throw new Error(`Failed to load .env file from path ${envPath}: ${result.error.message}`);
   }
 
   const schema = Joi.object({
-    NODE_ENV: Joi.string()
-      .valid('development', 'testing', 'production')
-      .required(),
-    LOG_LEVEL: Joi.string()
-      .valid('debug', 'info', 'warn', 'error', 'fatal')
-      .required(),
+    NODE_ENV: Joi.string().valid('development', 'testing', 'production').required(),
+    LOG_LEVEL: Joi.string().valid('debug', 'info', 'warn', 'error', 'fatal').required(),
     API_HOST: Joi.string().required(),
     API_PORT: Joi.string().required(),
     DATABASE_URL: Joi.string().required(),
