@@ -26,7 +26,7 @@ services:
   api:
     build:
       dockerfile: Dockerfile
-      context: .
+      context: ..
     ports:
       - 5001:5001
     env_file:

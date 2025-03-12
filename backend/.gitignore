@@ -46,7 +46,7 @@ profile-*
 *.swp
 
 # webstorm
-.idea
+../.idea
 
 # vscode
 .vscode
@@ -61,3 +61,7 @@ build/
 
 .env
 dist
+
+*.env
+.yarn/
+.idea/
