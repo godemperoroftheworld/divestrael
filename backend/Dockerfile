@@ -9,7 +9,7 @@ RUN npm install --legacy-peer-deps
 
 RUN npm run db:gen
 
-COPY . .
+COPY .. .
 
 EXPOSE 5001
 
