@@ -1,8 +1,8 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { prisma } from '../utils';
-import { ERRORS, handleServerError } from '../helpers/errors.helper';
 import * as JWT from 'jsonwebtoken';
-import { utils } from '../utils';
+
+import { prisma, utils } from '../utils';
+import { ERRORS, handleServerError } from '../helpers/errors.helper';
 import { STANDARD } from '../constants/request';
 import { IUserLoginDto, IUserSignupDto } from '../schemas/User';
 
@@ -16,16 +16,12 @@ export const login = async (
     const { email, password } = request.body;
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
-      return reply
-        .code(ERRORS.userNotExists.statusCode)
-        .send(ERRORS.userNotExists.message);
+      return reply.code(ERRORS.userNotExists.statusCode).send(ERRORS.userNotExists.message);
     }
 
     const checkPass = await utils.compareHash(password, user.password);
     if (!checkPass) {
-      return reply
-        .code(ERRORS.userCredError.statusCode)
-        .send(ERRORS.userCredError.message);
+      return reply.code(ERRORS.userCredError.statusCode).send(ERRORS.userCredError.message);
     }
 
     const token = JWT.sign(

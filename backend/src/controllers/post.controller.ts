@@ -1,4 +1,5 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
+
 import { handleServerError } from '../helpers/errors.helper';
 import { prisma } from '../utils';
 import { STANDARD } from '../constants/request';

@@ -1,4 +1,5 @@
 import { FastifyInstance } from 'fastify';
+
 import * as controllers from '../controllers';
 import { utils } from '../utils';
 import { loginSchema, signupSchema } from '../schemas/User';
