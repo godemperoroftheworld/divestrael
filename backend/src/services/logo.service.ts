@@ -28,13 +28,13 @@ export default class LogoService {
     });
   }
 
-  public async getImage(query: string) {
+  public async getImage(query: string): Promise<string | undefined> {
     const result = await this.axiosInstance.get('/', {
       params: {
         query,
         limit: 1,
       },
     });
-    return result.data.itemListElement[0].result.image.url;
+    return result.data.itemListElement[0].result.image?.contentUrl;
   }
 }
