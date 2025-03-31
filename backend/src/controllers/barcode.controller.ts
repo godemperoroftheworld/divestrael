@@ -1,19 +1,16 @@
-import { FastifyRequestType } from 'fastify/types/type-provider';
 import { HttpStatusCode } from 'axios';
-import { RouteHandlerMethod } from 'fastify';
 
 import BarcodeService from '@/services/barcode.service';
 import AIService from '@/services/ai.service';
-import CompanyService from '@/services/company.service';
+import CompanyService, { Company } from '@/services/company.service';
+import { BarcodeGetParams } from '@/schemas/barcode.schema';
+import { RouteHandler } from '@/helpers/route.helper';
 
-export interface BarcodeGet extends FastifyRequestType {
-  params: {
-    barcode: string;
-  };
-}
-
-const getBarcodeHandler: RouteHandlerMethod = async (req, res) => {
-  const { barcode } = (req as BarcodeGet).params;
+const getBarcodeHandler: RouteHandler<{ Params: BarcodeGetParams; Reply: Company | null }> = async (
+  req,
+  res,
+) => {
+  const { barcode } = req.params;
   const product = await BarcodeService.instance.getBarcode(barcode);
   const { name } = await AIService.instance.getCompany(product.title, product.brand);
   const parentCompany = await CompanyService.instance.findTopCompany(name);

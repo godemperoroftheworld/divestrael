@@ -1,5 +1,5 @@
 import path from 'path';
-import Joi from 'joi';
+import z from 'zod';
 import dotenv from 'dotenv';
 
 export default function loadConfig(): void {
@@ -11,19 +11,21 @@ export default function loadConfig(): void {
     throw new Error(`Failed to load .env file from path ${envPath}: ${result.error.message}`);
   }
 
-  const schema = Joi.object({
-    NODE_ENV: Joi.string().valid('development', 'testing', 'production').required(),
-    LOG_LEVEL: Joi.string().valid('debug', 'info', 'warn', 'error', 'fatal').required(),
-    API_HOST: Joi.string().required(),
-    API_PORT: Joi.string().required(),
-    DATABASE_URL: Joi.string().required(),
-    BARCODE_API_KEY: Joi.string().required(),
-    AI_API_KEY: Joi.string().required(),
-    GOOGLE_API_KEY: Joi.string().required(),
-    CORPWATCH_API_KEY: Joi.string().required(),
-  }).unknown(true);
+  const schema = z
+    .object({
+      NODE_ENV: z.enum(['development', 'testing', 'production']),
+      LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error', 'fatal']),
+      API_HOST: z.string(),
+      API_PORT: z.string(),
+      DATABASE_URL: z.string(),
+      BARCODE_API_KEY: z.string(),
+      AI_API_KEY: z.string(),
+      GOOGLE_API_KEY: z.string(),
+      CORPWATCH_API_KEY: z.string(),
+    })
+    .passthrough();
 
-  const { error } = schema.validate(process.env, { abortEarly: false });
+  const { error } = schema.safeParse(process.env);
 
   if (error) {
     throw new Error(`Config validation error: ${error.message}`);

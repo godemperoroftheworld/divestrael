@@ -1,7 +1,13 @@
 import fastify, { FastifyInstance } from 'fastify';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
-import JoiCompiler from 'joi-compiler';
+import {
+  jsonSchemaTransform,
+  serializerCompiler,
+  validatorCompiler,
+} from 'fastify-type-provider-zod';
+import fastifySwagger from '@fastify/swagger';
+import fastifySwaggerUI from '@fastify/swagger-ui';
 
 import loadConfig from '@/config/env.config';
 import { handleServerError } from '@/helpers/errors.helper';
@@ -14,16 +20,30 @@ const host = String(process.env.API_HOST);
 let server: FastifyInstance;
 
 function startServer() {
-  const factory = JoiCompiler();
   server = fastify({
     logger: {
       level: process.env.LOG_LEVEL,
     },
-    schemaController: {
-      compilersFactory: {
-        buildValidator: factory.buildValidator,
+  });
+
+  // Type provider
+  server.setValidatorCompiler(validatorCompiler);
+  server.setSerializerCompiler(serializerCompiler);
+
+  // Swagger
+  server.register(fastifySwagger, {
+    openapi: {
+      info: {
+        title: 'Divestrael API',
+        description: 'Boycott, Divestment and Sanction API',
+        version: '1.0.0',
       },
+      servers: [],
     },
+    transform: jsonSchemaTransform,
+  });
+  server.register(fastifySwaggerUI, {
+    routePrefix: '/documentation',
   });
 
   // Register middlewares
