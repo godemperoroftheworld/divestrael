@@ -21,44 +21,39 @@ export default class AIService {
     this.axiosInstance = axios.create({
       baseURL: 'https://openrouter.ai/api/v1/',
     });
-    this.axiosInstance.interceptors.request.use((config) => {
-      config.headers['Authorization'] = `Bearer ${process.env.AI_API_KEY}`;
-      config.headers['Content-Type'] = 'application/json';
-      return config;
-    });
+    this.axiosInstance.defaults.headers.common['Authorization'] =
+      `Bearer ${process.env.AI_API_KEY}`;
   }
 
   public async getCompany(product: string, brand?: string) {
     const prompt = `I am going to give you some product information. I want you to give me the company name that owns that brand/product. Product: ${product}${brand ? `, Brand: ${brand}` : ''}`;
     return this.axiosInstance
-      .get('chat/completions', {
-        data: {
-          model: 'openai/gpt-4o-mini',
-          messages: [
-            {
-              role: 'user',
-              content: prompt,
-            },
-          ],
-          provider: {
-            require_parameters: true,
+      .post('chat/completions', {
+        model: 'openai/gpt-4o-mini',
+        messages: [
+          {
+            role: 'user',
+            content: prompt,
           },
-          response_format: {
-            type: 'json_schema',
-            json_schema: {
-              name: 'company',
-              strict: true,
-              schema: {
-                type: 'object',
-                properties: {
-                  name: {
-                    type: 'string',
-                    description: 'The company name',
-                  },
+        ],
+        provider: {
+          require_parameters: true,
+        },
+        response_format: {
+          type: 'json_schema',
+          json_schema: {
+            name: 'company',
+            strict: true,
+            schema: {
+              type: 'object',
+              properties: {
+                name: {
+                  type: 'string',
+                  description: 'The company name',
                 },
-                required: ['name'],
-                additionalProperties: false,
               },
+              required: ['name'],
+              additionalProperties: false,
             },
           },
         },

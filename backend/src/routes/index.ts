@@ -1,8 +1,8 @@
-import { FastifyPluginCallback } from 'fastify';
+import { FastifyPluginAsync } from 'fastify';
 
 import barcodeRoutes from '@/routes/barcode.routes';
 
-const routes: FastifyPluginCallback = (fastify) => {
+const routes: FastifyPluginAsync = async (fastify) => {
   fastify.register(barcodeRoutes, { prefix: '/barcode' });
 };
 
