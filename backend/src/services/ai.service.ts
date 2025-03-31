@@ -1,5 +1,9 @@
 import axios, { AxiosInstance } from 'axios';
 
+interface CompanyApiResult {
+  name: string;
+}
+
 // Service to get product company name
 export default class AIService {
   private static _instance: AIService;
@@ -24,7 +28,8 @@ export default class AIService {
     });
   }
 
-  public async getCompany(product: string, brand: string) {
+  public async getCompany(product: string, brand?: string) {
+    const prompt = `I am going to give you some product information. I want you to give me the company name that owns that brand/product. Product: ${product}${brand ? `, Brand: ${brand}` : ''}`;
     return this.axiosInstance
       .get('chat/completions', {
         data: {
@@ -32,7 +37,7 @@ export default class AIService {
           messages: [
             {
               role: 'user',
-              content: `I am going to give you a product and brand name. I want you to give me the company name that owns that brand/product. Product: ${product}, Brand: ${brand}`,
+              content: prompt,
             },
           ],
           provider: {
@@ -58,6 +63,6 @@ export default class AIService {
           },
         },
       })
-      .then((r) => JSON.parse(r.data.choices[0].message.content));
+      .then((r) => JSON.parse(r.data.choices[0].message.content) as CompanyApiResult);
   }
 }
