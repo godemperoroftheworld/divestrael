@@ -2,7 +2,7 @@ import axios, { AxiosInstance } from 'axios';
 import * as process from 'node:process';
 import { countBy, max, maxBy, uniq } from 'lodash';
 
-interface Company {
+export interface Company {
   cw_id: string;
   cik: string;
   company_name: string;
