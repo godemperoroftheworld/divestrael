@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
 import * as process from 'node:process';
+import { countBy, max, maxBy, uniq } from 'lodash';
 
 interface Company {
   cw_id: string;
@@ -59,7 +60,8 @@ export default class CompanyService {
     const { companies } = result;
     const companyValues: Company[] = Object.values(companies ?? {});
     if (companyValues.length) {
-      return companyValues.find((c) => c.top_parent_id)?.top_parent_id;
+      const companyParents = countBy(companyValues, 'top_parent_id');
+      return maxBy(Object.keys(companyParents), (key) => companyParents[key]);
     }
     return undefined;
   }
