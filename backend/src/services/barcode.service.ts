@@ -1,5 +1,4 @@
 import axios, { AxiosInstance } from 'axios';
-import * as process from 'node:process';
 
 interface BarcodeApiResult {
   title: string;
