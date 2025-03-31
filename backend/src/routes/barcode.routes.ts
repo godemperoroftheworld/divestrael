@@ -7,14 +7,10 @@ const barcodeRoutes: FastifyPluginCallback = async (fastify: FastifyInstance) =>
   fastify.get(
     '/:barcode',
     {
-      schema: {
-        params: barcodeGetParams,
-        body: barcodeResponse,
-      },
+      schema: { params: barcodeGetParams, response: { 200: barcodeResponse } },
     },
     barcodeController.getBarcodeHandler,
   );
-  fastify.withTypeProvider();
 };
 
 export default barcodeRoutes;
