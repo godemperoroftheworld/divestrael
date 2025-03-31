@@ -1,0 +1,89 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "Barcode": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "product": {
+          "$ref": "#/definitions/Product"
+        }
+      }
+    },
+    "Product": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "brandName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "company": {
+          "$ref": "#/definitions/Company"
+        },
+        "barcode": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Barcode"
+          }
+        }
+      }
+    },
+    "Company": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "product": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Product"
+          }
+        },
+        "boycott": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "source": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    }
+  },
+  "type": "object",
+  "properties": {
+    "barcode": {
+      "$ref": "#/definitions/Barcode"
+    },
+    "product": {
+      "$ref": "#/definitions/Product"
+    },
+    "company": {
+      "$ref": "#/definitions/Company"
+    }
+  }
+}

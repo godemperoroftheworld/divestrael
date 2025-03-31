@@ -1,10 +1,12 @@
 import fastify, { FastifyInstance } from 'fastify';
 import pino from 'pino';
-import formbody from '@fastify/formbody';
+import formBody from '@fastify/formbody';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 
-import loadConfig from './config/env.config';
+import jsonSchema from '@/schemas/json-schema.json';
+import loadConfig from '@/config/env.config';
+import { AppError, ERRORS } from '@/helpers/errors.helper';
 
 loadConfig();
 
@@ -18,14 +20,24 @@ const startServer = async () => {
   });
 
   // Register middlewares
-  server.register(formbody);
+  server.register(formBody);
   server.register(cors);
   server.register(helmet);
+
+  // Set validation schema
+  server.addSchema(jsonSchema);
 
   // Set error handler
   server.setErrorHandler((error, _request, reply) => {
     server.log.error(error);
-    reply.status(500).send({ error: 'Something went wrong' });
+
+    if (error instanceof AppError) {
+      return reply.status(error.statusCode).send({ message: error.message });
+    }
+
+    return reply
+      .status(ERRORS.internalServerError.statusCode)
+      .send(ERRORS.internalServerError.message);
   });
 
   // Graceful shutdown
@@ -61,4 +73,4 @@ process.on('unhandledRejection', (err) => {
   process.exit(1);
 });
 
-startServer();
+await startServer();
