@@ -1,9 +1,15 @@
-import Joi from 'joi';
+import z from 'zod';
 
-const barcodeSchema = Joi.object({
-  barcode: Joi.string().required(),
-  title: Joi.string().required(),
-  brand: Joi.string().required(),
+export const barcodeGetParams = z.object({
+  barcode: z.string(),
 });
+export type BarcodeGetParams = z.infer<typeof barcodeGetParams>;
 
-export default barcodeSchema;
+export const barcodeResponse = z.object({
+  barcode: z.string(),
+  title: z.string(),
+  brand: z.string(),
+  company: z.string(),
+  image: z.string(),
+});
+export type BarcodeResponse = z.infer<typeof barcodeResponse>;

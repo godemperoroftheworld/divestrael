@@ -1,5 +1,6 @@
 import { FastifyReply } from 'fastify';
 import { AxiosError, HttpStatusCode } from 'axios';
+import { ZodError } from 'zod';
 
 export class AppError extends Error {
   statusCode: number;
@@ -23,12 +24,14 @@ export const ERRORS = {
 };
 
 export function handleServerError(reply: FastifyReply, error: Error) {
-  if (error instanceof AppError) {
+  if (error instanceof ZodError) {
+    return reply
+      .status(HttpStatusCode.BadRequest)
+      .send({ message: 'Validation error', issues: error.format() });
+  } else if (error instanceof AppError) {
     return reply.status(error.statusCode).send({ message: error.message });
   } else if (error instanceof AxiosError) {
-    return reply
-      .status(error.status ?? HttpStatusCode.InternalServerError)
-      .send({ message: error.message });
+    return reply.status(HttpStatusCode.InternalServerError).send({ message: error.message });
   }
 
   return reply
