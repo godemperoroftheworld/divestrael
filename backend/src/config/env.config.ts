@@ -17,7 +17,6 @@ export default function loadConfig(): void {
     API_HOST: Joi.string().required(),
     API_PORT: Joi.string().required(),
     DATABASE_URL: Joi.string().required(),
-    APP_JWT_SECRET: Joi.string().required(),
   }).unknown(true);
 
   const { error } = schema.validate(process.env, { abortEarly: false });
