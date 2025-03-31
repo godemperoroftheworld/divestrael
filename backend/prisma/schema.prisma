@@ -8,7 +8,37 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator jsonSchema {
+  provider = "prisma-json-schema-generator"
+  output = "../src/schemas"
+}
+
 datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
+}
+
+model Barcode {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  code String @unique
+  product Product @relation(fields: [productId], references: [id])
+  productId String @db.ObjectId
+}
+
+model Product {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  name String
+  brandName String?
+  company Company @relation(fields: [companyId], references: [id])
+  companyId String @db.ObjectId
+  barcode Barcode[]
+}
+
+model Company {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  name String
+  product Product[]
+  boycott Boolean
+  reason String?
+  source String?
 }

@@ -1,5 +1,3 @@
-import { FastifyReply } from 'fastify';
-
 export class AppError extends Error {
   statusCode: number;
 
@@ -20,13 +18,3 @@ export const ERRORS = {
   internalServerError: new AppError('Internal Server Error', 500),
   unauthorizedAccess: new AppError('Unauthorized access', 401),
 };
-
-export function handleServerError(reply: FastifyReply, error: Error) {
-  if (error instanceof AppError) {
-    return reply.status(error.statusCode).send({ message: error.message });
-  }
-
-  return reply
-    .status(ERRORS.internalServerError.statusCode)
-    .send(ERRORS.internalServerError.message);
-}
