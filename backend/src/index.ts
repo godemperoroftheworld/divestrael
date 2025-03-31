@@ -1,10 +1,10 @@
 import fastify, { FastifyInstance } from 'fastify';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
+import JoiCompiler from 'joi-compiler';
 
-import schemas from '@/schemas';
 import loadConfig from '@/config/env.config';
-import { ERRORS } from '@/helpers/errors.helper';
+import { handleServerError } from '@/helpers/errors.helper';
 import routes from '@/routes';
 
 loadConfig();
@@ -14,9 +14,15 @@ const host = String(process.env.API_HOST);
 let server: FastifyInstance;
 
 function startServer() {
+  const factory = JoiCompiler();
   server = fastify({
     logger: {
       level: process.env.LOG_LEVEL,
+    },
+    schemaController: {
+      compilersFactory: {
+        buildValidator: factory.buildValidator,
+      },
     },
   });
 
@@ -28,12 +34,9 @@ function startServer() {
   server.register(routes, { prefix: '/api' });
 
   // Set error handler
-  server.setErrorHandler((error, _request, reply) => {
+  server.setErrorHandler((error: Error, _request, reply) => {
     server.log.error(error);
-
-    return reply
-      .status(ERRORS.internalServerError.statusCode)
-      .send(ERRORS.internalServerError.message);
+    handleServerError(reply, error);
   });
 
   // Graceful shutdown

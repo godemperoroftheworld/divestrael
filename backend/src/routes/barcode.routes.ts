@@ -3,7 +3,7 @@ import Joi from 'joi';
 
 import barcodeController from '@/controllers/barcode.controller';
 
-const barcodeRoutes: FastifyPluginCallback = (fastify: FastifyInstance) => {
+const barcodeRoutes: FastifyPluginCallback = async (fastify: FastifyInstance) => {
   fastify.get(
     '/:barcode',
     {
@@ -11,7 +11,7 @@ const barcodeRoutes: FastifyPluginCallback = (fastify: FastifyInstance) => {
         params: Joi.object({ barcode: Joi.string().required() }),
       },
     },
-    barcodeController.postBarcodeHandler,
+    barcodeController.getBarcodeHandler,
   );
 };
 

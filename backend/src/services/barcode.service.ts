@@ -25,11 +25,9 @@ export default class BarcodeService {
     this.axiosInstance = axios.create({
       baseURL: 'https://api.upcdatabase.org/',
     });
-    this.axiosInstance.interceptors.request.use((config) => {
-      // Add Authorization Header
-      config.headers.authorization = `Bearer ${process.env.BARCODE_API_KEY}`;
-      return config;
-    });
+    // Add Authorization Header
+    this.axiosInstance.defaults.headers.common['Authorization'] =
+      `Bearer ${process.env.BARCODE_API_KEY}`;
   }
 
   public async getBarcode(barcode: string) {
