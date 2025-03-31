@@ -4,15 +4,13 @@
     "module": "ESNext",
     "target": "ESNext",
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "incremental": true,
-    "noImplicitAny": false,
+    "noImplicitAny": true,
     "moduleResolution": "node",
-    "sourceMap": true,
+    "resolveJsonModule": true,
     "outDir": "./dist",
     "baseUrl": "./",
     "paths": {
-      "config/*": ["config/*"]
+      "@/*": ["src/*"],
     },
     "types": ["node"]
   },
