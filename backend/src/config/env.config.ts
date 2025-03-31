@@ -19,6 +19,8 @@ export default function loadConfig(): void {
     DATABASE_URL: Joi.string().required(),
     BARCODE_API_KEY: Joi.string().required(),
     AI_API_KEY: Joi.string().required(),
+    GOOGLE_API_KEY: Joi.string().required(),
+    CORPWATCH_API_KEY: Joi.string().required(),
   }).unknown(true);
 
   const { error } = schema.validate(process.env, { abortEarly: false });
