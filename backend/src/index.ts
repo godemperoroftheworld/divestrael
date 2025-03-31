@@ -2,9 +2,10 @@ import fastify, { FastifyInstance } from 'fastify';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 
-import jsonSchema from '@/schemas/json-schema.json';
+import schemas from '@/schemas';
 import loadConfig from '@/config/env.config';
 import { ERRORS } from '@/helpers/errors.helper';
+import routes from '@/routes';
 
 loadConfig();
 
@@ -23,8 +24,8 @@ function startServer() {
   server.register(cors);
   server.register(helmet);
 
-  // Set validation schema
-  server.addSchema({ $id: 'schema', ...jsonSchema });
+  // Set Routes
+  server.register(routes, { prefix: '/api' });
 
   // Set error handler
   server.setErrorHandler((error, _request, reply) => {
