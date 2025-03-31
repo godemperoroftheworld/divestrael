@@ -5,7 +5,6 @@ import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 
 import loadConfig from './config/env.config';
-import { utils } from './utils';
 
 loadConfig();
 
@@ -23,31 +22,10 @@ const startServer = async () => {
   server.register(cors);
   server.register(helmet);
 
-  // Register routes
-
   // Set error handler
   server.setErrorHandler((error, _request, reply) => {
     server.log.error(error);
     reply.status(500).send({ error: 'Something went wrong' });
-  });
-
-  // Health check route
-  server.get('/health', async (_request, reply) => {
-    try {
-      await utils.healthCheck();
-      reply.status(200).send({
-        message: 'Health check endpoint success.',
-      });
-    } catch (_e) {
-      reply.status(500).send({
-        message: 'Health check endpoint failed.',
-      });
-    }
-  });
-
-  // Root route
-  server.get('/', (request, reply) => {
-    reply.status(200).send({ message: 'Hello from fastify boilerplate!' });
   });
 
   // Graceful shutdown
