@@ -35,7 +35,8 @@ export default class KGService {
         limit: 1,
       },
     });
-    return result.data.itemListElement[0].result.image?.contentUrl;
+    const resultItem = result.data.itemListElement[0]?.result;
+    return resultItem?.image?.contentUrl;
   }
 
   public async getDescription(query: string): Promise<string> {
@@ -45,7 +46,7 @@ export default class KGService {
         limit: 1,
       },
     });
-    const resultItem = result.data.itemListElement[0].result;
-    return resultItem.detailedDescription?.articleBody || resultItem.description || query;
+    const resultItem = result.data.itemListElement[0]?.result;
+    return resultItem?.detailedDescription?.articleBody || resultItem?.description || query;
   }
 }
