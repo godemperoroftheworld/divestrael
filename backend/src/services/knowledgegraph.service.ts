@@ -2,16 +2,16 @@ import axios, { AxiosInstance } from 'axios';
 import * as process from 'node:process';
 
 // Service to get image from a query with google knowledge graph
-export default class LogoService {
-  private static _instance: LogoService;
+export default class KGService {
+  private static _instance: KGService;
 
   private axiosInstance: AxiosInstance;
 
   public static get instance() {
-    if (!LogoService._instance) {
-      LogoService._instance = new LogoService();
+    if (!KGService._instance) {
+      KGService._instance = new KGService();
     }
-    return LogoService._instance;
+    return KGService._instance;
   }
 
   private constructor() {
@@ -36,5 +36,16 @@ export default class LogoService {
       },
     });
     return result.data.itemListElement[0].result.image?.contentUrl;
+  }
+
+  public async getDescription(query: string): Promise<string> {
+    const result = await this.axiosInstance.get('/', {
+      params: {
+        query,
+        limit: 1,
+      },
+    });
+    const resultItem = result.data.itemListElement[0].result;
+    return resultItem.detailedDescription?.articleBody || resultItem.description || query;
   }
 }
