@@ -1,11 +1,14 @@
 import axios, { AxiosInstance } from 'axios';
 
+import prisma from '@/repositories/prisma.repository';
+import AIService from '@/services/ai.service';
+import CorpwatchService from '@/services/corpwatch.service';
+import CompanyService from '@/services/company.service';
+
 interface BarcodeApiResult {
   title: string;
-  alias: string;
   brand: string;
-  manufacturer: string;
-  barcode: '0111222333446';
+  barcode: string;
 }
 
 // Service to get barcode information
@@ -23,15 +26,71 @@ export default class BarcodeService {
 
   private constructor() {
     this.axiosInstance = axios.create({
-      baseURL: 'https://api.upcdatabase.org/',
+      baseURL: 'https://api.upcitemdb.com/prod/trial',
     });
     // Add Authorization Header
     this.axiosInstance.defaults.headers.common['Authorization'] =
       `Bearer ${process.env.BARCODE_API_KEY}`;
   }
 
-  public async getBarcode(barcode: string) {
-    const result = await this.axiosInstance.get<BarcodeApiResult>(`product/${barcode}`);
-    return result.data;
+  public async getBarcode(barcode: string): Promise<BarcodeApiResult> {
+    // First try DB
+    const barcodeResult = await prisma.barcode.findUnique({
+      where: { code: barcode },
+      include: { product: { include: { brand: true } } },
+    });
+    if (barcodeResult) {
+      return {
+        title: barcodeResult.product.name,
+        brand: barcodeResult.product.brand.name,
+        barcode,
+      };
+    }
+    // Then query API
+    const result = await this.axiosInstance
+      .get<{ items: BarcodeApiResult[] }>('lookup', {
+        params: {
+          upc: barcode,
+        },
+      })
+      .then((r) => r.data.items[0]);
+    // Get or create company
+    const { name, country } = await AIService.instance.getCompany(result.title, result.brand);
+    let company = await CompanyService.instance.searchCompany(name);
+    if (!company) {
+      company = await CompanyService.instance.createCompany({
+        name,
+        country,
+        reasons: [],
+      });
+    }
+    // Get or create brand
+    let brand = await prisma.brand.findUnique({ where: { name: result.brand } });
+    if (!brand) {
+      brand = await prisma.brand.create({ data: { name: result.brand, companyId: company.id } });
+    }
+    // Save to DB
+    await prisma.barcode.create({
+      data: {
+        code: barcode,
+        product: {
+          connectOrCreate: {
+            where: {
+              name: result.title,
+            },
+            create: {
+              name: result.title,
+              brand: {
+                connect: {
+                  id: brand.id,
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+    // Return result
+    return result;
   }
 }

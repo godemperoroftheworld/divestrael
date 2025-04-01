@@ -5,7 +5,7 @@ import { Country } from '@prisma/client';
 
 export interface CorpwatchCompanyResponse {
   cw_id: string;
-  cik: string;
+  cik: number;
   company_name: string;
   irs_number: number | null;
   sic_code: number | null;
@@ -67,11 +67,15 @@ export default class CorpwatchService {
     return undefined;
   }
 
-  private async getCompany(id: string) {
+  private async getCompany(id: string): Promise<CorpwatchCompanyResponse> {
     const {
       data: { result },
     } = await this.axiosInstance.get(`/companies/${id}.json`);
-    return result['companies'][id] as CorpwatchCompanyResponse;
+    const response = result['companies'][id];
+    return {
+      ...response,
+      cik: isNaN(response.cik) ? null : Number(response.cik),
+    };
   }
 
   public async findTopCompany(company: string) {
