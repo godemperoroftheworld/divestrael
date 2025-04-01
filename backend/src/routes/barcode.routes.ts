@@ -1,9 +1,9 @@
-import { FastifyInstance, FastifyPluginCallback } from 'fastify';
+import { FastifyPluginCallback } from 'fastify';
 
 import barcodeController from '@/controllers/barcode.controller';
 import { barcodeGetParams, barcodeResponse } from '@/schemas/barcode.schema';
 
-const barcodeRoutes: FastifyPluginCallback = async (fastify: FastifyInstance) => {
+const barcodeRoutes: FastifyPluginCallback = async (fastify) => {
   fastify.get(
     '/:barcode',
     {
