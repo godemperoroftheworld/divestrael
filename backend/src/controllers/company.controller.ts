@@ -63,11 +63,11 @@ const postCompaniesHandler: RouteHandler<{
   Reply: CompanyResponse[];
 }> = async (req, res) => {
   const companies = req.body;
-  const response: CompanyResponse[] = [];
+  const promises = [];
   for (const company of companies) {
-    const result = await postCompanyInternal(company);
-    response.push(result);
+    promises.push(postCompanyInternal(company));
   }
+  const response: CompanyResponse[] = await Promise.all(promises);
   res.status(HttpStatusCode.Ok).send(response);
 };
 
@@ -92,7 +92,7 @@ const getCompanyHandler: RouteHandler<{
     image: image ?? undefined,
     reasons: reasons ?? undefined,
     source: source ?? undefined,
-    country
+    country,
   });
 };
 
