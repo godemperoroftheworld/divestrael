@@ -1,6 +1,7 @@
 import axios, { AxiosInstance } from 'axios';
 import * as process from 'node:process';
 import { countBy, maxBy } from 'lodash';
+import { Country } from '@prisma/client';
 
 export interface CorpwatchCompanyResponse {
   cw_id: string;
@@ -13,7 +14,7 @@ export interface CorpwatchCompanyResponse {
   sector_name: string | null;
   source_type: string;
   raw_address: string;
-  country_code: string;
+  country_code: Country;
   subdiv_code: string;
   top_parent_id: string;
   num_parents: number;

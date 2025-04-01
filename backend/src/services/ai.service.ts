@@ -29,7 +29,7 @@ export default class AIService {
   }
 
   public async getBrands(company: string) {
-    const prompt = `I am going to give you some company information. I want you to give me all of the brands (in english) that belong to that company. The list should be exhaustive. Company: ${company}`;
+    const prompt = `I am going to give you some company information. I want you to give me all of the brands (in english) that belong to that company. The list should be exhaustive. If you don't know the company, or don't know any subsidiaries for the company, return an empty list. Company: ${company}`;
     const result = await this.axiosInstance.post('chat/completions', {
       model: 'google/gemini-2.0-flash-001',
       messages: [
