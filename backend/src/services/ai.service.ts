@@ -29,49 +29,49 @@ export default class AIService {
   }
 
   public async getBrands(company: string) {
-    const prompt = `I am going to give you some company information. I want you to give me the brands that belong to that company. Company: ${company}`;
-    return this.axiosInstance
-      .post('chat/completions', {
-        model: 'openai/gpt-4o-mini',
-        messages: [
-          {
-            role: 'user',
-            content: prompt,
-          },
-        ],
-        provider: {
-          require_parameters: true,
+    const prompt = `I am going to give you some company information. I want you to give me all of the brands (in english) that belong to that company. The list should be exhaustive. Company: ${company}`;
+    const result = await this.axiosInstance.post('chat/completions', {
+      model: 'google/gemini-2.0-flash-001',
+      messages: [
+        {
+          role: 'user',
+          content: prompt,
         },
-        response_format: {
-          type: 'json_schema',
-          json_schema: {
-            name: 'brands',
-            strict: true,
-            schema: {
-              type: 'object',
-              properties: {
-                names: {
-                  type: 'array',
-                  description: 'The brand names',
-                  items: {
-                    type: 'string',
-                  },
+      ],
+      provider: {
+        require_parameters: true,
+      },
+      response_format: {
+        type: 'json_schema',
+        json_schema: {
+          name: 'brands',
+          strict: true,
+          schema: {
+            type: 'object',
+            properties: {
+              names: {
+                type: 'array',
+                description: 'The brand names',
+                items: {
+                  type: 'string',
                 },
               },
-              required: ['names'],
-              additionalProperties: false,
             },
+            required: ['names'],
+            additionalProperties: false,
           },
         },
-      })
-      .then((r) => JSON.parse(r.data.choices[0].message.content) as BrandsApiResult);
+      },
+    });
+    const { names } = JSON.parse(result.data.choices[0].message.content) as BrandsApiResult;
+    return names.map((name) => name.trim());
   }
 
   public async getCompany(product: string, brand?: string) {
     const prompt = `I am going to give you some product information. I want you to give me the company name that owns that brand/product. Product: ${product}${brand ? `, Brand: ${brand}` : ''}`;
     return this.axiosInstance
       .post('chat/completions', {
-        model: 'openai/gpt-4o-mini',
+        model: 'google/gemini-2.0-flash-001',
         messages: [
           {
             role: 'user',

@@ -1,7 +1,7 @@
 import z from 'zod';
 
 export const barcodeGetParams = z.object({
-  barcode: z.string(),
+  barcode: z.string().nonempty(),
 });
 export type BarcodeGetParams = z.infer<typeof barcodeGetParams>;
 
