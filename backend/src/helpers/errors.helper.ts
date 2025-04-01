@@ -14,14 +14,8 @@ export class AppError extends Error {
 }
 
 export const ERRORS = {
-  invalidToken: new AppError('Token is invalid.', 401),
-  userExists: new AppError('User already exists', 409),
-  userNotExists: new AppError('User not exists', 404),
-  userCredError: new AppError('Invalid credential', 401),
-  tokenError: new AppError('Invalid Token', 401),
-  invalidRequest: new AppError('Invalid Token', 400),
+  companyExists: new AppError('Company already exists', 409),
   internalServerError: new AppError('Internal Server Error', 500),
-  unauthorizedAccess: new AppError('Unauthorized access', 401),
 };
 
 export function handleServerError(reply: FastifyReply, error: Error) {
