@@ -1,14 +1,27 @@
 import axios, { AxiosInstance } from 'axios';
+import { Barcode, Company, Product } from '@prisma/client';
+import { Brand } from '.prisma/client';
 
 import prisma from '@/repositories/prisma.repository';
 import AIService from '@/services/ai.service';
-import CorpwatchService from '@/services/corpwatch.service';
 import CompanyService from '@/services/company.service';
 
 interface BarcodeApiResult {
   title: string;
   brand: string;
   barcode: string;
+}
+
+interface BrandWithCompany extends Brand {
+  company: Company;
+}
+
+interface ProductWithBrand extends Product {
+  brand: BrandWithCompany;
+}
+
+export interface BarcodeWithData extends Barcode {
+  product: ProductWithBrand;
 }
 
 // Service to get barcode information
@@ -33,18 +46,14 @@ export default class BarcodeService {
       `Bearer ${process.env.BARCODE_API_KEY}`;
   }
 
-  public async getBarcode(barcode: string): Promise<BarcodeApiResult> {
+  public async getBarcode(barcode: string): Promise<BarcodeWithData> {
     // First try DB
     const barcodeResult = await prisma.barcode.findUnique({
       where: { code: barcode },
-      include: { product: { include: { brand: true } } },
+      include: { product: { include: { brand: { include: { company: true } } } } },
     });
     if (barcodeResult) {
-      return {
-        title: barcodeResult.product.name,
-        brand: barcodeResult.product.brand.name,
-        barcode,
-      };
+      return barcodeResult;
     }
     // Then query API
     const result = await this.axiosInstance
@@ -70,7 +79,7 @@ export default class BarcodeService {
       brand = await prisma.brand.create({ data: { name: result.brand, companyId: company.id } });
     }
     // Save to DB
-    await prisma.barcode.create({
+    return prisma.barcode.create({
       data: {
         code: barcode,
         product: {
@@ -89,8 +98,17 @@ export default class BarcodeService {
           },
         },
       },
+      include: {
+        product: {
+          include: {
+            brand: {
+              include: {
+                company: true,
+              },
+            },
+          },
+        },
+      },
     });
-    // Return result
-    return result;
   }
 }
