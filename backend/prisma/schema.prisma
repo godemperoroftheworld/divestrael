@@ -22,8 +22,7 @@ model Barcode {
 
 model Product {
   id String @id @default(auto()) @map("_id") @db.ObjectId
-  name String
-  brandName String?
+  name String @unique
   brand Brand @relation(fields: [brandId], references: [id])
   brandId String @db.ObjectId
   barcode Barcode[]
@@ -31,10 +30,10 @@ model Product {
 
 model Brand {
   id String @id @default(auto()) @map("_id") @db.ObjectId
-  name String
+  name String @unique
   products Product[]
-  company Company @relation(fields: [companyId], references: [id])
-  companyId String @db.ObjectId
+  company Company? @relation(fields: [companyId], references: [id])
+  companyId String? @db.ObjectId
 }
 
 model Company {

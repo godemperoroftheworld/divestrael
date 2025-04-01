@@ -3,6 +3,7 @@ import { Country } from '@prisma/client';
 
 interface CompanyApiResult {
   name: string;
+  country: Country;
 }
 interface BrandsApiResult {
   names: string[];
@@ -72,7 +73,7 @@ export default class AIService {
   }
 
   public async getCompany(product: string, brand?: string) {
-    const prompt = `I am going to give you some product information. I want you to give me the company name that owns that brand/product. Product: ${product}${brand ? `, Brand: ${brand}` : ''}`;
+    const prompt = `I am going to give you some product information. I want you to give me the country code and name of the company that owns that brand/product. Product: ${product}${brand ? `, Brand: ${brand}` : ''}`;
     return this.axiosInstance
       .post('chat/completions', {
         model: 'google/gemini-2.0-flash-001',
@@ -97,8 +98,12 @@ export default class AIService {
                   type: 'string',
                   description: 'The company name',
                 },
+                country: {
+                  type: 'string',
+                  description: 'The country the company is from, as a 2 letter code',
+                },
               },
-              required: ['name'],
+              required: ['name', 'country'],
               additionalProperties: false,
             },
           },

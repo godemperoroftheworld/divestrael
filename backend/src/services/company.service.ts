@@ -2,11 +2,15 @@ import { Company, Country } from '@prisma/client';
 import { Brand } from '.prisma/client';
 
 import prisma from '@/repositories/prisma.repository';
-import { CompanyPostBody, CompanyResponse } from '@/schemas/company.schema';
+import { CompanyPostBody } from '@/schemas/company.schema';
 import CorpwatchService from '@/services/corpwatch.service';
 import { ERRORS } from '@/helpers/errors.helper';
 import KGService from '@/services/knowledgegraph.service';
 import AIService from '@/services/ai.service';
+
+export interface CompanyWithBrands extends Company {
+  brands: Brand[];
+}
 
 export default class CompanyService {
   private static _instance: CompanyService;
@@ -21,39 +25,64 @@ export default class CompanyService {
     return CompanyService._instance;
   }
 
-  private static mapCompany(company: Company & { brands: Brand[] }): CompanyResponse {
-    const { name, description, image, source, reasons, brands, country } = company;
-    return {
-      name,
-      description,
-      brands: brands.map((brand) => brand.name),
-      image: image ?? undefined,
-      reasons: reasons ?? undefined,
-      source: source ?? undefined,
-      country,
-    };
-  }
-
-  async getCompany(id: string): Promise<CompanyResponse> {
-    const result = await this.companyRepository.findUniqueOrThrow({
+  async getCompany(id: string): Promise<CompanyWithBrands> {
+    return this.companyRepository.findUniqueOrThrow({
       where: { id },
       include: { brands: true },
     });
-    return CompanyService.mapCompany(result);
   }
 
-  async findCompanyByCIK(cik: number) {
-    const result: Company = this.companyRepository.findUnique({
+  async findCompanyByCIK(cik: number): Promise<CompanyWithBrands | null> {
+    return this.companyRepository.findUnique({
       where: { cik },
       include: { brands: true },
     });
-    if (result) {
-      return CompanyService.mapCompany(result);
-    }
-    return null;
   }
 
-  async createCompany(data: CompanyPostBody): Promise<CompanyResponse> {
+  async searchCompany(query: string) {
+    return (
+      await this.companyRepository.aggregateRaw({
+        pipeline: [
+          {
+            $search: {
+              index: 'search',
+              text: {
+                query,
+                path: ['name'],
+              },
+            },
+          },
+          {
+            $limit: 1,
+          },
+          {
+            $lookup: {
+              from: 'brands',
+              localField: '_id',
+              foreignField: 'companyId',
+              as: 'brands',
+            },
+          },
+          {
+            $project: {
+              _id: 0,
+              name: 1,
+              cik: 1,
+              cw_id: 1,
+              description: 1,
+              country: 1,
+              image: 1,
+              reasons: 1,
+              source: 1,
+              brands: 1,
+            },
+          },
+        ],
+      })
+    )[0] as CompanyWithBrands | undefined;
+  }
+
+  async createCompany(data: CompanyPostBody): Promise<CompanyWithBrands> {
     const { name, reasons, source, country } = data;
     const company = await CorpwatchService.instance.findTopCompany(name);
     const matchingCompany = company
@@ -88,14 +117,9 @@ export default class CompanyService {
         })),
       });
     }
-    return {
-      name,
-      description,
-      image,
-      reasons,
-      source,
-      brands: brandNames,
-      country: result.country,
-    };
+    return prisma.company.findUniqueOrThrow({
+      where: { id: result.id },
+      include: { brands: true },
+    });
   }
 }

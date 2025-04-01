@@ -1,4 +1,5 @@
 import z from 'zod';
+import { BoycottReason } from '@prisma/client';
 
 export const barcodeGetParams = z.object({
   barcode: z.string().nonempty(),
@@ -11,5 +12,8 @@ export const barcodeResponse = z.object({
   brand: z.string().optional(),
   company: z.string(),
   image: z.string().optional(),
+  boycott: z.boolean(),
+  reasons: z.array(z.nativeEnum(BoycottReason)).optional(),
+  source: z.string().optional(),
 });
 export type BarcodeResponse = z.infer<typeof barcodeResponse>;

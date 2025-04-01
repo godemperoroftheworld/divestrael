@@ -1,15 +1,22 @@
 import { HttpStatusCode } from 'axios';
-import { Company, Country } from '@prisma/client';
-import { Brand } from '.prisma/client';
 
 import { RouteHandler } from '@/helpers/route.helper';
 import { CompanyGetParams, CompanyPostBody, CompanyResponse } from '@/schemas/company.schema';
-import AIService from '@/services/ai.service';
-import prisma from '@/repositories/prisma.repository';
-import KGService from '@/services/knowledgegraph.service';
-import CorpwatchService from '@/services/corpwatch.service';
 import { ERRORS } from '@/helpers/errors.helper';
-import CompanyService from '@/services/company.service';
+import CompanyService, { CompanyWithBrands } from '@/services/company.service';
+
+function mapCompanyResponse(company: CompanyWithBrands): CompanyResponse {
+  const { name, description, image, source, reasons, brands, country } = company;
+  return {
+    name,
+    description,
+    brands: brands.map((brand) => brand.name),
+    image: image ?? undefined,
+    reasons: reasons ?? undefined,
+    source: source ?? undefined,
+    country,
+  };
+}
 
 const postCompanyHandler: RouteHandler<{
   Body: CompanyPostBody;
@@ -17,7 +24,7 @@ const postCompanyHandler: RouteHandler<{
 }> = async (req, res) => {
   const company = req.body;
   const result = await CompanyService.instance.createCompany(company);
-  res.status(HttpStatusCode.Ok).send(result);
+  res.status(HttpStatusCode.Ok).send(mapCompanyResponse(result));
 };
 
 const postCompaniesHandler: RouteHandler<{
@@ -25,9 +32,9 @@ const postCompaniesHandler: RouteHandler<{
   Reply: CompanyResponse[];
 }> = async (req, res) => {
   const companies = req.body;
-  const promises: Promise<CompanyResponse | null>[] = [];
+  const promises: Promise<CompanyWithBrands | null>[] = [];
   companies.forEach((company, index) => {
-    const promise = new Promise<CompanyResponse | null>((resolve, reject) => {
+    const promise = new Promise<CompanyWithBrands | null>((resolve, reject) => {
       setTimeout(() => {
         CompanyService.instance
           .createCompany(company)
@@ -45,7 +52,9 @@ const postCompaniesHandler: RouteHandler<{
     });
     promises.push(promise);
   });
-  const response: CompanyResponse[] = (await Promise.all(promises)).filter((v) => !!v);
+  const response: CompanyResponse[] = (await Promise.all(promises))
+    .filter((v) => !!v)
+    .map((v) => mapCompanyResponse(v));
   res.status(HttpStatusCode.Ok).send(response);
 };
 
@@ -55,7 +64,7 @@ const getCompanyHandler: RouteHandler<{
 }> = async (req, res) => {
   const { id } = req.params;
   const result = await CompanyService.instance.getCompany(id);
-  res.status(HttpStatusCode.Ok).send(result);
+  res.status(HttpStatusCode.Ok).send(mapCompanyResponse(result));
 };
 
 export default {
