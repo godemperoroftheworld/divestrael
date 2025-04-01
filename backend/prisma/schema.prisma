@@ -39,7 +39,7 @@ model Brand {
 
 model Company {
   id String @id @default(auto()) @map("_id") @db.ObjectId
-  cik String? @unique
+  cik Int? @unique
   cw_id String? @unique
   name String @unique
   description String

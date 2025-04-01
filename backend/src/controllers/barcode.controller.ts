@@ -15,6 +15,7 @@ const getBarcodeHandler: RouteHandler<{
   const product = await BarcodeService.instance.getBarcode(barcode);
   const { name } = await AIService.instance.getCompany(product.title, product.brand);
   const parentCompany = await CorpwatchService.instance.findTopCompany(name);
+
   const company = parentCompany?.company_name ?? name;
   const image = await KGService.instance.getImage(company);
   res.status(HttpStatusCode.Ok).send({
