@@ -11,5 +11,14 @@ export const companyResponse = z.object({
 });
 export type CompanyResponse = z.infer<typeof companyResponse>;
 
-export const companyPostBody = companyResponse.omit({ brands: true, image: true });
+export const companyPostBody = companyResponse.omit({
+  brands: true,
+  image: true,
+  description: true,
+});
 export type CompanyPostBody = z.infer<typeof companyPostBody>;
+
+export const companyGetParams = z.object({
+  id: z.string().nonempty(),
+});
+export type CompanyGetParams = z.infer<typeof companyGetParams>;

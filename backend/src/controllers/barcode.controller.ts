@@ -5,7 +5,7 @@ import AIService from '@/services/ai.service';
 import CorpwatchService from '@/services/corpwatch.service';
 import { BarcodeGetParams, BarcodeResponse } from '@/schemas/barcode.schema';
 import { RouteHandler } from '@/helpers/route.helper';
-import LogoService from '@/services/logo.service';
+import KGService from '@/services/knowledgegraph.service';
 
 const getBarcodeHandler: RouteHandler<{
   Params: BarcodeGetParams;
@@ -16,7 +16,7 @@ const getBarcodeHandler: RouteHandler<{
   const { name } = await AIService.instance.getCompany(product.title, product.brand);
   const parentCompany = await CorpwatchService.instance.findTopCompany(name);
   const company = parentCompany?.company_name ?? name;
-  const image = await LogoService.instance.getImage(company);
+  const image = await KGService.instance.getImage(company);
   res.status(HttpStatusCode.Ok).send({
     barcode,
     title: product.title,

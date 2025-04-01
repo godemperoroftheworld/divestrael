@@ -1,6 +1,7 @@
 import { FastifyReply } from 'fastify';
 import { AxiosError, HttpStatusCode } from 'axios';
 import { ZodError } from 'zod';
+import { InvalidSchemaError } from 'fastify-type-provider-zod';
 
 export class AppError extends Error {
   statusCode: number;
@@ -28,6 +29,10 @@ export function handleServerError(reply: FastifyReply, error: Error) {
     return reply
       .status(HttpStatusCode.BadRequest)
       .send({ message: 'Validation error', issues: error.format() });
+  } else if ('validation' in error) {
+    return reply
+      .status(HttpStatusCode.BadRequest)
+      .send({ message: 'Validation error', issues: error.validation });
   } else if (error instanceof AppError) {
     return reply.status(error.statusCode).send({ message: error.message });
   } else if (error instanceof AxiosError) {
