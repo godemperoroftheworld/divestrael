@@ -1,21 +1,15 @@
 import { HttpStatusCode } from 'axios';
 
-import BarcodeService from '@/services/barcode.service';
-import { BarcodeGetParams, BarcodeResponse } from '@/schemas/barcode.schema';
+import BarcodeService, { BarcodeWithData } from '@/services/barcode.service';
+import { BarcodeBody, BarcodeParams, BarcodeResponse } from '@/schemas/barcode.schema';
 import { RouteHandler } from '@/helpers/route.helper';
 
-const getBarcodeHandler: RouteHandler<{
-  Params: BarcodeGetParams;
-  Reply: BarcodeResponse;
-}> = async (req, res) => {
-  const { barcode } = req.params;
-  // Get barcode information
-  const result = await BarcodeService.instance.getBarcode(barcode);
-  const { name: title, brand: productBrand } = result.product;
+function mapBarcodeResponse(data: BarcodeWithData): BarcodeResponse {
+  const { name: title, brand: productBrand } = data.product;
   const { name: brand, company: brandCompany } = productBrand;
   const { name: company, image, reasons, source } = brandCompany;
-  res.status(HttpStatusCode.Ok).send({
-    barcode,
+  return {
+    barcode: data.code,
     title,
     brand,
     company,
@@ -23,9 +17,34 @@ const getBarcodeHandler: RouteHandler<{
     boycott: !!reasons.length,
     image: image ?? undefined,
     source: source ?? undefined,
-  });
+  };
+}
+
+const getBarcodeHandler: RouteHandler<{
+  Params: BarcodeParams;
+  Reply: BarcodeResponse;
+}> = async (req, res) => {
+  const { barcode } = req.params;
+  const result = await BarcodeService.instance.getBarcode(barcode);
+  res.status(HttpStatusCode.Ok).send(mapBarcodeResponse(result));
+};
+
+const putBarcodeHandler: RouteHandler<{
+  Params: BarcodeParams;
+  Body: BarcodeBody;
+  Reply: BarcodeResponse;
+}> = async (req, res) => {
+  const { barcode } = req.params;
+  const { title, brand } = req.body;
+  const result = await BarcodeService.instance.updateBarcode(
+    barcode,
+    { name: title },
+    { name: brand },
+  );
+  res.status(HttpStatusCode.Ok).send(mapBarcodeResponse(result));
 };
 
 export default {
   getBarcodeHandler,
+  putBarcodeHandler,
 };
