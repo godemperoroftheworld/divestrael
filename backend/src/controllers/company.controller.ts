@@ -1,5 +1,6 @@
 import { HttpStatusCode } from 'axios';
-import { Country } from '@prisma/client';
+import { Company, Country } from '@prisma/client';
+import { Brand } from '.prisma/client';
 
 import { RouteHandler } from '@/helpers/route.helper';
 import { CompanyGetParams, CompanyPostBody, CompanyResponse } from '@/schemas/company.schema';
@@ -7,6 +8,20 @@ import AIService from '@/services/ai.service';
 import prisma from '@/repositories/prisma.repository';
 import KGService from '@/services/knowledgegraph.service';
 import CorpwatchService from '@/services/corpwatch.service';
+import { ERRORS } from '@/helpers/errors.helper';
+
+function companyToResponse(company: Company & { brands: Brand[] }): CompanyResponse {
+  const { name, description, image, source, reasons, brands, country } = company;
+  return {
+    name,
+    description,
+    brands: brands.map((brand) => brand.name),
+    image: image ?? undefined,
+    reasons: reasons ?? undefined,
+    source: source ?? undefined,
+    country,
+  };
+}
 
 async function postCompanyInternal({
   name,
@@ -14,10 +29,20 @@ async function postCompanyInternal({
   source,
   country,
 }: CompanyPostBody): Promise<CompanyResponse> {
-  const brandNames = await AIService.instance.getBrands(name);
-  const image = await KGService.instance.getImage(name);
-  const description = await KGService.instance.getDescription(name);
   const company = await CorpwatchService.instance.findTopCompany(name);
+  const matchingCompany = company
+    ? await prisma.company.findFirst({
+        where: { OR: [{ cw_id: company.cw_id }, { name }] },
+        include: { brands: true },
+      })
+    : undefined;
+  if (matchingCompany) {
+    throw ERRORS.companyExists;
+  }
+
+  const description = await KGService.instance.getDescription(name);
+  const brandNames = await AIService.instance.getBrands(name, country);
+  const image = await KGService.instance.getImage(name);
   const result = await prisma.company.create({
     data: {
       name,
@@ -63,11 +88,26 @@ const postCompaniesHandler: RouteHandler<{
   Reply: CompanyResponse[];
 }> = async (req, res) => {
   const companies = req.body;
-  const promises = [];
-  for (const company of companies) {
-    promises.push(postCompanyInternal(company));
-  }
-  const response: CompanyResponse[] = await Promise.all(promises);
+  const promises: Promise<CompanyResponse | null>[] = [];
+  companies.forEach((company, index) => {
+    const promise = new Promise<CompanyResponse | null>((resolve, reject) => {
+      setTimeout(() => {
+        postCompanyInternal(company)
+          .then(resolve)
+          .catch((err) => {
+            if (err === ERRORS.companyExists) {
+              resolve(null);
+            } else {
+              setTimeout(() => {
+                postCompanyInternal(company).then(resolve).catch(reject);
+              }, 2000);
+            }
+          });
+      }, 250 * index);
+    });
+    promises.push(promise);
+  });
+  const response: CompanyResponse[] = (await Promise.all(promises)).filter((v) => !!v);
   res.status(HttpStatusCode.Ok).send(response);
 };
 
@@ -84,16 +124,7 @@ const getCompanyHandler: RouteHandler<{
       brands: true,
     },
   });
-  const { name, description, image, source, reasons, brands, country } = company;
-  res.status(HttpStatusCode.Ok).send({
-    name,
-    description,
-    brands: brands.map((brand) => brand.name),
-    image: image ?? undefined,
-    reasons: reasons ?? undefined,
-    source: source ?? undefined,
-    country,
-  });
+  res.status(HttpStatusCode.Ok).send(companyToResponse(company));
 };
 
 export default {
