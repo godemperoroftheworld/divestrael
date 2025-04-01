@@ -46,6 +46,36 @@ export default class BarcodeService {
       `Bearer ${process.env.BARCODE_API_KEY}`;
   }
 
+  public async updateBarcode(
+    id: string,
+    product: Partial<Product>,
+    brand: Partial<Brand>,
+  ): Promise<BarcodeWithData> {
+    const { productId } = await prisma.barcode.findUniqueOrThrow({ where: { id } });
+    const { brandId } = await prisma.product.update({
+      where: { id: productId },
+      data: product,
+    });
+    await prisma.brand.update({
+      where: { id: brandId },
+      data: brand,
+    });
+    return prisma.barcode.findUniqueOrThrow({
+      where: { id },
+      include: {
+        product: {
+          include: {
+            brand: {
+              include: {
+                company: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
   public async getBarcode(barcode: string): Promise<BarcodeWithData> {
     // First try DB
     const barcodeResult = await prisma.barcode.findUnique({

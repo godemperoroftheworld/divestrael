@@ -1,15 +1,22 @@
 import { FastifyPluginCallback } from 'fastify';
 
 import barcodeController from '@/controllers/barcode.controller';
-import { barcodeGetParams, barcodeResponse } from '@/schemas/barcode.schema';
+import { barcodeBody, barcodeParams, barcodeResponse } from '@/schemas/barcode.schema';
 
 const barcodeRoutes: FastifyPluginCallback = async (fastify) => {
   fastify.get(
     '/:barcode',
     {
-      schema: { params: barcodeGetParams, response: { 200: barcodeResponse } },
+      schema: { params: barcodeParams, response: { 200: barcodeResponse } },
     },
     barcodeController.getBarcodeHandler,
+  );
+  fastify.put(
+    '/:barcode',
+    {
+      schema: { params: barcodeParams, body: barcodeBody, response: { 200: barcodeResponse } },
+    },
+    barcodeController.putBarcodeHandler,
   );
 };
 
