@@ -1,10 +1,16 @@
 import z from 'zod';
 import { BoycottReason } from '@prisma/client';
 
-export const barcodeGetParams = z.object({
+export const barcodeParams = z.object({
   barcode: z.string().nonempty(),
 });
-export type BarcodeGetParams = z.infer<typeof barcodeGetParams>;
+export type BarcodeParams = z.infer<typeof barcodeParams>;
+
+export const barcodeBody = z.object({
+  title: z.string().optional(),
+  brand: z.string().optional(),
+});
+export type BarcodeBody = z.infer<typeof barcodeBody>;
 
 export const barcodeResponse = z.object({
   barcode: z.string(),
