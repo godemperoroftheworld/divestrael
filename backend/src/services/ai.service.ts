@@ -1,4 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
+import { Country } from '@prisma/client';
 
 interface CompanyApiResult {
   name: string;
@@ -28,8 +29,11 @@ export default class AIService {
       `Bearer ${process.env.AI_API_KEY}`;
   }
 
-  public async getBrands(company: string) {
-    const prompt = `I am going to give you some company information. I want you to give me all of the brands (in english) that belong to that company. The list should be exhaustive. If you don't know the company, or don't know any subsidiaries for the company, return an empty list. Company: ${company}`;
+  public async getBrands(company: string, country?: Country) {
+    let prompt = `I am going to give you some company information. I want you to give me all of the brands (in english) that belong to that company. The list should be exhaustive. If you don't know the company, or don't know any subsidiaries for the company, return an empty list. Company: ${company}`;
+    if (country) {
+      prompt = `${prompt}, Country: ${country}`;
+    }
     const result = await this.axiosInstance.post('chat/completions', {
       model: 'google/gemini-2.0-flash-001',
       messages: [
