@@ -2,7 +2,7 @@ import { HttpStatusCode } from 'axios';
 
 import BarcodeService from '@/services/barcode.service';
 import AIService from '@/services/ai.service';
-import CompanyService from '@/services/company.service';
+import CorpwatchService from '@/services/corpwatch.service';
 import { BarcodeGetParams, BarcodeResponse } from '@/schemas/barcode.schema';
 import { RouteHandler } from '@/helpers/route.helper';
 import LogoService from '@/services/logo.service';
@@ -14,7 +14,7 @@ const getBarcodeHandler: RouteHandler<{
   const { barcode } = req.params;
   const product = await BarcodeService.instance.getBarcode(barcode);
   const { name } = await AIService.instance.getCompany(product.title, product.brand);
-  const parentCompany = await CompanyService.instance.findTopCompany(name);
+  const parentCompany = await CorpwatchService.instance.findTopCompany(name);
   const company = parentCompany?.company_name ?? name;
   const image = await LogoService.instance.getImage(company);
   res.status(HttpStatusCode.Ok).send({

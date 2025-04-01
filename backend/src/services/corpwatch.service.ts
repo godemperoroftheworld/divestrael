@@ -1,8 +1,8 @@
 import axios, { AxiosInstance } from 'axios';
 import * as process from 'node:process';
-import { countBy, max, maxBy, uniq } from 'lodash';
+import { countBy, maxBy } from 'lodash';
 
-export interface Company {
+export interface CorpwatchCompanyResponse {
   cw_id: string;
   cik: string;
   company_name: string;
@@ -23,16 +23,16 @@ export interface Company {
 }
 
 // Service to get image from a query with google knowledge graph
-export default class CompanyService {
-  private static _instance: CompanyService;
+export default class CorpwatchService {
+  private static _instance: CorpwatchService;
 
   private axiosInstance: AxiosInstance;
 
   public static get instance() {
-    if (!CompanyService._instance) {
-      CompanyService._instance = new CompanyService();
+    if (!CorpwatchService._instance) {
+      CorpwatchService._instance = new CorpwatchService();
     }
-    return CompanyService._instance;
+    return CorpwatchService._instance;
   }
 
   private constructor() {
@@ -58,7 +58,7 @@ export default class CompanyService {
       },
     });
     const { companies } = result;
-    const companyValues: Company[] = Object.values(companies ?? {});
+    const companyValues: CorpwatchCompanyResponse[] = Object.values(companies ?? {});
     if (companyValues.length) {
       const companyParents = countBy(companyValues, 'top_parent_id');
       return maxBy(Object.keys(companyParents), (key) => companyParents[key]);
@@ -70,7 +70,7 @@ export default class CompanyService {
     const {
       data: { result },
     } = await this.axiosInstance.get(`/companies/${id}.json`);
-    return result['companies'][id] as Company;
+    return result['companies'][id] as CorpwatchCompanyResponse;
   }
 
   public async findTopCompany(company: string) {
