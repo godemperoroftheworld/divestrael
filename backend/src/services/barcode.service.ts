@@ -104,7 +104,9 @@ export default class BarcodeService {
       });
     }
     // Get or create brand
-    let brand = await prisma.brand.findUnique({ where: { name: result.brand } });
+    let brand = await prisma.brand.findUnique({
+      where: { name: result.brand },
+    });
     if (!brand) {
       brand = await prisma.brand.create({ data: { name: result.brand, companyId: company.id } });
     }
