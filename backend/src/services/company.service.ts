@@ -66,6 +66,9 @@ export default class CompanyService {
           {
             $project: {
               _id: 0,
+              id: {
+                $toString: '$_id',
+              },
               name: 1,
               cik: 1,
               cw_id: 1,
