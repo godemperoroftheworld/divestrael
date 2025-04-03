@@ -5,7 +5,7 @@ import { BoycottReason, Country } from '@prisma/client';
 export const companyResponse = z.object({
   name: z.string(),
   description: z.string(),
-  brands: z.array(z.string()),
+  brands: z.array(z.string()).optional(),
   image: z.string().optional(),
   reasons: z.array(z.nativeEnum(BoycottReason)),
   country: z.nativeEnum(Country),

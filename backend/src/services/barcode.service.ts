@@ -1,23 +1,16 @@
 import axios, { AxiosInstance } from 'axios';
-import { Barcode, Company, Product } from '@prisma/client';
-import { Brand } from '.prisma/client';
+import { Barcode } from '@prisma/client';
 
-import prisma from '@/repositories/prisma.repository';
-import AIService from '@/services/ai.service';
+import prisma from '@/prisma';
+import AIService from '@/services/generator.service';
 import CompanyService from '@/services/company.service';
+import { ProductWithBrand } from '@/services/product.service';
+import barcodeController from '@/controllers/barcode.controller';
 
 interface BarcodeApiResult {
   title: string;
   brand: string;
   barcode: string;
-}
-
-interface BrandWithCompany extends Brand {
-  company: Company;
-}
-
-interface ProductWithBrand extends Product {
-  brand: BrandWithCompany;
 }
 
 export interface BarcodeWithData extends Barcode {
@@ -27,8 +20,20 @@ export interface BarcodeWithData extends Barcode {
 // Service to get barcode information
 export default class BarcodeService {
   private static _instance: BarcodeService;
+  private static readonly INCLUDE = {
+    product: {
+      include: {
+        brand: {
+          include: {
+            company: true,
+          },
+        },
+      },
+    },
+  };
 
-  private axiosInstance: AxiosInstance;
+  private readonly barcodeRepository = prisma.barcode;
+  private readonly axiosInstance: AxiosInstance;
 
   public static get instance() {
     if (!BarcodeService._instance) {
@@ -46,101 +51,35 @@ export default class BarcodeService {
       `Bearer ${process.env.BARCODE_API_KEY}`;
   }
 
-  public async updateBarcode(
-    id: string,
-    product: Partial<Product>,
-    brand: Partial<Brand>,
-  ): Promise<BarcodeWithData> {
-    const { productId } = await prisma.barcode.findUniqueOrThrow({ where: { id } });
-    const { brandId } = await prisma.product.update({
-      where: { id: productId },
-      data: product,
-    });
-    await prisma.brand.update({
-      where: { id: brandId },
-      data: brand,
-    });
-    return prisma.barcode.findUniqueOrThrow({
+  async getBarcode(id: string): Promise<BarcodeWithData> {
+    return this.barcodeRepository.findUniqueOrThrow({
       where: { id },
-      include: {
-        product: {
-          include: {
-            brand: {
-              include: {
-                company: true,
-              },
-            },
-          },
-        },
-      },
+      include: BarcodeService.INCLUDE,
     });
   }
 
-  public async getBarcode(barcode: string): Promise<BarcodeWithData> {
-    // First try DB
-    const barcodeResult = await prisma.barcode.findUnique({
-      where: { code: barcode },
-      include: { product: { include: { brand: { include: { company: true } } } } },
+  async searchBarcode(code: string): Promise<BarcodeWithData | null> {
+    return this.barcodeRepository.findUnique({
+      where: { code },
+      include: BarcodeService.INCLUDE,
     });
-    if (barcodeResult) {
-      return barcodeResult;
-    }
-    // Then query API
-    const result = await this.axiosInstance
-      .get<{ items: BarcodeApiResult[] }>('lookup', {
-        params: {
-          upc: barcode,
-        },
-      })
-      .then((r) => r.data.items[0]);
-    // Get or create company
-    const { name, country } = await AIService.instance.getCompany(result.title, result.brand);
-    let company = await CompanyService.instance.searchCompany(name);
-    if (!company) {
-      company = await CompanyService.instance.createCompany({
-        name,
-        country,
-        reasons: [],
-      });
-    }
-    // Get or create brand
-    let brand = await prisma.brand.findUnique({
-      where: { name: result.brand },
-    });
-    if (!brand) {
-      brand = await prisma.brand.create({ data: { name: result.brand, companyId: company.id } });
-    }
-    // Save to DB
-    return prisma.barcode.create({
+  }
+
+  async createBarcode({ code, productId }: Omit<Barcode, 'id'>): Promise<BarcodeWithData> {
+    return this.barcodeRepository.create({
       data: {
-        code: barcode,
-        product: {
-          connectOrCreate: {
-            where: {
-              name: result.title,
-            },
-            create: {
-              name: result.title,
-              brand: {
-                connect: {
-                  id: brand.id,
-                },
-              },
-            },
-          },
-        },
+        code,
+        productId,
       },
-      include: {
-        product: {
-          include: {
-            brand: {
-              include: {
-                company: true,
-              },
-            },
-          },
-        },
-      },
+      include: BarcodeService.INCLUDE,
     });
+  }
+
+  async searchOrCreateBarcode(data: Omit<Barcode, 'id'>): Promise<BarcodeWithData> {
+    let barcode = await this.searchBarcode(data.code);
+    if (!barcode) {
+      barcode = await this.createBarcode(data);
+    }
+    return barcode as BarcodeWithData;
   }
 }

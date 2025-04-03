@@ -14,8 +14,9 @@ export class AppError extends Error {
 }
 
 export const ERRORS = {
-  companyExists: new AppError('Company already exists', 409),
-  internalServerError: new AppError('Internal Server Error', 500),
+  productExists: new AppError('Product already exists', HttpStatusCode.Conflict),
+  companyExists: new AppError('Company already exists', HttpStatusCode.Conflict),
+  internalServerError: new AppError('Internal Server Error', HttpStatusCode.InternalServerError),
 };
 
 export function handleServerError(reply: FastifyReply, error: Error) {
