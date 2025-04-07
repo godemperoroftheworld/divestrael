@@ -1,6 +1,6 @@
 import { BarcodeWithData } from '@/services/barcode.service';
 import { BarcodeResponse } from '@/schemas/barcode.schema';
-import productMapper from '@/mappers/product.mapper';
+import productMapper from '@/controllers/mappers/product.mapper';
 
 function barcodeMapper(data: BarcodeWithData): BarcodeResponse {
   return {

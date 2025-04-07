@@ -3,7 +3,7 @@ import { HttpStatusCode } from 'axios';
 import { RouteHandler } from '@/helpers/route.helper';
 import { IdParams, SearchQuery } from '@/schemas';
 import CompanyService from '@/services/company.service';
-import companyMapper from '@/mappers/company.mapper';
+import companyMapper from '@/controllers/mappers/company.mapper';
 import { CompanyPostBody, CompanyPutBody, CompanyResponse } from '@/schemas/company.schema';
 import CorpwatchService from '@/services/corpwatch.service';
 
