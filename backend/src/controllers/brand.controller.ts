@@ -4,7 +4,7 @@ import { RouteHandler } from '@/helpers/route.helper';
 import { IdParams, SearchQuery } from '@/schemas';
 import { BrandBody, BrandResponse } from '@/schemas/brand.schema';
 import BrandService from '@/services/brand.service';
-import brandMapper from '@/mappers/brand.mapper';
+import brandMapper from '@/controllers/mappers/brand.mapper';
 
 export const postBrand: RouteHandler<{
   Body: BrandBody;

@@ -38,7 +38,6 @@ interface PrismaModelBase<T> {
   update: (args: UpdateArgs<unknown>) => Promise<T>;
 }
 
-// TODO FIX TYPES
 export default abstract class PrismaService<
   N extends PrismaModelName,
   P extends PrismaModelProperty,
@@ -82,6 +81,7 @@ export default abstract class PrismaService<
   public async hasOne(id: number): Promise<boolean> {
     const result = await this.repositoryBase.findUnique({
       where: { id },
+      select: { id: true },
     });
     return !!result;
   }
@@ -92,6 +92,7 @@ export default abstract class PrismaService<
   ): Promise<boolean> {
     const result = await this.repositoryBase.findUnique({
       where: { [property]: value },
+      select: { id: true },
     });
     return !!result;
   }

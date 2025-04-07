@@ -7,14 +7,14 @@ import {
   AllInclusiveBarcode,
 } from '@/schemas/allinclusive.schema';
 import CompanyService from '@/services/company.service';
-import companyMapper from '@/mappers/company.mapper';
+import companyMapper from '@/controllers/mappers/company.mapper';
 import { CompanyResponse } from '@/schemas/company.schema';
 import { BarcodeResponse } from '@/schemas/barcode.schema';
-import barcodeMapper from '@/mappers/barcode.mapper';
+import barcodeMapper from '@/controllers/mappers/barcode.mapper';
 import BarcodeService from '@/services/barcode.service';
 import ProductService from '@/services/product.service';
 import { ProductResponse } from '@/schemas/product.schema';
-import productMapper from '@/mappers/product.mapper';
+import productMapper from '@/controllers/mappers/product.mapper';
 
 export const postCompany: RouteHandler<{
   Body: AllInclusiveCompany;
