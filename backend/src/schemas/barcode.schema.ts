@@ -2,9 +2,13 @@ import z from 'zod';
 
 import { productResponse } from '@/schemas/product.schema';
 
-export const barcodeBody = z.object({
+export const barcodeParams = z.object({
   code: z.string(),
-  productId: z.string(),
+});
+export type BarcodeParams = z.infer<typeof barcodeParams>;
+
+export const barcodeBody = z.object({
+  productId: z.string().nonempty().optional(),
 });
 export type BarcodeBody = z.infer<typeof barcodeBody>;
 

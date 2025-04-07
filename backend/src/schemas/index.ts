@@ -1,9 +1,9 @@
 import z from 'zod';
 
-export const getParams = z.object({
+export const idParams = z.object({
   id: z.string().nonempty(),
 });
-export type GetParams = z.infer<typeof getParams>;
+export type IdParams = z.infer<typeof idParams>;
 
 export const searchQuery = z.object({
   query: z.string().nonempty(),
