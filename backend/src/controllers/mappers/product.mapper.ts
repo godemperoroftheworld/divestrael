@@ -2,7 +2,7 @@ import { Product } from '@prisma/client';
 
 import { ProductWithBrand } from '@/services/product.service';
 import { ProductResponse } from '@/schemas/product.schema';
-import brandMapper from '@/mappers/brand.mapper';
+import brandMapper from '@/controllers/mappers/brand.mapper';
 
 function productMapper(product: ProductWithBrand | Product): ProductResponse {
   const { name } = product;

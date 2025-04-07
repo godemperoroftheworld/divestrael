@@ -3,7 +3,7 @@ import { HttpStatusCode } from 'axios';
 import { RouteHandler } from '@/helpers/route.helper';
 import { ProductBody, ProductResponse } from '@/schemas/product.schema';
 import ProductService from '@/services/product.service';
-import productMapper from '@/mappers/product.mapper';
+import productMapper from '@/controllers/mappers/product.mapper';
 import { IdParams, SearchQuery } from '@/schemas';
 
 export const postProduct: RouteHandler<{

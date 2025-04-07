@@ -1,7 +1,7 @@
 import { Brand } from '.prisma/client';
 
 import { BrandWithCompany } from '@/services/brand.service';
-import companyMapper from '@/mappers/company.mapper';
+import companyMapper from '@/controllers/mappers/company.mapper';
 import { BrandResponse } from '@/schemas/brand.schema';
 
 function brandMapper(brand: BrandWithCompany | Brand): BrandResponse {
