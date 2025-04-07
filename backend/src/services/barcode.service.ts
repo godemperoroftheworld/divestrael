@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
-import { Barcode } from '@prisma/client';
+import { Barcode, Product } from '@prisma/client';
 
 import ProductService, { ProductWithBrand } from '@/services/product.service';
 import PrismaService from '@/services/PrismaService';
@@ -65,7 +65,7 @@ export default class BarcodeService extends PrismaService<'Barcode', 'barcode', 
       `Bearer ${process.env.BARCODE_API_KEY}`;
   }
 
-  public async getOrCreateByCode(code: string): Promise<BarcodeWithData> {
+  public async getOrCreateByCode(code: string, productId?: string): Promise<BarcodeWithData> {
     try {
       return this.getOneByProperty('code', code);
     } catch (_ignored) {
@@ -73,7 +73,12 @@ export default class BarcodeService extends PrismaService<'Barcode', 'barcode', 
         params: { upc: code },
       });
       const { title, brand } = data.items[0];
-      const product = await ProductService.instance.getOrCreateByName(title, brand);
+      let product: ProductWithBrand;
+      if (productId) {
+        product = await ProductService.instance.getOne(productId);
+      } else {
+        product = await ProductService.instance.getOrCreateByName(title, brand);
+      }
       return this.createOne({ code, productId: product.id });
     }
   }

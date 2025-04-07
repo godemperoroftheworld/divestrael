@@ -21,6 +21,9 @@ interface CreateArgs<T> {
   data: T;
   include?: unknown;
 }
+interface UpdateArgs<T> extends CreateArgs<T> {
+  where: unknown;
+}
 
 interface PrismaModelBase<T> {
   findUnique: (args: BaseArgs) => Promise<T | null>;
@@ -32,6 +35,7 @@ interface PrismaModelBase<T> {
     pipeline?: Prisma.InputJsonValue[];
     options?: Prisma.InputJsonValue;
   }) => Promise<Prisma.JsonObject>;
+  update: (args: UpdateArgs<unknown>) => Promise<T>;
 }
 
 // TODO FIX TYPES
@@ -179,6 +183,26 @@ export default abstract class PrismaService<
       where: {
         [searchPath]: { in: data.map((d) => d[searchPath]) },
       },
+    });
+  }
+
+  public async updateOne(id: string, data: Partial<Omit<PrismaModel<N>, 'id'>>): Promise<M> {
+    return this.repositoryBase.update({
+      where: { id },
+      data,
+      include: PrismaService.baseIncludes(),
+    });
+  }
+
+  public async updateOneByProperty<K extends keyof PrismaModel<N>>(
+    key: K,
+    value: PrismaModel<N>[K],
+    data: Partial<Omit<PrismaModel<N>, 'id'>>,
+  ) {
+    return this.repositoryBase.update({
+      where: { key: value },
+      data,
+      include: PrismaService.baseIncludes(),
     });
   }
 }

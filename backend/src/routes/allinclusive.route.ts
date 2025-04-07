@@ -10,7 +10,7 @@ import { companyResponse } from '@/schemas/company.schema';
 import { productResponse } from '@/schemas/product.schema';
 import { barcodeResponse } from '@/schemas/barcode.schema';
 
-const allinclusiveRoutes: FastifyPluginAsyncZod = async (server) => {
+const allInclusiveRoutes: FastifyPluginAsyncZod = async (server) => {
   server.post(
     '/barcode',
     {
@@ -40,4 +40,4 @@ const allinclusiveRoutes: FastifyPluginAsyncZod = async (server) => {
   );
 };
 
-export default allinclusiveRoutes;
+export default allInclusiveRoutes;

@@ -1,47 +1,46 @@
 import { HttpStatusCode } from 'axios';
 
-import BarcodeService from '@/services/barcode.service';
-import { BarcodeBody, BarcodeResponse } from '@/schemas/barcode.schema';
 import { RouteHandler } from '@/helpers/route.helper';
-import { GetParams, SearchQuery } from '@/schemas';
+import { BarcodeBody, BarcodeParams, BarcodeResponse } from '@/schemas/barcode.schema';
+import BarcodeService from '@/services/barcode.service';
 import barcodeMapper from '@/mappers/barcode.mapper';
 
-const postBarcodeHandler: RouteHandler<{
+export const postBarcode: RouteHandler<{
+  Params: BarcodeParams;
   Body: BarcodeBody;
   Reply: { 200: BarcodeResponse };
 }> = async (req, res) => {
-  const barcodeBody = req.body;
-  const barcode = await BarcodeService.instance.createBarcode(barcodeBody);
+  const { code } = req.params;
+  const { productId } = req.body;
+  const barcode = await BarcodeService.instance.getOrCreateByCode(code, productId);
   const response = barcodeMapper(barcode);
   res.status(HttpStatusCode.Ok).send(response);
 };
 
-const getBarcodeHandler: RouteHandler<{
-  Params: GetParams;
-  Reply: BarcodeResponse;
+export const getBarcode: RouteHandler<{
+  Params: BarcodeParams;
+  Reply: { 200: BarcodeResponse | null };
 }> = async (req, res) => {
-  const { id } = req.params;
-  const barcode = await BarcodeService.instance.getBarcode(id);
-  const response = barcodeMapper(barcode);
+  const { code } = req.params;
+  const barcode = await BarcodeService.instance.searchOne(code);
+  const response = barcode ? barcodeMapper(barcode) : null;
   res.status(HttpStatusCode.Ok).send(response);
 };
 
-const searchBarcodeHandler: RouteHandler<{
-  Querystring: SearchQuery;
-  Reply: BarcodeResponse | null;
+export const putBarcode: RouteHandler<{
+  Params: BarcodeParams;
+  Body: Required<BarcodeBody>;
+  Reply: { 200: BarcodeResponse };
 }> = async (req, res) => {
-  const { query } = req.query;
-  const barcode = await BarcodeService.instance.searchBarcode(query);
-  if (barcode) {
-    const response = barcodeMapper(barcode);
-    res.status(HttpStatusCode.Ok).send(response);
-  } else {
-    res.status(HttpStatusCode.Ok).send(null);
-  }
+  const { code } = req.params;
+  const { productId } = req.body;
+  const barcode = await BarcodeService.instance.updateOneByProperty('code', code, { productId });
+  const response = barcodeMapper(barcode);
+  res.status(HttpStatusCode.Ok).send(response);
 };
 
 export default {
-  postBarcodeHandler,
-  getBarcodeHandler,
-  searchBarcodeHandler,
+  postBarcode,
+  getBarcode,
+  putBarcode,
 };

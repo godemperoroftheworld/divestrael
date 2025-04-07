@@ -2,11 +2,6 @@ import z from 'zod';
 
 import { brandResponse } from '@/schemas/brand.schema';
 
-export const productQuery = z.object({
-  name: z.string().nonempty(),
-});
-export type ProductQuery = z.infer<typeof productQuery>;
-
 export const productBody = z.object({
   name: z.string().nonempty(),
   brandId: z.string().nonempty(),
