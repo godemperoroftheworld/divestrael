@@ -1,11 +1,8 @@
 import axios, { AxiosInstance } from 'axios';
-import { Barcode, Product } from '@prisma/client';
+import { Barcode } from '@prisma/client';
 
 import ProductService, { ProductWithBrand } from '@/services/product.service';
 import PrismaService from '@/services/PrismaService';
-import BrandService, { BrandWithCompany } from '@/services/brand.service';
-import AIService from '@/services/generator.service';
-import CompanyService from '@/services/company.service';
 
 export interface BarcodeWithData extends Barcode {
   product: ProductWithBrand;
@@ -27,11 +24,11 @@ interface BarcodeAPIResponse {
 export default class BarcodeService extends PrismaService<'Barcode', 'barcode', BarcodeWithData> {
   public static readonly instance = new BarcodeService();
 
-  public static override searchPaths() {
+  protected override searchPaths() {
     return ['code'];
   }
 
-  public static override baseIncludes() {
+  protected override baseIncludes() {
     return {
       product: {
         include: {
@@ -45,13 +42,17 @@ export default class BarcodeService extends PrismaService<'Barcode', 'barcode', 
     };
   }
 
-  public static override lookup() {
+  protected override lookup() {
     return {
       from: 'products',
       localField: 'productId',
       foreignField: '_id',
       as: 'product',
     };
+  }
+
+  protected override fields(): (keyof BarcodeWithData)[] {
+    return ['code', 'product'];
   }
 
   private readonly axiosInstance: AxiosInstance;

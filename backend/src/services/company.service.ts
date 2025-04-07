@@ -12,16 +12,35 @@ export interface CompanyWithBrands extends Company {
 export default class CompanyService extends PrismaService<'Company', 'company', CompanyWithBrands> {
   public static readonly instance: CompanyService = new CompanyService();
 
-  protected static override baseIncludes() {
+  protected override baseIncludes() {
     return { brands: true };
   }
-  protected static override lookup() {
+
+  protected override lookup() {
     return {
       from: 'brands',
       localField: '_id',
       foreignField: 'companyId',
       as: 'brands',
     };
+  }
+
+  protected searchPaths(): string[] {
+    return ['name'];
+  }
+
+  protected override fields(): (keyof CompanyWithBrands)[] {
+    return [
+      'name',
+      'brands',
+      'description',
+      'image',
+      'country',
+      'reasons',
+      'source',
+      'cw_id',
+      'cik',
+    ];
   }
 
   private constructor() {

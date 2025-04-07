@@ -14,7 +14,7 @@ const barcodeRoutes: FastifyPluginAsyncZod = async (server) => {
   server.get(
     '/:code',
     {
-      schema: { params: barcodeParams, body: barcodeBody, response: { 200: barcodeResponse } },
+      schema: { params: barcodeParams, response: { 200: barcodeResponse } },
     },
     barcodeController.getBarcode,
   );

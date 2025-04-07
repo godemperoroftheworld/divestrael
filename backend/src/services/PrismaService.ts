@@ -1,6 +1,6 @@
 import { Prisma, PrismaClient } from '@prisma/client';
-import { fromPairs } from 'lodash';
 import { GetFindResult } from '@prisma/client/runtime/library';
+import { fromPairs } from 'lodash';
 
 import prisma from '@/prisma';
 
@@ -46,30 +46,17 @@ export default abstract class PrismaService<
 > {
   protected readonly repository: PrismaClient[P];
 
-  protected constructor(private model: P) {
-    this.repository = prisma[model];
+  protected constructor(private property: P) {
+    this.repository = prisma[property];
   }
 
-  protected static baseIncludes() {
-    return {};
-  }
+  protected abstract baseIncludes(): object;
 
-  protected static searchPaths(): string[] {
-    return ['name'];
-  }
+  protected abstract searchPaths(): string[];
 
-  protected static lookup(): object | undefined {
-    return undefined;
-  }
+  protected abstract lookup(): object | undefined;
 
-  private fields() {
-    return fromPairs(
-      Object.keys(this.repository.fields).map(([key]) => [
-        key,
-        key === 'id' ? { $toString: '$_id' } : 1,
-      ]),
-    );
-  }
+  protected abstract fields(): string[];
 
   private get repositoryBase() {
     return this.repository as unknown as PrismaModelBase<M>;
@@ -78,7 +65,7 @@ export default abstract class PrismaService<
   public async getOne(id: string): Promise<M> {
     return this.repositoryBase.findUniqueOrThrow({
       where: { id },
-      include: PrismaService.baseIncludes(),
+      include: this.baseIncludes(),
     });
   }
 
@@ -88,7 +75,7 @@ export default abstract class PrismaService<
   ): Promise<M> {
     return this.repositoryBase.findUniqueOrThrow({
       where: { [property]: value },
-      include: PrismaService.baseIncludes(),
+      include: this.baseIncludes(),
     });
   }
 
@@ -118,7 +105,7 @@ export default abstract class PrismaService<
               index: 'search',
               text: {
                 query,
-                path: PrismaService.searchPaths(),
+                path: this.searchPaths(),
                 fuzzy: fuzzy ? {} : undefined,
               },
             },
@@ -126,13 +113,17 @@ export default abstract class PrismaService<
           {
             $limit: 1,
           },
-          PrismaService.lookup()
+          this.lookup()
             ? {
-                $lookup: PrismaService.lookup(),
+                $lookup: this.lookup(),
               }
             : {},
           {
-            $project: this.fields(),
+            $project: {
+              _id: false,
+              id: { $toString: '_id' },
+              ...fromPairs(this.fields().map((f) => [f, true])),
+            },
           },
         ],
       })
@@ -147,21 +138,25 @@ export default abstract class PrismaService<
             index: 'search',
             text: {
               query,
-              path: PrismaService.searchPaths(),
+              path: this.searchPaths(),
               fuzzy: fuzzy ? {} : undefined,
             },
           },
         },
-        PrismaService.lookup()
+        this.lookup()
           ? {
               $lookup: {
-                from: this.model,
-                ...PrismaService.lookup(),
+                from: this.property,
+                ...this.lookup(),
               },
             }
           : {},
         {
-          $project: this.fields(),
+          $project: {
+            _id: false,
+            id: { $toString: '_id' },
+            ...fromPairs(this.fields().map((f) => [f, true])),
+          },
         },
       ],
     })) as unknown as M[];
@@ -170,7 +165,7 @@ export default abstract class PrismaService<
   public async createOne(data: Omit<PrismaModel<N>, 'id'>): Promise<M> {
     return this.repositoryBase.create({
       data,
-      include: PrismaService.baseIncludes(),
+      include: this.baseIncludes(),
     });
   }
 
@@ -178,7 +173,7 @@ export default abstract class PrismaService<
     await this.repositoryBase.createMany({
       data,
     });
-    const searchPath = PrismaService.searchPaths()[0] as keyof Omit<PrismaModel<N>, 'id'>;
+    const searchPath = this.searchPaths()[0] as keyof Omit<PrismaModel<N>, 'id'>;
     return this.repositoryBase.findMany({
       where: {
         [searchPath]: { in: data.map((d) => d[searchPath]) },
@@ -190,7 +185,7 @@ export default abstract class PrismaService<
     return this.repositoryBase.update({
       where: { id },
       data,
-      include: PrismaService.baseIncludes(),
+      include: this.baseIncludes(),
     });
   }
 
@@ -202,7 +197,7 @@ export default abstract class PrismaService<
     return this.repositoryBase.update({
       where: { key: value },
       data,
-      include: PrismaService.baseIncludes(),
+      include: this.baseIncludes(),
     });
   }
 }
