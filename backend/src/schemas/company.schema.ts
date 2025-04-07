@@ -14,19 +14,19 @@ export const companyResponse = z.object({
 export type CompanyResponse = z.infer<typeof companyResponse>;
 
 // POST
-export const companyPostBody = companyResponse
-  .omit({
-    brands: true,
-    image: true,
-    description: true,
-    country: true,
-  })
-  .merge(
-    z.object({
-      country: z.nativeEnum(Country).optional(),
-    }),
-  );
+export const companyPostBody = companyResponse.omit({
+  brands: true,
+});
 export type CompanyPostBody = z.infer<typeof companyPostBody>;
+
+// PUT
+export const companyPutBody = companyPostBody
+  .omit({
+    reasons: true,
+    source: true,
+  })
+  .partial();
+export type CompanyPutBody = z.infer<typeof companyPutBody>;
 
 // GET
 export const companyGetParams = z.object({

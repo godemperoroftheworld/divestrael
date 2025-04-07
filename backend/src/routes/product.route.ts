@@ -1,4 +1,5 @@
 import { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
+import z from 'zod';
 
 import { productBody, productResponse } from '@/schemas/product.schema';
 import productController from '@/controllers/product.controller';
@@ -41,7 +42,7 @@ const productRoutes: FastifyPluginAsyncZod = async (server) => {
     {
       schema: {
         query: searchQuery,
-        response: { 200: productResponse },
+        response: { 200: z.array(productResponse) },
       },
     },
     productController.searchProduct,
