@@ -43,11 +43,11 @@ export const updateProduct: RouteHandler<{
 
 export const searchProduct: RouteHandler<{
   Querystring: SearchQuery;
-  Reply: { 200: ProductResponse | null };
+  Reply: { 200: ProductResponse[] };
 }> = async (req, res) => {
   const { query } = req.query;
-  const result = await ProductService.instance.searchOne(query);
-  const response = result ? productMapper(result) : undefined;
+  const result = await ProductService.instance.searchMany(query);
+  const response = result.map(productMapper);
   res.status(HttpStatusCode.Ok).send(response);
 };
 
