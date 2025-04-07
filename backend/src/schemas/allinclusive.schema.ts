@@ -7,9 +7,13 @@ export const allInclusiveCompany = z.object({
 });
 export type AllInclusiveCompany = z.infer<typeof allInclusiveCompany>;
 
-export const allInclusiveBarcode = z.object({
+export const allInclusiveProduct = z.object({
   name: z.string().nonempty(),
-  code: z.string().nonempty(),
   brand: z.string().nonempty(),
+});
+export type AllInclusiveProduct = z.infer<typeof allInclusiveProduct>;
+
+export const allInclusiveBarcode = z.object({
+  barcode: z.string().nonempty(),
 });
 export type AllInclusiveBarcode = z.infer<typeof allInclusiveBarcode>;

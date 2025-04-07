@@ -1,48 +1,62 @@
 import axios, { AxiosInstance } from 'axios';
 import { Barcode } from '@prisma/client';
 
-import prisma from '@/prisma';
+import ProductService, { ProductWithBrand } from '@/services/product.service';
+import PrismaService from '@/services/PrismaService';
+import BrandService, { BrandWithCompany } from '@/services/brand.service';
 import AIService from '@/services/generator.service';
 import CompanyService from '@/services/company.service';
-import { ProductWithBrand } from '@/services/product.service';
-import barcodeController from '@/controllers/barcode.controller';
-
-interface BarcodeApiResult {
-  title: string;
-  brand: string;
-  barcode: string;
-}
 
 export interface BarcodeWithData extends Barcode {
   product: ProductWithBrand;
 }
 
-// Service to get barcode information
-export default class BarcodeService {
-  private static _instance: BarcodeService;
-  private static readonly INCLUDE = {
-    product: {
-      include: {
-        brand: {
-          include: {
-            company: true,
+interface BarcodeAPIResponse {
+  total: number;
+  items: Array<{
+    ean: string;
+    title: string;
+    upc: string;
+    gtin: string;
+    asin: string;
+    description: string;
+    brand: string;
+  }>;
+}
+
+export default class BarcodeService extends PrismaService<'Barcode', 'barcode', BarcodeWithData> {
+  public static readonly instance = new BarcodeService();
+
+  public static override searchPaths() {
+    return ['code'];
+  }
+
+  public static override baseIncludes() {
+    return {
+      product: {
+        include: {
+          brand: {
+            include: {
+              company: true,
+            },
           },
         },
       },
-    },
-  };
-
-  private readonly barcodeRepository = prisma.barcode;
-  private readonly axiosInstance: AxiosInstance;
-
-  public static get instance() {
-    if (!BarcodeService._instance) {
-      BarcodeService._instance = new BarcodeService();
-    }
-    return BarcodeService._instance;
+    };
   }
 
+  public static override lookup() {
+    return {
+      from: 'products',
+      localField: 'productId',
+      foreignField: '_id',
+      as: 'product',
+    };
+  }
+
+  private readonly axiosInstance: AxiosInstance;
   private constructor() {
+    super('barcode');
     this.axiosInstance = axios.create({
       baseURL: 'https://api.upcitemdb.com/prod/trial',
     });
@@ -51,35 +65,16 @@ export default class BarcodeService {
       `Bearer ${process.env.BARCODE_API_KEY}`;
   }
 
-  async getBarcode(id: string): Promise<BarcodeWithData> {
-    return this.barcodeRepository.findUniqueOrThrow({
-      where: { id },
-      include: BarcodeService.INCLUDE,
-    });
-  }
-
-  async searchBarcode(code: string): Promise<BarcodeWithData | null> {
-    return this.barcodeRepository.findUnique({
-      where: { code },
-      include: BarcodeService.INCLUDE,
-    });
-  }
-
-  async createBarcode({ code, productId }: Omit<Barcode, 'id'>): Promise<BarcodeWithData> {
-    return this.barcodeRepository.create({
-      data: {
-        code,
-        productId,
-      },
-      include: BarcodeService.INCLUDE,
-    });
-  }
-
-  async searchOrCreateBarcode(data: Omit<Barcode, 'id'>): Promise<BarcodeWithData> {
-    let barcode = await this.searchBarcode(data.code);
-    if (!barcode) {
-      barcode = await this.createBarcode(data);
+  public async getOrCreateByCode(code: string): Promise<BarcodeWithData> {
+    try {
+      return this.getOneByProperty('code', code);
+    } catch (_ignored) {
+      const { data } = await this.axiosInstance.get<BarcodeAPIResponse>('/lookup', {
+        params: { upc: code },
+      });
+      const { title, brand } = data.items[0];
+      const product = await ProductService.instance.getOrCreateByName(title, brand);
+      return this.createOne({ code, productId: product.id });
     }
-    return barcode as BarcodeWithData;
   }
 }
