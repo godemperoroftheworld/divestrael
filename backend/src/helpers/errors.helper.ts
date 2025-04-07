@@ -1,7 +1,6 @@
 import { FastifyReply } from 'fastify';
 import { AxiosError, HttpStatusCode } from 'axios';
 import { ZodError } from 'zod';
-import { InvalidSchemaError } from 'fastify-type-provider-zod';
 
 export class AppError extends Error {
   statusCode: number;
@@ -16,6 +15,10 @@ export class AppError extends Error {
 export const ERRORS = {
   productExists: new AppError('Product already exists', HttpStatusCode.Conflict),
   companyExists: new AppError('Company already exists', HttpStatusCode.Conflict),
+  noCompanyFound: new AppError(
+    'Cannot generate company information',
+    HttpStatusCode.InternalServerError,
+  ),
   internalServerError: new AppError('Internal Server Error', HttpStatusCode.InternalServerError),
 };
 

@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
-import { Company, Country } from '@prisma/client';
+import { Country } from '@prisma/client';
 import process from 'node:process';
 
 import CompanyService from '@/services/company.service';
@@ -7,6 +7,7 @@ import CompanyService from '@/services/company.service';
 interface CompanyApiResult {
   name: string;
   country: Country;
+  brand: string;
 }
 interface BrandsApiResult {
   names: string[];
@@ -45,7 +46,7 @@ export default class AIService {
     });
   }
 
-  public async getImage(query: string) {
+  public async getMetadata(query: string) {
     const result = await this.kgInstance.get('/', {
       params: {
         query,
@@ -53,22 +54,14 @@ export default class AIService {
       },
     });
     const resultItem = result.data.itemListElement[0]?.result;
-    return resultItem?.image?.contentUrl;
-  }
-
-  public async getDescription(query: string) {
-    const result = await this.kgInstance.get('/', {
-      params: {
-        query,
-        limit: 1,
-      },
-    });
-    const resultItem = result.data.itemListElement[0]?.result;
-    return resultItem?.detailedDescription?.articleBody || resultItem?.description || query;
+    return {
+      description: resultItem.detailedDescription?.articleBody || resultItem?.description || query,
+      image: resultItem?.image?.contentUrl,
+    };
   }
 
   public async generateBrands(companyId: string) {
-    const company = await CompanyService.instance.getCompany(companyId);
+    const company = await CompanyService.instance.getOne(companyId);
     const prompt = `I am going to give you some company information. I want you to give me all of the brands (in english) that belong to that company. The list should be exhaustive. If you don't know the company, or don't know any subsidiaries for the company, return an empty list. Company: ${company.name}, Country: ${company.country}`;
     const brandsResult = await this.generatorInstance.post('chat/completions', {
       model: 'google/gemini-2.0-flash-001',
@@ -111,15 +104,22 @@ export default class AIService {
     }));
   }
 
-  public async generateCompany(product: string, brand?: string): Promise<Omit<Company, 'id'>> {
-    const prompt = `I am going to give you some product information. I want you to give me the country code and name of the company that owns that brand/product. Product: ${product}${brand ? `, Brand: ${brand}` : ''}`;
+  public async generateCompanyInfo(product?: string, brandName?: string) {
+    const prompt = `I am going to give you some product/brand information. I want you to give me the country code and name of the company that owns that brand/product.`;
+    const promptInfo = [];
+    if (product) {
+      promptInfo.push(`Product: ${product}`);
+    }
+    if (brandName) {
+      promptInfo.push(`Brand: ${brandName}`);
+    }
     const { country, name } = await this.generatorInstance
       .post('chat/completions', {
         model: 'google/gemini-2.0-flash-001',
         messages: [
           {
             role: 'user',
-            content: prompt,
+            content: `${prompt} ${promptInfo.join(', ')}`,
           },
         ],
         provider: {
@@ -149,17 +149,6 @@ export default class AIService {
         },
       })
       .then((r) => JSON.parse(r.data.choices[0].message.content) as CompanyApiResult);
-    const description = await this.getDescription(name);
-    const image = await this.getImage(name);
-    return {
-      name,
-      country,
-      description,
-      image,
-      reasons: [],
-      cik: null,
-      cw_id: null,
-      source: null,
-    };
+    return { country, name };
   }
 }

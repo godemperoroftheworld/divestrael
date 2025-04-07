@@ -1,5 +1,4 @@
 import z from 'zod';
-import { BoycottReason } from '@prisma/client';
 
 import { brandResponse } from '@/schemas/brand.schema';
 
