@@ -9,6 +9,7 @@
     "strict": true /* Enable all strict type-checking options. */,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "skipLibCheck": true,
     "outDir": "./dist",
     "baseUrl": ".",
     "paths": {
