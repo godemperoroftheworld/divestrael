@@ -1,59 +1,21 @@
-import { HttpStatusCode } from 'axios';
-
-import { ProductBody, ProductResponse } from '@/schemas/product.schema';
-import ProductService from '@/services/product.service';
+import { ProductResponse } from '@/schemas/product.schema';
+import ProductService, { ProductWithBrand } from '@/services/product.service';
 import productMapper from '@/controllers/mappers/product.mapper';
-import { IdParams, SearchQuery } from '@/schemas';
-import { RouteHandler } from '@/helpers/types.helper';
+import PrismaController from '@/controllers/PrismaController';
 
-export const postProduct: RouteHandler<{
-  Body: ProductBody;
-  Reply: { 200: ProductResponse };
-}> = async (req, res) => {
-  const { name, brandId } = req.body;
-  const result = await ProductService.instance.createOne({ name, brandId });
-  const response = productMapper(result);
-  res.status(HttpStatusCode.Ok).send(response);
-};
+export default class ProductController extends PrismaController<
+  'Product',
+  'product',
+  ProductResponse,
+  ProductWithBrand
+> {
+  public static readonly instance = new ProductController();
 
-export const getProduct: RouteHandler<{
-  Params: IdParams;
-  Reply: { 200: ProductResponse };
-}> = async (req, res) => {
-  const { id } = req.params;
-  const product = await ProductService.instance.getOne(id);
-  const response = productMapper(product);
-  res.status(HttpStatusCode.Ok).send(response);
-};
+  private constructor() {
+    super(ProductService.instance);
+  }
 
-export const updateProduct: RouteHandler<{
-  Params: IdParams;
-  Body: ProductBody;
-  Reply: { 200: ProductResponse };
-}> = async (req, res) => {
-  const { id } = req.params;
-  const { name, brandId } = req.body;
-  const result = await ProductService.instance.updateOne(id, {
-    name,
-    brandId,
-  });
-  const response = productMapper(result);
-  res.status(HttpStatusCode.Ok).send(response);
-};
-
-export const searchProduct: RouteHandler<{
-  Querystring: SearchQuery;
-  Reply: { 200: ProductResponse[] };
-}> = async (req, res) => {
-  const { query } = req.query;
-  const result = await ProductService.instance.searchMany(query);
-  const response = result.map(productMapper);
-  res.status(HttpStatusCode.Ok).send(response);
-};
-
-export default {
-  postProduct,
-  getProduct,
-  updateProduct,
-  searchProduct,
-};
+  protected mapData(data: ProductWithBrand): ProductResponse {
+    return productMapper(data);
+  }
+}
