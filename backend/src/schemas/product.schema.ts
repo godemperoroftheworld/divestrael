@@ -6,7 +6,6 @@ export const productBody = z.object({
   name: z.string().nonempty(),
   brandId: z.string().nonempty(),
 });
-export type ProductBody = z.infer<typeof productBody>;
 
 export const productResponse = z.object({
   title: z.string(),

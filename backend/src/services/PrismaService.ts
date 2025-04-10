@@ -1,18 +1,9 @@
 import { Prisma, PrismaClient } from '@prisma/client';
-import { GetFindResult } from '@prisma/client/runtime/library';
 import { fromPairs, merge } from 'lodash';
 
 import prisma from '@/prisma';
 import { DeepKey } from '@/helpers/types.helper';
-
-// Base types
-type PrismaModelName = keyof Prisma.TypeMap['model'];
-type PrismaModelProperty = Prisma.TypeMap['meta']['modelProps'];
-type PrismaModel<T extends PrismaModelName> = GetFindResult<
-  Prisma.TypeMap['model'][T]['payload'],
-  object,
-  object
->;
+import { PrismaModel, PrismaModelName, PrismaModelProperty } from '@/helpers/prisma.helper';
 
 // Args
 type PrismaOperations<N extends PrismaModelName> = Prisma.TypeMap['model'][N]['operations'];
