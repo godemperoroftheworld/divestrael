@@ -18,58 +18,60 @@ export default class PrismaRoute<
     private readonly responseSchema: Res,
   ) {}
 
-  public async routes(server: FastifyInstance) {
-    server.post(
-      '/',
-      {
-        schema: {
-          body: prismaBody,
-          response: { 200: z.array(this.responseSchema) },
+  public register(fastify: FastifyInstance) {
+    fastify.register(async (server) => {
+      server.post(
+        '/',
+        {
+          schema: {
+            body: prismaBody,
+            response: { 200: z.array(this.responseSchema) },
+          },
         },
-      },
-      this.controller.getAll as RouteHandlerMethod,
-    );
-    server.post(
-      '/:id',
-      {
-        schema: {
-          params: idParams,
-          body: this.requestSchema,
-          response: { 200: this.responseSchema },
+        this.controller.getAll as RouteHandlerMethod,
+      );
+      server.post(
+        '/:id',
+        {
+          schema: {
+            params: idParams,
+            body: this.requestSchema,
+            response: { 200: this.responseSchema },
+          },
         },
-      },
-      this.controller.post as RouteHandlerMethod,
-    );
-    server.put(
-      '/:id',
-      {
-        schema: {
-          params: idParams,
-          body: this.requestSchema.partial(),
-          response: { 200: this.responseSchema },
+        this.controller.post as RouteHandlerMethod,
+      );
+      server.put(
+        '/:id',
+        {
+          schema: {
+            params: idParams,
+            body: this.requestSchema.partial(),
+            response: { 200: this.responseSchema },
+          },
         },
-      },
-      this.controller.put as RouteHandlerMethod,
-    );
-    server.get(
-      '/:id',
-      {
-        schema: {
-          params: idParams,
-          response: { 200: this.responseSchema },
+        this.controller.put as RouteHandlerMethod,
+      );
+      server.get(
+        '/:id',
+        {
+          schema: {
+            params: idParams,
+            response: { 200: this.responseSchema },
+          },
         },
-      },
-      this.controller.get as RouteHandlerMethod,
-    );
-    server.get(
-      '/search',
-      {
-        schema: {
-          query: searchQuery,
-          response: { 200: z.array(this.responseSchema) },
+        this.controller.get as RouteHandlerMethod,
+      );
+      server.get(
+        '/search',
+        {
+          schema: {
+            query: searchQuery,
+            response: { 200: z.array(this.responseSchema) },
+          },
         },
-      },
-      this.controller.search as RouteHandlerMethod,
-    );
+        this.controller.search as RouteHandlerMethod,
+      );
+    });
   }
 }
