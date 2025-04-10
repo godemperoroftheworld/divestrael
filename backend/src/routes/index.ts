@@ -11,7 +11,7 @@ const routes: FastifyPluginAsync = async (server) => {
   const fastify = server.withTypeProvider<ZodTypeProvider>();
   fastify.register(allInclusiveRoutes, { prefix: '/allinclusive' });
   fastify.register(barcodeRoutes, { prefix: '/barcode' });
-  fastify.register(ProductRoutes.instance.routes, { prefix: '/product' });
+  ProductRoutes.instance.register(fastify);
   fastify.register(brandRoutes, { prefix: '/brand' });
   fastify.register(companyRoutes, { prefix: '/company' });
 };
