@@ -1,19 +1,18 @@
 import z from 'zod';
 import { FastifyInstance, RouteHandlerMethod } from 'fastify';
 
-import { PrismaModel, PrismaModelName, PrismaModelProperty } from '@/helpers/prisma.helper';
+import { PrismaModel, PrismaModelName } from '@/helpers/prisma.helper';
 import PrismaController from '@/controllers/PrismaController';
 import { idParams, prismaBody, searchQuery } from '@/schemas';
 
 export default class PrismaRoute<
   N extends PrismaModelName,
-  P extends PrismaModelProperty,
   M extends PrismaModel<N> = PrismaModel<N>,
   Req extends z.AnyZodObject = z.AnyZodObject,
   Res extends z.AnyZodObject = z.AnyZodObject,
 > {
   protected constructor(
-    protected readonly controller: PrismaController<N, P, z.infer<Res>, M>,
+    protected readonly controller: PrismaController<N, z.infer<Res>, M>,
     private readonly requestSchema: Req,
     private readonly responseSchema: Res,
   ) {}

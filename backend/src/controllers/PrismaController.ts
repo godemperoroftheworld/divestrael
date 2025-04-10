@@ -3,18 +3,17 @@ import z from 'zod';
 import { HttpStatusCode } from 'axios';
 
 import PrismaService, { PrismaServiceParams } from '@/services/PrismaService';
-import { PrismaModel, PrismaModelName, PrismaModelProperty } from '@/helpers/prisma.helper';
+import { PrismaModel, PrismaModelName } from '@/helpers/prisma.helper';
 import { IdParams, SearchQuery } from '@/schemas';
 
 export default abstract class PrismaController<
   N extends PrismaModelName,
-  P extends PrismaModelProperty,
   S extends z.infer<z.Schema>,
   M extends PrismaModel<N> = PrismaModel<N>,
 > {
   protected abstract mapData(data: M): S;
 
-  protected constructor(protected readonly service: PrismaService<N, P, M>) {}
+  protected constructor(protected readonly service: PrismaService<N, M>) {}
 
   public async post(req: FastifyRequest, res: FastifyReply) {
     const data = req.body as PrismaModel<N>;

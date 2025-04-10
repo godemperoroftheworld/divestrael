@@ -21,7 +21,7 @@ interface BarcodeAPIResponse {
   }>;
 }
 
-export default class BarcodeService extends PrismaService<'Barcode', 'barcode', BarcodeWithData> {
+export default class BarcodeService extends PrismaService<'Barcode', BarcodeWithData> {
   public static readonly instance = new BarcodeService();
 
   protected override searchPaths() {
