@@ -1,9 +1,9 @@
 import { HttpStatusCode } from 'axios';
 
-import { RouteHandler } from '@/helpers/route.helper';
 import { BarcodeBody, BarcodeParams, BarcodeResponse } from '@/schemas/barcode.schema';
 import BarcodeService from '@/services/barcode.service';
 import barcodeMapper from '@/controllers/mappers/barcode.mapper';
+import { RouteHandler } from '@/helpers/types.helper';
 
 export const postBarcode: RouteHandler<{
   Params: BarcodeParams;
