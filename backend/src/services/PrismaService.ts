@@ -3,7 +3,7 @@ import { fromPairs, merge } from 'lodash';
 
 import prisma from '@/prisma';
 import { DeepKey } from '@/helpers/types.helper';
-import { PrismaModel, PrismaModelName, PrismaModelProperty } from '@/helpers/prisma.helper';
+import { PrismaModel, PrismaModelName } from '@/helpers/prisma.helper';
 
 // Args
 type PrismaOperations<N extends PrismaModelName> = Prisma.TypeMap['model'][N]['operations'];
@@ -39,7 +39,6 @@ interface PrismaRepositoryBase<N extends PrismaModelName, T extends PrismaModel<
 
 export default abstract class PrismaService<
   N extends PrismaModelName,
-  P extends PrismaModelProperty,
   M extends PrismaModel<N> = PrismaModel<N>,
 > {
   private static buildSelects<N extends PrismaModelName>(
@@ -57,8 +56,8 @@ export default abstract class PrismaService<
     );
   }
 
-  protected readonly repository: PrismaClient[P];
-  protected constructor(private property: P) {
+  protected readonly repository: PrismaClient[Lowercase<N>];
+  protected constructor(private property: Lowercase<N>) {
     this.repository = prisma[property];
   }
 

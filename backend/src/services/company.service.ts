@@ -9,7 +9,7 @@ export interface CompanyWithBrands extends Company {
   brands: Brand[];
 }
 
-export default class CompanyService extends PrismaService<'Company', 'company', CompanyWithBrands> {
+export default class CompanyService extends PrismaService<'Company', CompanyWithBrands> {
   public static readonly instance: CompanyService = new CompanyService();
 
   protected override baseIncludes() {

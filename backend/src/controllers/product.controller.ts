@@ -5,7 +5,6 @@ import PrismaController from '@/controllers/PrismaController';
 
 export default class ProductController extends PrismaController<
   'Product',
-  'product',
   ProductResponse,
   ProductWithBrand
 > {
