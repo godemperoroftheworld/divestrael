@@ -1,6 +1,5 @@
 import { HttpStatusCode } from 'axios';
 
-import { RouteHandler } from '@/helpers/route.helper';
 import {
   AllInclusiveProduct,
   AllInclusiveCompany,
@@ -15,6 +14,7 @@ import BarcodeService from '@/services/barcode.service';
 import ProductService from '@/services/product.service';
 import { ProductResponse } from '@/schemas/product.schema';
 import productMapper from '@/controllers/mappers/product.mapper';
+import { RouteHandler } from '@/helpers/types.helper';
 
 export const postCompany: RouteHandler<{
   Body: AllInclusiveCompany;
