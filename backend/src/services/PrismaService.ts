@@ -90,12 +90,12 @@ export default abstract class PrismaService<
     } as PrismaArgs<N>);
   }
 
-  public async getMany(params: PrismaServiceParams<N>): Promise<M[]> {
+  public async getMany(params: PrismaServiceParams<N> = {}): Promise<M[]> {
     const { select, filter, include, omit } = params;
     return this.repositoryBase.findMany({
       select: select ? PrismaService.buildSelects(select) : undefined,
       where: filter,
-      include,
+      include: merge(this.baseIncludes(), include),
       omit,
     } as PrismaArgs<N>);
   }

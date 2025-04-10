@@ -1,10 +1,10 @@
-import { FastifyReply, FastifyRequest } from 'fastify';
 import z from 'zod';
 import { HttpStatusCode } from 'axios';
 
 import PrismaService, { PrismaServiceParams } from '@/services/PrismaService';
 import { PrismaModel, PrismaModelName } from '@/helpers/prisma.helper';
 import { IdParams, SearchQuery } from '@/schemas';
+import { RouteHandler } from '@/helpers/types.helper';
 
 export default abstract class PrismaController<
   N extends PrismaModelName,
@@ -15,40 +15,53 @@ export default abstract class PrismaController<
 
   protected constructor(protected readonly service: PrismaService<N, M>) {}
 
-  public async post(req: FastifyRequest, res: FastifyReply) {
+  // If these are methods, `this` returns as undefined for some reason when called from fastify.
+
+  public readonly post: RouteHandler<{
+    Body: PrismaModel<N>;
+  }> = async (req, res) => {
     const data = req.body as PrismaModel<N>;
     const result = await this.service.createOne(data);
     const response = this.mapData(result);
     res.status(HttpStatusCode.Ok).send(response);
-  }
+  };
 
-  public async put(req: FastifyRequest, res: FastifyReply) {
+  public readonly put: RouteHandler<{
+    Params: IdParams;
+    Body: Partial<PrismaModel<N>>;
+  }> = async (req, res) => {
     const { id } = req.params as IdParams;
     const data = req.body as Partial<PrismaModel<N>>;
     const result = await this.service.updateOne(id, data);
     const response = this.mapData(result);
     res.status(HttpStatusCode.Ok).send(response);
-  }
+  };
 
-  public async get(req: FastifyRequest, res: FastifyReply) {
+  public readonly get: RouteHandler<{
+    Params: IdParams;
+  }> = async (req, res) => {
     const { id } = req.params as IdParams;
     const result = await this.service.getOne(id);
     const response = this.mapData(result);
     res.status(HttpStatusCode.Ok).send(response);
-  }
+  };
 
   // Get with POST
-  public async getAll(req: FastifyRequest, res: FastifyReply) {
+  public readonly getAll: RouteHandler<{
+    Body: PrismaServiceParams<N>;
+  }> = async (req, res) => {
     const params = req.body as PrismaServiceParams<N>;
     const result = await this.service.getMany(params);
     const response = result.map(this.mapData);
     res.status(HttpStatusCode.Ok).send(response);
-  }
+  };
 
-  public async search(req: FastifyRequest, res: FastifyReply) {
-    const { query } = req.params as SearchQuery;
+  public readonly search: RouteHandler<{
+    Querystring: SearchQuery;
+  }> = async (req, res) => {
+    const { query } = req.query as SearchQuery;
     const result = await this.service.searchMany(query);
     const response = result.map(this.mapData);
     res.status(HttpStatusCode.Ok).send(response);
-  }
+  };
 }
