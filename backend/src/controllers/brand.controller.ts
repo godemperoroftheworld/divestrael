@@ -1,59 +1,20 @@
-import { HttpStatusCode } from 'axios';
-
-import { IdParams, SearchQuery } from '@/schemas';
-import { BrandBody, BrandResponse } from '@/schemas/brand.schema';
-import BrandService from '@/services/brand.service';
+import { BrandResponse } from '@/schemas/brand.schema';
+import BrandService, { BrandWithCompany } from '@/services/brand.service';
 import brandMapper from '@/controllers/mappers/brand.mapper';
-import { RouteHandler } from '@/helpers/types.helper';
+import PrismaController from '@/controllers/PrismaController';
 
-export const postBrand: RouteHandler<{
-  Body: BrandBody;
-  Reply: { 200: BrandResponse };
-}> = async (req, res) => {
-  const { name, companyId } = req.body;
-  const result = await BrandService.instance.createOne({ name, companyId });
-  const response = brandMapper(result);
-  res.status(HttpStatusCode.Ok).send(response);
-};
+export default class BrandController extends PrismaController<
+  'Brand',
+  BrandResponse,
+  BrandWithCompany
+> {
+  public static readonly instance = new BrandController();
 
-export const getBrand: RouteHandler<{
-  Params: IdParams;
-  Reply: { 200: BrandResponse };
-}> = async (req, res) => {
-  const { id } = req.params;
-  const product = await BrandService.instance.getOne(id);
-  const response = brandMapper(product);
-  res.status(HttpStatusCode.Ok).send(response);
-};
+  private constructor() {
+    super(BrandService.instance);
+  }
 
-export const updateBrand: RouteHandler<{
-  Params: IdParams;
-  Body: Partial<BrandBody>;
-  Reply: { 200: BrandResponse };
-}> = async (req, res) => {
-  const { id } = req.params;
-  const { name, companyId } = req.body;
-  const result = await BrandService.instance.updateOne(id, {
-    name,
-    companyId,
-  });
-  const response = brandMapper(result);
-  res.status(HttpStatusCode.Ok).send(response);
-};
-
-export const searchBrand: RouteHandler<{
-  Querystring: SearchQuery;
-  Reply: { 200: BrandResponse[] };
-}> = async (req, res) => {
-  const { query } = req.query;
-  const result = await BrandService.instance.searchMany(query);
-  const response = result.map(brandMapper);
-  res.status(HttpStatusCode.Ok).send(response);
-};
-
-export default {
-  postBrand,
-  getBrand,
-  updateBrand,
-  searchBrand,
-};
+  protected mapData(data: BrandWithCompany): BrandResponse {
+    return brandMapper(data);
+  }
+}

@@ -7,6 +7,6 @@ export default class ProductRoutes extends PrismaRoute<'Product', ProductWithBra
   public static readonly instance = new ProductRoutes();
 
   private constructor() {
-    super(ProductController.instance, productBody, productResponse);
+    super('product', ProductController.instance, productBody, productResponse);
   }
 }
