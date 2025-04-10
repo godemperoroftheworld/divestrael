@@ -10,7 +10,7 @@ export interface BrandWithCompany extends Brand {
   company: Company;
 }
 
-export default class BrandService extends PrismaService<'Brand', 'brand', BrandWithCompany> {
+export default class BrandService extends PrismaService<'Brand', BrandWithCompany> {
   public static readonly instance = new BrandService();
 
   protected override baseIncludes() {

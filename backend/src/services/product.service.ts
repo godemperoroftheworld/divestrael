@@ -8,7 +8,7 @@ export interface ProductWithBrand extends Product {
 }
 
 // Service to get barcode information
-export default class ProductService extends PrismaService<'Product', 'product', ProductWithBrand> {
+export default class ProductService extends PrismaService<'Product', ProductWithBrand> {
   public static readonly instance = new ProductService();
 
   protected override lookup() {
