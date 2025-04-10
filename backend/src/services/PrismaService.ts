@@ -1,9 +1,11 @@
 import { Prisma, PrismaClient } from '@prisma/client';
 import { GetFindResult } from '@prisma/client/runtime/library';
-import { fromPairs } from 'lodash';
+import { fromPairs, merge } from 'lodash';
 
 import prisma from '@/prisma';
+import { DeepKey } from '@/helpers/types.helper';
 
+// Base types
 type PrismaModelName = keyof Prisma.TypeMap['model'];
 type PrismaModelProperty = Prisma.TypeMap['meta']['modelProps'];
 type PrismaModel<T extends PrismaModelName> = GetFindResult<
@@ -11,61 +13,81 @@ type PrismaModel<T extends PrismaModelName> = GetFindResult<
   object,
   object
 >;
-interface BaseArgs {
-  select?: unknown;
-  omit?: unknown;
-  include?: unknown;
-  where: unknown;
-}
-interface CreateArgs<T> {
-  data: T;
-  include?: unknown;
-}
-interface UpdateArgs<T> extends CreateArgs<T> {
-  where: unknown;
+
+// Args
+type PrismaOperations<N extends PrismaModelName> = Prisma.TypeMap['model'][N]['operations'];
+type PrismaArgs<N extends PrismaModelName> = Partial<PrismaOperations<N>['findUnique']['args']>;
+type PrismaCreateArgs<N extends PrismaModelName> = Partial<PrismaOperations<N>['create']['args']>;
+type PrismaUpdateArgs<N extends PrismaModelName> = Partial<PrismaOperations<N>['update']['args']>;
+
+// Filters
+type PrismaFilters<N extends PrismaModelName> = PrismaArgs<N>['where'];
+type PrismaSelect<N extends PrismaModelName> = PrismaArgs<N>['select'];
+type PrismaInclude<N extends PrismaModelName> = PrismaArgs<N>['include'];
+type PrismaOmit<N extends PrismaModelName> = PrismaArgs<N>['omit'];
+export interface PrismaServiceParams<N extends PrismaModelName> {
+  select?: DeepKey<PrismaModel<N>>[];
+  filter?: PrismaFilters<N>;
+  include?: PrismaInclude<N>;
+  omit?: PrismaOmit<N>;
 }
 
-interface PrismaModelBase<T> {
-  findUnique: (args: BaseArgs) => Promise<T | null>;
-  findUniqueOrThrow: (args: BaseArgs) => Promise<T>;
-  findMany: (args: BaseArgs) => Promise<T[]>;
-  create: (args: CreateArgs<unknown>) => Promise<T>;
-  createMany: (args: CreateArgs<unknown[]>) => Promise<{ count: number }>;
+// Prisma repository
+interface PrismaRepositoryBase<N extends PrismaModelName, T extends PrismaModel<N>> {
+  findUnique: (args: PrismaArgs<N>) => Promise<T | null>;
+  findUniqueOrThrow: (args: PrismaArgs<N>) => Promise<T>;
+  findMany: (args: PrismaArgs<N>) => Promise<T[]>;
+  create: (args: PrismaCreateArgs<N>) => Promise<T>;
+  createMany: (args: PrismaCreateArgs<N>) => Promise<{ count: number }>;
   aggregateRaw: (args: {
     pipeline?: Prisma.InputJsonValue[];
     options?: Prisma.InputJsonValue;
   }) => Promise<Prisma.JsonObject>;
-  update: (args: UpdateArgs<unknown>) => Promise<T>;
+  update: (args: PrismaUpdateArgs<N>) => Promise<T>;
 }
 
 export default abstract class PrismaService<
   N extends PrismaModelName,
   P extends PrismaModelProperty,
-  M = PrismaModel<N>,
+  M extends PrismaModel<N> = PrismaModel<N>,
 > {
-  protected readonly repository: PrismaClient[P];
+  private static buildSelects<N extends PrismaModelName>(
+    selects: DeepKey<PrismaModel<N>>[],
+  ): Prisma.TypeMap['model'][N]['operations']['findUnique']['args']['where'] {
+    return merge(
+      selects.map((select) => {
+        const splitSelect = select.split('.');
+        const selectObject: Record<string, object> = {};
+        return splitSelect.reduce((result, val) => {
+          result[val] = {};
+          return result;
+        }, selectObject);
+      }),
+    );
+  }
 
+  protected readonly repository: PrismaClient[P];
   protected constructor(private property: P) {
     this.repository = prisma[property];
   }
 
-  protected abstract baseIncludes(): object;
+  protected abstract baseIncludes(): PrismaInclude<N>;
 
   protected abstract searchPaths(): string[];
 
   protected abstract lookup(): object | undefined;
 
-  protected abstract fields(): string[];
+  protected abstract fields(): (keyof M)[];
 
   private get repositoryBase() {
-    return this.repository as unknown as PrismaModelBase<M>;
+    return this.repository as unknown as PrismaRepositoryBase<N, M>;
   }
 
   public async getOne(id: string): Promise<M> {
     return this.repositoryBase.findUniqueOrThrow({
       where: { id },
       include: this.baseIncludes(),
-    });
+    } as PrismaArgs<N>);
   }
 
   public async getOneByProperty<K extends keyof PrismaModel<N>>(
@@ -73,16 +95,26 @@ export default abstract class PrismaService<
     value: PrismaModel<N>[K],
   ): Promise<M> {
     return this.repositoryBase.findUniqueOrThrow({
-      where: { [property]: value },
+      where: { [property]: value } as unknown as PrismaFilters<N>,
       include: this.baseIncludes(),
-    });
+    } as PrismaArgs<N>);
   }
 
-  public async hasOne(id: number): Promise<boolean> {
+  public async getMany(params: PrismaServiceParams<N>): Promise<M[]> {
+    const { select, filter, include, omit } = params;
+    return this.repositoryBase.findMany({
+      select: select ? PrismaService.buildSelects(select) : undefined,
+      where: filter,
+      include,
+      omit,
+    } as PrismaArgs<N>);
+  }
+
+  public async hasOne(id: string): Promise<boolean> {
     const result = await this.repositoryBase.findUnique({
-      where: { id },
+      where: { id } as PrismaFilters<N>,
       select: { id: true },
-    });
+    } as PrismaArgs<N>);
     return !!result;
   }
 
@@ -91,9 +123,9 @@ export default abstract class PrismaService<
     value: PrismaModel<N>[K],
   ): Promise<boolean> {
     const result = await this.repositoryBase.findUnique({
-      where: { [property]: value },
-      select: { id: true },
-    });
+      where: { [property]: value } as unknown as PrismaFilters<N>,
+      select: { id: true } as PrismaSelect<N>,
+    } as PrismaArgs<N>);
     return !!result;
   }
 
@@ -131,7 +163,11 @@ export default abstract class PrismaService<
     )[0] ?? null) as M | null;
   }
 
-  public async searchMany(query: string, fuzzy?: boolean): Promise<M[]> {
+  public async searchMany(
+    query: string,
+    include: PrismaInclude<N> = {},
+    fuzzy?: boolean,
+  ): Promise<M[]> {
     return (await this.repository.aggregateRaw({
       pipeline: [
         {
@@ -157,7 +193,8 @@ export default abstract class PrismaService<
             _id: false,
             id: { $toString: '_id' },
             ...fromPairs(this.fields().map((f) => [f, true])),
-          },
+            ...include,
+          } as Prisma.InputJsonValue,
         },
       ],
     })) as unknown as M[];
@@ -167,19 +204,19 @@ export default abstract class PrismaService<
     return this.repositoryBase.create({
       data,
       include: this.baseIncludes(),
-    });
+    } as unknown as PrismaCreateArgs<N>);
   }
 
   public async createMany(data: Omit<PrismaModel<N>, 'id'>[]): Promise<M[]> {
     await this.repositoryBase.createMany({
       data,
-    });
+    } as unknown as PrismaCreateArgs<N>);
     const searchPath = this.searchPaths()[0] as keyof Omit<PrismaModel<N>, 'id'>;
     return this.repositoryBase.findMany({
       where: {
         [searchPath]: { in: data.map((d) => d[searchPath]) },
-      },
-    });
+      } as unknown as PrismaFilters<N>,
+    } as PrismaArgs<N>);
   }
 
   public async updateOne(id: string, data: Partial<Omit<PrismaModel<N>, 'id'>>): Promise<M> {
@@ -187,7 +224,7 @@ export default abstract class PrismaService<
       where: { id },
       data,
       include: this.baseIncludes(),
-    });
+    } as PrismaUpdateArgs<N>);
   }
 
   public async updateOneByProperty<K extends keyof PrismaModel<N>>(
@@ -196,9 +233,9 @@ export default abstract class PrismaService<
     data: Partial<Omit<PrismaModel<N>, 'id'>>,
   ) {
     return this.repositoryBase.update({
-      where: { key: value },
+      where: { [key]: value } as unknown as PrismaFilters<N>,
       data,
       include: this.baseIncludes(),
-    });
+    } as PrismaUpdateArgs<N>);
   }
 }
