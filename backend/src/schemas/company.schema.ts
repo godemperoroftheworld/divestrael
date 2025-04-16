@@ -14,19 +14,10 @@ export const companyResponse = z.object({
 export type CompanyResponse = z.infer<typeof companyResponse>;
 
 // POST
-export const companyPostBody = companyResponse.omit({
+export const companyBody = companyResponse.omit({
   brands: true,
 });
-export type CompanyPostBody = z.infer<typeof companyPostBody>;
-
-// PUT
-export const companyPutBody = companyPostBody
-  .omit({
-    reasons: true,
-    source: true,
-  })
-  .partial();
-export type CompanyPutBody = z.infer<typeof companyPutBody>;
+export type CompanyBody = z.infer<typeof companyBody>;
 
 // GET
 export const companyGetParams = z.object({
