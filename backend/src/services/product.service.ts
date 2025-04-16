@@ -1,12 +1,6 @@
-import { Product } from '@prisma/client';
-
-import BrandService, { BrandWithCompany } from '@/services/brand.service';
+import BrandService from '@/services/brand.service';
 import PrismaService from '@/services/PrismaService';
 import { PrismaModelExpanded } from '@/helpers/prisma.helper';
-
-export interface ProductWithBrand extends Product {
-  brand: BrandWithCompany;
-}
 
 // Service to get barcode information
 export default class ProductService extends PrismaService<'Product'> {
@@ -24,12 +18,14 @@ export default class ProductService extends PrismaService<'Product'> {
     name: string,
     brandName: string,
   ): Promise<PrismaModelExpanded<'Product'>> {
-    const result = await super.searchOne(name, true);
+    const result = await super.searchOne(name, true, {
+      include: ['brand.company'],
+    });
     if (result) {
       return result;
     }
 
     const brand = await BrandService.instance.getOrCreateByName(brandName, name);
-    return this.createOne({ name, brandId: brand.id });
+    return this.createOne({ name, brandId: brand.id }, { include: ['brand.company'] });
   }
 }
