@@ -131,8 +131,6 @@ export default abstract class PrismaService<N extends PrismaModelName> {
 
   protected abstract searchPaths(): string[];
 
-  protected abstract lookup(): object | undefined;
-
   private get repositoryBase() {
     return this.repository as unknown as PrismaRepositoryBase<N>;
   }
@@ -200,7 +198,7 @@ export default abstract class PrismaService<N extends PrismaModelName> {
 
   public async searchOne(
     query: string,
-    fuzzy?: boolean,
+    fuzzy: boolean = true,
     params: Omit<PrismaServiceParams<N>, 'filter' | 'take' | 'skip'> = {},
   ): Promise<PrismaModelExpanded<N> | null> {
     const searchResult = (
@@ -219,21 +217,17 @@ export default abstract class PrismaService<N extends PrismaModelName> {
           {
             $limit: 1,
           },
-          this.lookup()
-            ? {
-                $lookup: this.lookup(),
-              }
-            : {},
           {
             $project: {
-              _id: true,
+              _id: false,
+              id: { $toString: '$_id' },
             },
           },
         ],
       })
-    )[0];
+    )[0] as IdParams;
     if (searchResult) {
-      const { id } = searchResult as IdParams;
+      const { id } = searchResult;
       return this.getOne(id, params);
     }
     return null;
@@ -241,7 +235,7 @@ export default abstract class PrismaService<N extends PrismaModelName> {
 
   public async searchMany(
     query: string,
-    fuzzy: boolean = false,
+    fuzzy: boolean = true,
     params: Omit<PrismaServiceParams<N>, 'filter'> = {},
   ): Promise<PrismaModelExpanded<N>[]> {
     const searchResults = (await this.repository.aggregateRaw({
@@ -256,17 +250,10 @@ export default abstract class PrismaService<N extends PrismaModelName> {
             },
           },
         },
-        this.lookup()
-          ? {
-              $lookup: {
-                from: this.property,
-                ...this.lookup(),
-              },
-            }
-          : {},
         {
           $project: {
-            _id: true,
+            _id: false,
+            id: { $toString: '$_id' },
           } as Prisma.InputJsonValue,
         },
       ],
@@ -281,13 +268,20 @@ export default abstract class PrismaService<N extends PrismaModelName> {
     return [];
   }
 
-  public async createOne(data: Omit<PrismaModel<N>, 'id'>): Promise<PrismaModelExpanded<N>> {
+  public async createOne(
+    data: Omit<PrismaModel<N>, 'id'>,
+    params: Pick<PrismaServiceParams<N>, 'select' | 'include'> = {},
+  ): Promise<PrismaModelExpanded<N>> {
     return this.repositoryBase.create({
       data,
+      ...params,
     } as unknown as PrismaCreateArgs<N>);
   }
 
-  public async createMany(data: Omit<PrismaModel<N>, 'id'>[]): Promise<PrismaModelExpanded<N>[]> {
+  public async createMany(
+    data: Omit<PrismaModel<N>, 'id'>[],
+    params: Pick<PrismaServiceParams<N>, 'select' | 'include'> = {},
+  ): Promise<PrismaModelExpanded<N>[]> {
     await this.repositoryBase.createMany({
       data,
     } as unknown as PrismaCreateArgs<N>);
@@ -296,6 +290,7 @@ export default abstract class PrismaService<N extends PrismaModelName> {
       where: {
         [searchPath]: { in: data.map((d) => d[searchPath]) },
       } as unknown as PrismaFilter<N>,
+      ...params,
     } as PrismaArgs<N>);
   }
 
