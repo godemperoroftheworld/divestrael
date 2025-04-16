@@ -1,5 +1,5 @@
 import { Prisma, PrismaClient } from '@prisma/client';
-import { fromPairs, merge } from 'lodash';
+import { fromPairs, merge, set } from 'lodash';
 
 import prisma from '@/prisma';
 import { DeepKey } from '@/helpers/types.helper';
@@ -15,12 +15,13 @@ type PrismaUpdateArgs<N extends PrismaModelName> = Partial<PrismaOperations<N>['
 type PrismaFilters<N extends PrismaModelName> = PrismaArgs<N>['where'];
 type PrismaSelect<N extends PrismaModelName> = PrismaArgs<N>['select'];
 type PrismaInclude<N extends PrismaModelName> = PrismaArgs<N>['include'];
-type PrismaOmit<N extends PrismaModelName> = PrismaArgs<N>['omit'];
 export interface PrismaServiceParams<N extends PrismaModelName> {
   select?: DeepKey<PrismaModel<N>>[];
   filter?: PrismaFilters<N>;
-  include?: PrismaInclude<N>;
-  omit?: PrismaOmit<N>;
+  include?: DeepKey<PrismaModel<N>>[];
+  omit?: DeepKey<PrismaModel<N>>[];
+  take?: number;
+  skip?: number;
 }
 
 // Prisma repository
@@ -44,24 +45,17 @@ export default abstract class PrismaService<
   private static buildSelects<N extends PrismaModelName>(
     selects: DeepKey<PrismaModel<N>>[],
   ): Prisma.TypeMap['model'][N]['operations']['findUnique']['args']['where'] {
-    return merge(
-      selects.map((select) => {
-        const splitSelect = select.split('.');
-        const selectObject: Record<string, object> = {};
-        return splitSelect.reduce((result, val) => {
-          result[val] = {};
-          return result;
-        }, selectObject);
-      }),
-    );
+    const mappedSelects = selects.map((select) => {
+      const splitSelect = select.split('.');
+      return set({}, splitSelect, true);
+    });
+    return merge({}, ...mappedSelects);
   }
 
   protected readonly repository: PrismaClient[Lowercase<N>];
   protected constructor(private property: Lowercase<N>) {
     this.repository = prisma[property];
   }
-
-  protected abstract baseIncludes(): PrismaInclude<N>;
 
   protected abstract searchPaths(): string[];
 
@@ -76,7 +70,6 @@ export default abstract class PrismaService<
   public async getOne(id: string): Promise<M> {
     return this.repositoryBase.findUniqueOrThrow({
       where: { id },
-      include: this.baseIncludes(),
     } as PrismaArgs<N>);
   }
 
@@ -86,17 +79,24 @@ export default abstract class PrismaService<
   ): Promise<M> {
     return this.repositoryBase.findUniqueOrThrow({
       where: { [property]: value } as unknown as PrismaFilters<N>,
-      include: this.baseIncludes(),
     } as PrismaArgs<N>);
   }
 
   public async getMany(params: PrismaServiceParams<N> = {}): Promise<M[]> {
-    const { select, filter, include, omit } = params;
+    const { select, filter, omit, include, skip, take } = params;
+    const mergedSelectInclude = merge(
+      {},
+      select ? PrismaService.buildSelects(select) : {},
+      include ? PrismaService.buildSelects(include) : {},
+    );
+
     return this.repositoryBase.findMany({
-      select: select ? PrismaService.buildSelects(select) : undefined,
+      select: select ? mergedSelectInclude : undefined,
       where: filter,
-      include: merge(this.baseIncludes(), include),
-      omit,
+      include: !select ? mergedSelectInclude : undefined,
+      omit: omit ? PrismaService.buildSelects(omit) : undefined,
+      skip,
+      take,
     } as PrismaArgs<N>);
   }
 
@@ -193,7 +193,6 @@ export default abstract class PrismaService<
   public async createOne(data: Omit<PrismaModel<N>, 'id'>): Promise<M> {
     return this.repositoryBase.create({
       data,
-      include: this.baseIncludes(),
     } as unknown as PrismaCreateArgs<N>);
   }
 
@@ -213,7 +212,6 @@ export default abstract class PrismaService<
     return this.repositoryBase.update({
       where: { id },
       data,
-      include: this.baseIncludes(),
     } as PrismaUpdateArgs<N>);
   }
 
@@ -225,7 +223,6 @@ export default abstract class PrismaService<
     return this.repositoryBase.update({
       where: { [key]: value } as unknown as PrismaFilters<N>,
       data,
-      include: this.baseIncludes(),
     } as PrismaUpdateArgs<N>);
   }
 }
