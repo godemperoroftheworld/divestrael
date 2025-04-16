@@ -24,7 +24,7 @@ export default class PrismaRoute<
     fastify.register(
       async (server) => {
         server.post(
-          '/all',
+          '/getAll',
           {
             schema: {
               body: prismaBody.nullable().optional(),
