@@ -1,34 +1,12 @@
-import { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
+import { barcodeBody, barcodeResponse } from '@/schemas/barcode.schema';
+import PrismaRoute from '@/routes/PrismaRoute';
+import { BarcodeWithData } from '@/services/barcode.service';
+import BarcodeController from '@/controllers/barcode.controller';
 
-import { barcodeBody, barcodeParams, barcodeResponse } from '@/schemas/barcode.schema';
-import barcodeController from '@/controllers/barcode.controller';
+export default class BarcodeRoute extends PrismaRoute<'Barcode', BarcodeWithData> {
+  public static readonly instance = new BarcodeRoute();
 
-const barcodeRoutes: FastifyPluginAsyncZod = async (server) => {
-  server.post(
-    '/:code',
-    {
-      schema: { params: barcodeParams, body: barcodeBody, response: { 200: barcodeResponse } },
-    },
-    barcodeController.postBarcode,
-  );
-  server.get(
-    '/:code',
-    {
-      schema: { params: barcodeParams, response: { 200: barcodeResponse } },
-    },
-    barcodeController.getBarcode,
-  );
-  server.put(
-    '/:code',
-    {
-      schema: {
-        params: barcodeParams,
-        body: barcodeBody.required(),
-        response: { 200: barcodeResponse },
-      },
-    },
-    barcodeController.putBarcode,
-  );
-};
-
-export default barcodeRoutes;
+  private constructor() {
+    super('barcode', BarcodeController.instance, barcodeBody, barcodeResponse);
+  }
+}
