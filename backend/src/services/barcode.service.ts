@@ -28,20 +28,6 @@ export default class BarcodeService extends PrismaService<'Barcode', BarcodeWith
     return ['code'];
   }
 
-  protected override baseIncludes() {
-    return {
-      product: {
-        include: {
-          brand: {
-            include: {
-              company: true,
-            },
-          },
-        },
-      },
-    };
-  }
-
   protected override lookup() {
     return {
       from: 'products',

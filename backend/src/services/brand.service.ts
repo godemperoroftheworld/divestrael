@@ -13,10 +13,6 @@ export interface BrandWithCompany extends Brand {
 export default class BrandService extends PrismaService<'Brand', BrandWithCompany> {
   public static readonly instance = new BrandService();
 
-  protected override baseIncludes() {
-    return { company: true };
-  }
-
   protected override lookup() {
     return {
       from: 'companies',
