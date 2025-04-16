@@ -1,10 +1,8 @@
-import { Product } from '@prisma/client';
-
-import { ProductWithBrand } from '@/services/product.service';
 import { ProductResponse } from '@/schemas/product.schema';
 import brandMapper from '@/controllers/mappers/brand.mapper';
+import { PrismaModelExpanded } from '@/helpers/prisma.helper';
 
-function productMapper(product: ProductWithBrand | Product): ProductResponse {
+function productMapper(product: PrismaModelExpanded<'Product'>): ProductResponse {
   const { name } = product;
   let brand = undefined;
   if ('brand' in product) {

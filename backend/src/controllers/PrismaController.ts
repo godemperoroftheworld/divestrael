@@ -2,18 +2,17 @@ import z from 'zod';
 import { HttpStatusCode } from 'axios';
 
 import PrismaService, { PrismaServiceParams } from '@/services/PrismaService';
-import { PrismaModel, PrismaModelName } from '@/helpers/prisma.helper';
+import { PrismaModel, PrismaModelExpanded, PrismaModelName } from '@/helpers/prisma.helper';
 import { IdParams, SearchQuery } from '@/schemas';
 import { RouteHandler } from '@/helpers/types.helper';
 
 export default abstract class PrismaController<
   N extends PrismaModelName,
   S extends z.infer<z.Schema>,
-  M extends PrismaModel<N> = PrismaModel<N>,
 > {
-  protected abstract mapData(data: M): S;
+  protected abstract mapData(data: PrismaModelExpanded<N>): S;
 
-  protected constructor(protected readonly service: PrismaService<N, M>) {}
+  protected constructor(protected readonly service: PrismaService<N>) {}
 
   // If these are methods, `this` returns as undefined for some reason when called from fastify.
 

@@ -9,13 +9,12 @@ type FixedPrismaModel<N extends PrismaModelName> = Partial<PrismaModel<N>> & z.Z
 
 export default class PrismaRoute<
   N extends PrismaModelName,
-  M extends PrismaModel<N> = PrismaModel<N>,
   Req extends z.ZodObject<FixedPrismaModel<N>> = z.ZodObject<FixedPrismaModel<N>>,
   Res extends z.AnyZodObject = z.AnyZodObject,
 > {
   protected constructor(
     public readonly prefix: Lowercase<N>,
-    protected readonly controller: PrismaController<N, z.infer<Res>, M>,
+    protected readonly controller: PrismaController<N, z.infer<Res>>,
     private readonly requestSchema: z.input<Req>,
     private readonly responseSchema: Res,
   ) {}

@@ -2,13 +2,14 @@ import { Product } from '@prisma/client';
 
 import BrandService, { BrandWithCompany } from '@/services/brand.service';
 import PrismaService from '@/services/PrismaService';
+import { PrismaModelExpanded } from '@/helpers/prisma.helper';
 
 export interface ProductWithBrand extends Product {
   brand: BrandWithCompany;
 }
 
 // Service to get barcode information
-export default class ProductService extends PrismaService<'Product', ProductWithBrand> {
+export default class ProductService extends PrismaService<'Product'> {
   public static readonly instance = new ProductService();
 
   protected override lookup() {
@@ -24,15 +25,14 @@ export default class ProductService extends PrismaService<'Product', ProductWith
     return ['name'];
   }
 
-  protected override fields(): (keyof ProductWithBrand)[] {
-    return ['name', 'brand'];
-  }
-
   private constructor() {
     super('product');
   }
 
-  public async getOrCreateByName(name: string, brandName: string): Promise<ProductWithBrand> {
+  public async getOrCreateByName(
+    name: string,
+    brandName: string,
+  ): Promise<PrismaModelExpanded<'Product'>> {
     const result = await super.searchOne(name, true);
     if (result) {
       return result;
