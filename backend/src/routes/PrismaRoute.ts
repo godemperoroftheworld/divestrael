@@ -1,20 +1,23 @@
 import z from 'zod';
 import { FastifyInstance, RouteHandlerMethod } from 'fastify';
 
-import { PrismaModel, PrismaModelName } from '@/helpers/prisma.helper';
+import { PrismaModel, PrismaModelExpanded, PrismaModelName } from '@/helpers/prisma.helper';
 import PrismaController from '@/controllers/PrismaController';
 import { idParams, prismaBody, searchQuery } from '@/schemas';
+import { DeepPartial } from '@/helpers/types.helper';
 
 type FixedPrismaModel<N extends PrismaModelName> = Partial<PrismaModel<N>> & z.ZodRawShape;
 
 export default class PrismaRoute<
   N extends PrismaModelName,
   Req extends z.ZodObject<FixedPrismaModel<N>> = z.ZodObject<FixedPrismaModel<N>>,
-  Res extends z.AnyZodObject = z.AnyZodObject,
+  Res extends z.ZodType<DeepPartial<PrismaModelExpanded<N>>> = z.ZodType<
+    DeepPartial<PrismaModelExpanded<N>>
+  >,
 > {
   protected constructor(
     public readonly prefix: Lowercase<N>,
-    protected readonly controller: PrismaController<N, z.infer<Res>>,
+    protected readonly controller: PrismaController<N>,
     private readonly requestSchema: z.input<Req>,
     private readonly responseSchema: Res,
   ) {}
@@ -27,7 +30,7 @@ export default class PrismaRoute<
           {
             schema: {
               body: prismaBody.nullable().optional(),
-              response: { 200: z.array(this.responseSchema.partial()) },
+              response: { 200: z.array(this.responseSchema) },
             },
           },
           this.controller.getAll as RouteHandlerMethod,
@@ -68,8 +71,8 @@ export default class PrismaRoute<
           '/search',
           {
             schema: {
-              query: searchQuery,
-              response: { 200: z.array(this.responseSchema) },
+              querystring: searchQuery,
+              response: { 200: this.responseSchema },
             },
           },
           this.controller.search as RouteHandlerMethod,
