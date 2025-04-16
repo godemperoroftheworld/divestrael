@@ -8,18 +8,12 @@ import { DeepPartial } from '@/helpers/types.helper';
 
 type FixedPrismaModel<N extends PrismaModelName> = Partial<PrismaModel<N>> & z.ZodRawShape;
 
-export default class PrismaRoute<
-  N extends PrismaModelName,
-  Req extends z.ZodObject<FixedPrismaModel<N>> = z.ZodObject<FixedPrismaModel<N>>,
-  Res extends z.ZodType<DeepPartial<PrismaModelExpanded<N>>> = z.ZodType<
-    DeepPartial<PrismaModelExpanded<N>>
-  >,
-> {
+export default class PrismaRoute<N extends PrismaModelName> {
   protected constructor(
     public readonly prefix: Lowercase<N>,
     protected readonly controller: PrismaController<N>,
-    private readonly requestSchema: z.input<Req>,
-    private readonly responseSchema: Res,
+    private readonly requestSchema: z.input<z.ZodObject<FixedPrismaModel<N>>>,
+    private readonly responseSchema: z.ZodType<DeepPartial<PrismaModelExpanded<N>>>,
   ) {}
 
   protected routes(server: FastifyInstance) {
