@@ -5,7 +5,7 @@ import { GetResult } from '@prisma/client/runtime/library';
 export type PrismaModelName =
   Prisma.TypeMap['model'][keyof Prisma.TypeMap['model']]['payload']['name'];
 type PrismaPayload<T extends PrismaModelName> = Prisma.TypeMap['model'][T]['payload'];
-type PrismaObjects<T extends PrismaModelName> = PrismaPayload<T>['objects'];
+export type PrismaObjects<T extends PrismaModelName> = PrismaPayload<T>['objects'];
 type PrismaSelectAll<T extends PrismaModelName> = {
   [K in keyof PrismaObjects<T>]: PrismaObjects<T>[K] extends {
     name: infer N extends PrismaModelName;
@@ -25,3 +25,10 @@ export type PrismaModelExpanded<T extends PrismaModelName> =
         }
       >
     >;
+
+export type PrismaFilter<T extends PrismaModelName> =
+  Prisma.TypeMap['model'][T]['operations']['findFirst']['args']['where'];
+export type PrismaInclude<T extends PrismaModelName> =
+  Prisma.TypeMap['model'][T]['operations']['findFirst']['args']['include'];
+export type PrismaSelect<T extends PrismaModelName> =
+  Prisma.TypeMap['model'][T]['operations']['findFirst']['args']['select'];

@@ -5,6 +5,10 @@ import { PrismaModel, PrismaModelName } from '@/helpers/prisma.helper';
 import { IdParams, SearchQuery } from '@/schemas';
 import { RouteHandler } from '@/helpers/types.helper';
 
+type PrismaQueryParams<N extends PrismaModelName> = Omit<PrismaServiceParams<N>, 'filter'> & {
+  filter?: string;
+};
+
 export default abstract class PrismaController<N extends PrismaModelName> {
   protected constructor(protected readonly service: PrismaService<N>) {}
 
@@ -22,7 +26,7 @@ export default abstract class PrismaController<N extends PrismaModelName> {
     Params: IdParams;
     Body: Partial<PrismaModel<N>>;
   }> = async (req, res) => {
-    const { id } = req.params as IdParams;
+    const { id } = req.params;
     const data = req.body as Partial<PrismaModel<N>>;
     const result = await this.service.updateOne(id, data);
     res.status(HttpStatusCode.Ok).send(result);
@@ -30,9 +34,10 @@ export default abstract class PrismaController<N extends PrismaModelName> {
 
   public readonly get: RouteHandler<{
     Params: IdParams;
+    Querystring: PrismaQueryParams<N>;
   }> = async (req, res) => {
-    const { id } = req.params as IdParams;
-    const result = await this.service.getOne(id);
+    const { id } = req.params;
+    const result = await this.service.getOne(id, req.query);
     res.status(HttpStatusCode.Ok).send(result);
   };
 
@@ -40,16 +45,15 @@ export default abstract class PrismaController<N extends PrismaModelName> {
   public readonly getAll: RouteHandler<{
     Body: PrismaServiceParams<N>;
   }> = async (req, res) => {
-    const params = req.body as PrismaServiceParams<N>;
-    const result = await this.service.getMany(params);
+    const result = await this.service.getMany(req.body);
     res.status(HttpStatusCode.Ok).send(result);
   };
 
   public readonly search: RouteHandler<{
-    Querystring: SearchQuery;
+    Querystring: SearchQuery & PrismaQueryParams<N>;
   }> = async (req, res) => {
-    const { query } = req.query as SearchQuery;
-    const result = await this.service.searchMany(query);
+    const { query, ...params } = req.query;
+    const result = await this.service.searchMany(query, false, params);
     res.status(HttpStatusCode.Ok).send(result);
   };
 }

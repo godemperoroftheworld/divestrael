@@ -31,7 +31,7 @@ export function handleServerError(reply: FastifyReply, error: Error) {
     return reply
       .status(HttpStatusCode.BadRequest)
       .send({ message: 'Validation error', issues: error.validation });
-  } else if (error instanceof SyntaxError) {
+  } else if (error.name === 'SyntaxError') {
     return reply
       .status(HttpStatusCode.BadRequest)
       .send({ message: 'Syntax error', issues: error.message });
