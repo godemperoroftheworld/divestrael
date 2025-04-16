@@ -28,7 +28,7 @@ export default class PrismaRoute<
           {
             schema: {
               body: prismaBody.nullable().optional(),
-              response: { 200: z.array(this.responseSchema) },
+              response: { 200: z.array(this.responseSchema.partial()) },
             },
           },
           this.controller.getAll as RouteHandlerMethod,

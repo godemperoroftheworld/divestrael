@@ -20,10 +20,6 @@ export default class ProductService extends PrismaService<'Product', ProductWith
     };
   }
 
-  protected override baseIncludes() {
-    return { brand: { include: { company: true } } };
-  }
-
   protected override searchPaths(): string[] {
     return ['name'];
   }

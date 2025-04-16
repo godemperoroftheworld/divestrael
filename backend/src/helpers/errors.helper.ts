@@ -31,6 +31,10 @@ export function handleServerError(reply: FastifyReply, error: Error) {
     return reply
       .status(HttpStatusCode.BadRequest)
       .send({ message: 'Validation error', issues: error.validation });
+  } else if (error instanceof SyntaxError) {
+    return reply
+      .status(HttpStatusCode.BadRequest)
+      .send({ message: 'Syntax error', issues: error.message });
   } else if (error instanceof AppError) {
     return reply.status(error.statusCode).send({ message: error.message });
   } else if (error instanceof AxiosError) {
