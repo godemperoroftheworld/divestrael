@@ -17,7 +17,6 @@ export const prismaBody = z
     select: coerceArray(z.string().nonempty()),
     filter: z.string().nonempty(),
     include: coerceArray(z.string().nonempty()),
-    omit: z.array(z.string().nonempty()),
     take: z.coerce.number(),
     skip: z.coerce.number(),
   })

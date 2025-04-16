@@ -16,7 +16,11 @@ const allInclusiveRoutes: FastifyPluginAsyncZod = async (server) => {
   server.post(
     '/barcode',
     {
-      schema: { body: allInclusiveBarcode, response: { 200: BarcodePartialWithRelationsSchema } },
+      schema: {
+        tags: ['allinclusive'],
+        body: allInclusiveBarcode,
+        response: { 200: BarcodePartialWithRelationsSchema },
+      },
     },
     allinclusiveController.postBarcode,
   );
@@ -24,6 +28,7 @@ const allInclusiveRoutes: FastifyPluginAsyncZod = async (server) => {
     '/product',
     {
       schema: {
+        tags: ['allinclusive'],
         body: allInclusiveProduct,
         response: { 200: ProductPartialWithRelationsSchema },
       },
@@ -34,6 +39,7 @@ const allInclusiveRoutes: FastifyPluginAsyncZod = async (server) => {
     '/company',
     {
       schema: {
+        tags: ['allinclusive'],
         body: allInclusiveCompany,
         response: { 200: CompanyPartialWithRelationsSchema },
       },
