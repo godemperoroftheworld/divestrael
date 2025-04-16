@@ -19,7 +19,6 @@ type PrismaCreateArgs<N extends PrismaModelName> = Partial<PrismaOperations<N>['
 type PrismaUpdateArgs<N extends PrismaModelName> = Partial<PrismaOperations<N>['update']['args']>;
 
 // Filters
-type PrismaSelect<N extends PrismaModelName> = PrismaArgs<N>['select'];
 export interface PrismaServiceParams<N extends PrismaModelName> {
   select?: DeepKey<PrismaModelExpanded<N>>[];
   filter?: PrismaFilter<N> | string;
