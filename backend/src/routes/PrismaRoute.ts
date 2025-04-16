@@ -1,13 +1,7 @@
 import z from 'zod';
 import { FastifyInstance, RouteHandlerMethod } from 'fastify';
-import prismaFQP from '@krsbx/prisma-fqp';
 
-import {
-  PrismaFilter,
-  PrismaModel,
-  PrismaModelExpanded,
-  PrismaModelName,
-} from '@/helpers/prisma.helper';
+import { PrismaModel, PrismaModelExpanded, PrismaModelName } from '@/helpers/prisma.helper';
 import PrismaController from '@/controllers/PrismaController';
 import { idParams, prismaBody, searchQuery } from '@/schemas';
 import { DeepPartial } from '@/helpers/types.helper';
