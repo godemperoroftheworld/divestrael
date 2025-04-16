@@ -12,15 +12,6 @@ export interface CompanyWithBrands extends Company {
 export default class CompanyService extends PrismaService<'Company'> {
   public static readonly instance: CompanyService = new CompanyService();
 
-  protected override lookup() {
-    return {
-      from: 'brands',
-      localField: '_id',
-      foreignField: 'companyId',
-      as: 'brands',
-    };
-  }
-
   protected searchPaths(): string[] {
     return ['name'];
   }

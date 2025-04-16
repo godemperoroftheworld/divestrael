@@ -97,7 +97,7 @@ export default class PrismaRoute<
         schema: {
           tags: [this.prefix],
           querystring: searchQuery.merge(prismaBody),
-          response: { 200: this.responseSchema },
+          response: { 200: z.array(this.responseSchema) },
         },
       },
       this.controller.search as RouteHandlerMethod,
