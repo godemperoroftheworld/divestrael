@@ -1,53 +1,12 @@
-import { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
-import z from 'zod';
+import { companyBody, companyResponse } from '@/schemas/company.schema';
+import PrismaRoute from '@/routes/PrismaRoute';
+import { CompanyWithBrands } from '@/services/company.service';
+import CompanyController from '@/controllers/company.controller';
 
-import { idParams, searchQuery } from '@/schemas';
-import brandController from '@/controllers/brand.controller';
-import { companyPostBody, companyPutBody, companyResponse } from '@/schemas/company.schema';
-import companyController from '@/controllers/company.controller';
+export default class CompanyRoute extends PrismaRoute<'Company', CompanyWithBrands> {
+  public static readonly instance = new CompanyRoute();
 
-const companyRoutes: FastifyPluginAsyncZod = async (server) => {
-  server.post(
-    '/',
-    {
-      schema: {
-        body: companyPostBody,
-        response: { 200: companyResponse },
-      },
-    },
-    companyController.postCompany,
-  );
-  server.get(
-    '/:id',
-    {
-      schema: {
-        params: idParams,
-        response: { 200: companyResponse },
-      },
-    },
-    companyController.getCompany,
-  );
-  server.put(
-    '/:id',
-    {
-      schema: {
-        params: idParams,
-        body: companyPutBody,
-        response: { 200: companyResponse },
-      },
-    },
-    companyController.updateCompany,
-  );
-  server.get(
-    '/search',
-    {
-      schema: {
-        query: searchQuery,
-        response: { 200: z.array(companyResponse) },
-      },
-    },
-    companyController.searchCompany,
-  );
-};
-
-export default companyRoutes;
+  private constructor() {
+    super('company', CompanyController.instance, companyBody, companyResponse);
+  }
+}

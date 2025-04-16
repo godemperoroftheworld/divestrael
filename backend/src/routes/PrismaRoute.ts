@@ -5,16 +5,18 @@ import { PrismaModel, PrismaModelName } from '@/helpers/prisma.helper';
 import PrismaController from '@/controllers/PrismaController';
 import { idParams, prismaBody, searchQuery } from '@/schemas';
 
+type FixedPrismaModel<N extends PrismaModelName> = Partial<PrismaModel<N>> & z.ZodRawShape;
+
 export default class PrismaRoute<
   N extends PrismaModelName,
   M extends PrismaModel<N> = PrismaModel<N>,
-  Req extends z.AnyZodObject = z.AnyZodObject,
+  Req extends z.ZodObject<FixedPrismaModel<N>> = z.ZodObject<FixedPrismaModel<N>>,
   Res extends z.AnyZodObject = z.AnyZodObject,
 > {
   protected constructor(
     public readonly prefix: Lowercase<N>,
     protected readonly controller: PrismaController<N, z.infer<Res>, M>,
-    private readonly requestSchema: Req,
+    private readonly requestSchema: z.input<Req>,
     private readonly responseSchema: Res,
   ) {}
 
@@ -22,7 +24,7 @@ export default class PrismaRoute<
     fastify.register(
       async (server) => {
         server.post(
-          '/',
+          '/all',
           {
             schema: {
               body: prismaBody.nullable().optional(),
@@ -32,7 +34,7 @@ export default class PrismaRoute<
           this.controller.getAll as RouteHandlerMethod,
         );
         server.post(
-          '/:id',
+          '/',
           {
             schema: {
               params: idParams,
