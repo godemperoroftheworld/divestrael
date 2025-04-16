@@ -29,15 +29,6 @@ export default class BarcodeService extends PrismaService<'Barcode'> {
     return ['code'];
   }
 
-  protected override lookup() {
-    return {
-      from: 'products',
-      localField: 'productId',
-      foreignField: '_id',
-      as: 'product',
-    };
-  }
-
   private readonly axiosInstance: AxiosInstance;
   private constructor() {
     super('barcode');

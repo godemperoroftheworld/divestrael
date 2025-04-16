@@ -12,15 +12,6 @@ export interface ProductWithBrand extends Product {
 export default class ProductService extends PrismaService<'Product'> {
   public static readonly instance = new ProductService();
 
-  protected override lookup() {
-    return {
-      from: 'brands',
-      localField: 'brandId',
-      foreignField: '_id',
-      as: 'brand',
-    };
-  }
-
   protected override searchPaths(): string[] {
     return ['name'];
   }
@@ -38,7 +29,7 @@ export default class ProductService extends PrismaService<'Product'> {
       return result;
     }
 
-    const brand = await BrandService.instance.getOrCreateByName(brandName);
+    const brand = await BrandService.instance.getOrCreateByName(brandName, name);
     return this.createOne({ name, brandId: brand.id });
   }
 }
