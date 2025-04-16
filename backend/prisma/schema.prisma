@@ -8,6 +8,17 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator zod {
+  provider = "zod-prisma-types"
+  output = "../src/schemas/zod"
+  useMultipleFiles = true
+  createInputTypes = false
+  addIncludeType = false
+  addSelectType = false
+  createRelationValuesTypes = true
+  createPartialTypes = true
+}
+
 datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")

@@ -13,3 +13,9 @@ export type RouteHandler<T extends RouteGenericInterface> = (
   req: FastifyRequest<T>,
   res: FastifyReply<T>,
 ) => Promise<void>;
+
+export type DeepPartial<T> = T extends object
+  ? {
+      [P in keyof T]?: DeepPartial<T[P]>;
+    }
+  : T;

@@ -13,6 +13,7 @@ type PrismaSelectAll<T extends PrismaModelName> = {
     ? PrismaSelectAll<N>
     : true;
 };
+
 export type PrismaModel<T extends PrismaModelName> = GetResult<PrismaPayload<T>, object>;
 export type PrismaModelExpanded<T extends PrismaModelName> =
   Prisma.TypeMap['model'][T]['payload']['scalars'] &
