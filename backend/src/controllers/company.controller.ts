@@ -3,11 +3,7 @@ import companyMapper from '@/controllers/mappers/company.mapper';
 import { CompanyResponse } from '@/schemas/company.schema';
 import PrismaController from '@/controllers/PrismaController';
 
-export default class CompanyController extends PrismaController<
-  'Company',
-  CompanyResponse,
-  CompanyWithBrands
-> {
+export default class CompanyController extends PrismaController<'Company', CompanyResponse> {
   public static readonly instance = new CompanyController();
 
   private constructor() {

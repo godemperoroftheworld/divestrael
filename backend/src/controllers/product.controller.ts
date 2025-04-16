@@ -3,11 +3,7 @@ import ProductService, { ProductWithBrand } from '@/services/product.service';
 import productMapper from '@/controllers/mappers/product.mapper';
 import PrismaController from '@/controllers/PrismaController';
 
-export default class ProductController extends PrismaController<
-  'Product',
-  ProductResponse,
-  ProductWithBrand
-> {
+export default class ProductController extends PrismaController<'Product', ProductResponse> {
   public static readonly instance = new ProductController();
 
   private constructor() {

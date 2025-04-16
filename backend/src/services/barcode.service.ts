@@ -3,6 +3,7 @@ import { Barcode } from '@prisma/client';
 
 import ProductService, { ProductWithBrand } from '@/services/product.service';
 import PrismaService from '@/services/PrismaService';
+import { PrismaModelExpanded } from '@/helpers/prisma.helper';
 
 export interface BarcodeWithData extends Barcode {
   product: ProductWithBrand;
@@ -21,7 +22,7 @@ interface BarcodeAPIResponse {
   }>;
 }
 
-export default class BarcodeService extends PrismaService<'Barcode', BarcodeWithData> {
+export default class BarcodeService extends PrismaService<'Barcode'> {
   public static readonly instance = new BarcodeService();
 
   protected override searchPaths() {
@@ -37,10 +38,6 @@ export default class BarcodeService extends PrismaService<'Barcode', BarcodeWith
     };
   }
 
-  protected override fields(): (keyof BarcodeWithData)[] {
-    return ['code', 'product'];
-  }
-
   private readonly axiosInstance: AxiosInstance;
   private constructor() {
     super('barcode');
@@ -52,7 +49,10 @@ export default class BarcodeService extends PrismaService<'Barcode', BarcodeWith
       `Bearer ${process.env.BARCODE_API_KEY}`;
   }
 
-  public async getOrCreateByCode(code: string, productId?: string): Promise<BarcodeWithData> {
+  public async getOrCreateByCode(
+    code: string,
+    productId?: string,
+  ): Promise<PrismaModelExpanded<'Barcode'>> {
     try {
       return this.getOneByProperty('code', code);
     } catch (_ignored) {
@@ -60,7 +60,7 @@ export default class BarcodeService extends PrismaService<'Barcode', BarcodeWith
         params: { upc: code },
       });
       const { title, brand } = data.items[0];
-      let product: ProductWithBrand;
+      let product: PrismaModelExpanded<'Product'>;
       if (productId) {
         product = await ProductService.instance.getOne(productId);
       } else {

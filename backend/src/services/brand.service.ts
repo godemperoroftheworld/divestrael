@@ -10,7 +10,7 @@ export interface BrandWithCompany extends Brand {
   company: Company;
 }
 
-export default class BrandService extends PrismaService<'Brand', BrandWithCompany> {
+export default class BrandService extends PrismaService<'Brand'> {
   public static readonly instance = new BrandService();
 
   protected override lookup() {
@@ -24,10 +24,6 @@ export default class BrandService extends PrismaService<'Brand', BrandWithCompan
 
   protected override searchPaths(): string[] {
     return ['name'];
-  }
-
-  protected override fields(): (keyof BrandWithCompany)[] {
-    return ['name', 'company'];
   }
 
   private constructor() {
