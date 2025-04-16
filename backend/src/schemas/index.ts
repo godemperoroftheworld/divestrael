@@ -1,5 +1,7 @@
 import z from 'zod';
 
+import { coerceArray } from '@/helpers/zod.helper';
+
 export const idParams = z.object({
   id: z.string().nonempty(),
 });
@@ -12,11 +14,11 @@ export type SearchQuery = z.infer<typeof searchQuery>;
 
 export const prismaBody = z
   .object({
-    select: z.array(z.string().nonempty()),
-    filter: z.object({}),
-    include: z.array(z.string().nonempty()),
+    select: coerceArray(z.string().nonempty()),
+    filter: z.string().nonempty(),
+    include: coerceArray(z.string().nonempty()),
     omit: z.array(z.string().nonempty()),
-    take: z.number().optional(),
-    skip: z.number().optional(),
+    take: z.coerce.number(),
+    skip: z.coerce.number(),
   })
   .partial();

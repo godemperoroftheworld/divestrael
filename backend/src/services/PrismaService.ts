@@ -1,9 +1,15 @@
 import { Prisma, PrismaClient } from '@prisma/client';
-import { merge, set } from 'lodash';
+import { isPlainObject, mapValues, merge, set } from 'lodash';
+import prismaFQP from '@krsbx/prisma-fqp';
 
-import prisma from '@/prisma';
+import prisma, { dmmf } from '@/prisma';
 import { DeepKey } from '@/helpers/types.helper';
-import { PrismaModel, PrismaModelExpanded, PrismaModelName } from '@/helpers/prisma.helper';
+import {
+  PrismaFilter,
+  PrismaModel,
+  PrismaModelExpanded,
+  PrismaModelName,
+} from '@/helpers/prisma.helper';
 import { IdParams } from '@/schemas';
 
 // Args
@@ -13,13 +19,11 @@ type PrismaCreateArgs<N extends PrismaModelName> = Partial<PrismaOperations<N>['
 type PrismaUpdateArgs<N extends PrismaModelName> = Partial<PrismaOperations<N>['update']['args']>;
 
 // Filters
-type PrismaFilters<N extends PrismaModelName> = PrismaArgs<N>['where'];
 type PrismaSelect<N extends PrismaModelName> = PrismaArgs<N>['select'];
 export interface PrismaServiceParams<N extends PrismaModelName> {
-  select?: DeepKey<PrismaModel<N>>[];
-  filter?: PrismaFilters<N>;
-  include?: DeepKey<PrismaModel<N>>[];
-  omit?: DeepKey<PrismaModel<N>>[];
+  select?: DeepKey<PrismaModelExpanded<N>>[];
+  filter?: PrismaFilter<N> | string;
+  include?: DeepKey<PrismaModelExpanded<N>>[];
   take?: number;
   skip?: number;
 }
@@ -42,19 +46,87 @@ interface PrismaRepositoryBase<
 }
 
 export default abstract class PrismaService<N extends PrismaModelName> {
-  private static buildSelects<N extends PrismaModelName>(
-    selects: DeepKey<PrismaModel<N>>[],
-  ): Prisma.TypeMap['model'][N]['operations']['findUnique']['args']['where'] {
-    const mappedSelects = selects.map((select) => {
-      const splitSelect = select.split('.');
-      return set({}, splitSelect, true);
-    });
-    return merge({}, ...mappedSelects);
+  private static buildFilter<N extends PrismaModelName>(filter: string): PrismaFilter<N> {
+    return prismaFQP(filter);
+  }
+
+  private static mergeSelectAndInclude<N extends PrismaModelName>(
+    obj: { include: object; select: object } & { [key: string]: true },
+  ): object {
+    if (!isPlainObject(obj)) return obj;
+    if (obj.select && obj.include) {
+      return {
+        select: merge(
+          {},
+          obj.select,
+          mapValues(obj.include, PrismaService.mergeSelectAndInclude<N>),
+        ),
+      };
+    }
+    return mapValues(obj, (value: typeof obj) =>
+      isPlainObject(value) ? PrismaService.mergeSelectAndInclude<N>(value) : value,
+    );
   }
 
   protected readonly repository: PrismaClient[Lowercase<N>];
   protected constructor(private property: Lowercase<N>) {
     this.repository = prisma[property];
+  }
+
+  protected get models() {
+    return dmmf!.datamodel.models;
+  }
+
+  protected get model() {
+    return this.findModel(this.property)!;
+  }
+
+  protected findModel(name: Lowercase<PrismaModelName>) {
+    return this.models.find((model) => model.name.toLowerCase() === name);
+  }
+
+  private buildIncludes(keys: DeepKey<PrismaModelExpanded<N>>[]): PrismaFilter<N> {
+    const mapped = keys.map((key) => {
+      let currentModel = this.model;
+      const splitKey = key.split('.');
+      const fixedKey = splitKey.reduce((result: string, keySegment, idx, arr) => {
+        const field = currentModel.fields.find((f) => f.name === keySegment)!;
+        if (field.relationName && idx + 1 !== arr.length) {
+          currentModel = this.findModel(field.type.toLowerCase() as Lowercase<PrismaModelName>)!;
+          return result + (result.length ? '.' : '') + `${keySegment}.include`;
+        } else {
+          return result + (result.length ? '.' : '') + `${keySegment}`;
+        }
+      }, '');
+      return set({}, fixedKey, true);
+    });
+
+    const flexibleObject = merge({}, ...mapped);
+
+    // We have to fold in select / include in the cases where there's both
+    return PrismaService.mergeSelectAndInclude<N>(flexibleObject);
+  }
+
+  private buildSelects<N extends PrismaModelName>(keys: DeepKey<PrismaModelExpanded<N>>[]): object {
+    const mapped = keys.map((key) => {
+      let currentModel = this.model;
+      const splitKey = key.split('.');
+      const fixedKey = splitKey.reduce((result: string, keySegment, idx, arr) => {
+        const field = currentModel.fields.find((f) => f.name === keySegment)!;
+        if (field.relationName && idx + 1 != arr.length) {
+          currentModel = this.findModel(field.type.toLowerCase() as Lowercase<PrismaModelName>)!;
+          return result + (result.length ? '.' : '') + `${keySegment}.select`;
+        } else {
+          return result + (result.length ? '.' : '') + `${keySegment}`;
+        }
+      }, '');
+      return set({}, fixedKey, true);
+    });
+
+    const flexibleObject = merge({}, ...mapped);
+
+    // We have to fold in select / include in the cases where there's both
+    return PrismaService.mergeSelectAndInclude<N>(flexibleObject);
   }
 
   protected abstract searchPaths(): string[];
@@ -65,34 +137,50 @@ export default abstract class PrismaService<N extends PrismaModelName> {
     return this.repository as unknown as PrismaRepositoryBase<N>;
   }
 
-  public async getOne(id: string): Promise<PrismaModelExpanded<N>> {
-    return this.repositoryBase.findUniqueOrThrow({
+  public async getOne(
+    id: string,
+    params: Omit<PrismaServiceParams<N>, 'filter' | 'take' | 'skip'> = {},
+  ): Promise<PrismaModelExpanded<N>> {
+    const { include, select } = params;
+    const fixedParams = {
       where: { id },
-    } as PrismaArgs<N>);
+      select: select ? this.buildSelects(select) : undefined,
+      include: include && !select ? this.buildIncludes(include) : undefined,
+    } as PrismaArgs<N>;
+    return this.repositoryBase.findUniqueOrThrow(fixedParams);
   }
 
   public async getOneByProperty<K extends keyof PrismaModel<N>>(
     property: K,
     value: PrismaModel<N>[K],
+    params: Omit<PrismaServiceParams<N>, 'filter' | 'take' | 'skip'> = {},
   ): Promise<PrismaModelExpanded<N>> {
+    const { include, select } = params;
+    const mergedSelectInclude = merge(
+      {},
+      select ? this.buildIncludes(select) : {},
+      include ? this.buildIncludes(include) : {},
+    );
     return this.repositoryBase.findUniqueOrThrow({
-      where: { [property]: value } as unknown as PrismaFilters<N>,
+      where: { [property]: value } as unknown as PrismaFilter<N>,
+      select: select ? mergedSelectInclude : undefined,
+      include: !select ? mergedSelectInclude : undefined,
     } as PrismaArgs<N>);
   }
 
   public async getMany(params: PrismaServiceParams<N> = {}): Promise<PrismaModelExpanded<N>[]> {
-    const { select, filter, omit, include, skip, take } = params;
+    const { select, filter, include, skip, take } = params;
+    const fixedFilter = typeof filter === 'string' ? PrismaService.buildFilter(filter) : filter;
     const mergedSelectInclude = merge(
       {},
-      select ? PrismaService.buildSelects(select) : {},
-      include ? PrismaService.buildSelects(include) : {},
+      select ? this.buildIncludes(select) : {},
+      include ? this.buildIncludes(include) : {},
     );
 
     return this.repositoryBase.findMany({
+      where: fixedFilter,
       select: select ? mergedSelectInclude : undefined,
-      where: filter,
       include: !select ? mergedSelectInclude : undefined,
-      omit: omit ? PrismaService.buildSelects(omit) : undefined,
       skip,
       take,
     } as PrismaArgs<N>);
@@ -100,7 +188,7 @@ export default abstract class PrismaService<N extends PrismaModelName> {
 
   public async hasOne(id: string): Promise<boolean> {
     const result = await this.repositoryBase.findUnique({
-      where: { id } as PrismaFilters<N>,
+      where: { id } as PrismaFilter<N>,
       select: { id: true },
     } as PrismaArgs<N>);
     return !!result;
@@ -111,13 +199,17 @@ export default abstract class PrismaService<N extends PrismaModelName> {
     value: PrismaModel<N>[K],
   ): Promise<boolean> {
     const result = await this.repositoryBase.findUnique({
-      where: { [property]: value } as unknown as PrismaFilters<N>,
+      where: { [property]: value } as unknown as PrismaFilter<N>,
       select: { id: true } as PrismaSelect<N>,
     } as PrismaArgs<N>);
     return !!result;
   }
 
-  public async searchOne(query: string, fuzzy?: boolean): Promise<PrismaModelExpanded<N> | null> {
+  public async searchOne(
+    query: string,
+    fuzzy?: boolean,
+    params: Omit<PrismaServiceParams<N>, 'filter' | 'take' | 'skip'> = {},
+  ): Promise<PrismaModelExpanded<N> | null> {
     const searchResult = (
       await this.repository.aggregateRaw({
         pipeline: [
@@ -149,12 +241,16 @@ export default abstract class PrismaService<N extends PrismaModelName> {
     )[0];
     if (searchResult) {
       const { id } = searchResult as IdParams;
-      return this.getOne(id);
+      return this.getOne(id, params);
     }
     return null;
   }
 
-  public async searchMany(query: string, fuzzy?: boolean): Promise<PrismaModelExpanded<N>[]> {
+  public async searchMany(
+    query: string,
+    fuzzy: boolean = false,
+    params: Omit<PrismaServiceParams<N>, 'filter'> = {},
+  ): Promise<PrismaModelExpanded<N>[]> {
     const searchResults = (await this.repository.aggregateRaw({
       pipeline: [
         {
@@ -184,7 +280,10 @@ export default abstract class PrismaService<N extends PrismaModelName> {
     })) as unknown as IdParams[];
     if (searchResults.length) {
       const ids = searchResults.map((x) => x.id);
-      return this.getMany({ filter: { id: { in: ids } } });
+      return this.getMany({
+        filter: { id: { in: ids } },
+        ...params,
+      });
     }
     return [];
   }
@@ -203,7 +302,7 @@ export default abstract class PrismaService<N extends PrismaModelName> {
     return this.repositoryBase.findMany({
       where: {
         [searchPath]: { in: data.map((d) => d[searchPath]) },
-      } as unknown as PrismaFilters<N>,
+      } as unknown as PrismaFilter<N>,
     } as PrismaArgs<N>);
   }
 
@@ -223,7 +322,7 @@ export default abstract class PrismaService<N extends PrismaModelName> {
     data: Partial<Omit<PrismaModel<N>, 'id'>>,
   ) {
     return this.repositoryBase.update({
-      where: { [key]: value } as unknown as PrismaFilters<N>,
+      where: { [key]: value } as unknown as PrismaFilter<N>,
       data,
     } as PrismaUpdateArgs<N>);
   }
