@@ -1,14 +1,9 @@
-import { Company } from '@prisma/client';
 import { Brand } from '.prisma/client';
 
 import PrismaService from '@/services/PrismaService';
 import { ERRORS } from '@/helpers/errors.helper';
 import AIService from '@/services/generator.service';
 import CompanyService from '@/services/company.service';
-
-export interface BrandWithCompany extends Brand {
-  company: Company;
-}
 
 export default class BrandService extends PrismaService<'Brand'> {
   public static readonly instance = new BrandService();

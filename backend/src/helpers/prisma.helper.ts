@@ -6,29 +6,18 @@ export type PrismaModelName =
   Prisma.TypeMap['model'][keyof Prisma.TypeMap['model']]['payload']['name'];
 type PrismaPayload<T extends PrismaModelName> = Prisma.TypeMap['model'][T]['payload'];
 export type PrismaObjects<T extends PrismaModelName> = PrismaPayload<T>['objects'];
-type PrismaSelectAll<T extends PrismaModelName> = {
-  [K in keyof PrismaObjects<T>]: PrismaObjects<T>[K] extends {
-    name: infer N extends PrismaModelName;
-  }
-    ? PrismaSelectAll<N>
-    : true;
-};
 
 export type PrismaModel<T extends PrismaModelName> = GetResult<PrismaPayload<T>, object>;
-export type PrismaModelExpanded<T extends PrismaModelName> =
-  Prisma.TypeMap['model'][T]['payload']['scalars'] &
-    Partial<
-      GetResult<
-        PrismaPayload<T>,
-        {
-          include: PrismaSelectAll<T>;
+export type PrismaModelExpanded<T extends PrismaModelName> = PrismaPayload<T>['scalars'] & {
+  [K in keyof PrismaObjects<T>]?: PrismaObjects<T>[K] extends Array<{
+    name: infer N extends PrismaModelName;
+  }>
+    ? PrismaModel<N>[]
+    : PrismaObjects<T>[K] extends {
+          name: infer N extends PrismaModelName;
         }
-      >
-    >;
-
+      ? PrismaModelExpanded<N>
+      : never;
+};
 export type PrismaFilter<T extends PrismaModelName> =
   Prisma.TypeMap['model'][T]['operations']['findFirst']['args']['where'];
-export type PrismaInclude<T extends PrismaModelName> =
-  Prisma.TypeMap['model'][T]['operations']['findFirst']['args']['include'];
-export type PrismaSelect<T extends PrismaModelName> =
-  Prisma.TypeMap['model'][T]['operations']['findFirst']['args']['select'];

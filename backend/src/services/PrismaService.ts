@@ -20,9 +20,9 @@ type PrismaUpdateArgs<N extends PrismaModelName> = Partial<PrismaOperations<N>['
 
 // Filters
 export interface PrismaServiceParams<N extends PrismaModelName> {
-  select?: DeepKey<PrismaModelExpanded<N>>[];
+  select?: DeepKey<Required<PrismaModelExpanded<N>>>[];
   filter?: PrismaFilter<N> | string;
-  include?: DeepKey<PrismaModelExpanded<N>>[];
+  include?: DeepKey<Required<PrismaModelExpanded<N>>>[];
   take?: number;
   skip?: number;
 }
@@ -85,7 +85,7 @@ export default abstract class PrismaService<N extends PrismaModelName> {
     return this.models.find((model) => model.name.toLowerCase() === name);
   }
 
-  private buildIncludes(keys: DeepKey<PrismaModelExpanded<N>>[]): PrismaFilter<N> {
+  private buildIncludes(keys: DeepKey<Required<PrismaModelExpanded<N>>>[]): PrismaFilter<N> {
     const mapped = keys.map((key) => {
       let currentModel = this.model;
       const splitKey = key.split('.');
@@ -107,7 +107,9 @@ export default abstract class PrismaService<N extends PrismaModelName> {
     return PrismaService.mergeSelectAndInclude<N>(flexibleObject);
   }
 
-  private buildSelects<N extends PrismaModelName>(keys: DeepKey<PrismaModelExpanded<N>>[]): object {
+  private buildSelects<N extends PrismaModelName>(
+    keys: DeepKey<Required<PrismaModelExpanded<N>>>[],
+  ): object {
     const mapped = keys.map((key) => {
       let currentModel = this.model;
       const splitKey = key.split('.');
@@ -272,10 +274,10 @@ export default abstract class PrismaService<N extends PrismaModelName> {
     data: Omit<PrismaModel<N>, 'id'>,
     params: Pick<PrismaServiceParams<N>, 'select' | 'include'> = {},
   ): Promise<PrismaModelExpanded<N>> {
-    return this.repositoryBase.create({
+    const { id } = await this.repositoryBase.create({
       data,
-      ...params,
     } as unknown as PrismaCreateArgs<N>);
+    return this.getOne(id, params);
   }
 
   public async createMany(
