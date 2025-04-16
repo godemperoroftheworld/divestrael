@@ -3,11 +3,7 @@ import BarcodeService, { BarcodeWithData } from '@/services/barcode.service';
 import barcodeMapper from '@/controllers/mappers/barcode.mapper';
 import PrismaController from '@/controllers/PrismaController';
 
-export default class BarcodeController extends PrismaController<
-  'Barcode',
-  BarcodeResponse,
-  BarcodeWithData
-> {
+export default class BarcodeController extends PrismaController<'Barcode', BarcodeResponse> {
   public static readonly instance = new BarcodeController();
 
   private constructor() {

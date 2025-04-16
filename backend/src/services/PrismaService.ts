@@ -1,20 +1,20 @@
 import { Prisma, PrismaClient } from '@prisma/client';
-import { fromPairs, merge, set } from 'lodash';
+import { merge, set } from 'lodash';
 
 import prisma from '@/prisma';
 import { DeepKey } from '@/helpers/types.helper';
-import { PrismaModel, PrismaModelName } from '@/helpers/prisma.helper';
+import { PrismaModel, PrismaModelExpanded, PrismaModelName } from '@/helpers/prisma.helper';
+import { IdParams } from '@/schemas';
 
 // Args
 type PrismaOperations<N extends PrismaModelName> = Prisma.TypeMap['model'][N]['operations'];
-type PrismaArgs<N extends PrismaModelName> = Partial<PrismaOperations<N>['findUnique']['args']>;
+type PrismaArgs<N extends PrismaModelName> = Partial<PrismaOperations<N>['findFirst']['args']>;
 type PrismaCreateArgs<N extends PrismaModelName> = Partial<PrismaOperations<N>['create']['args']>;
 type PrismaUpdateArgs<N extends PrismaModelName> = Partial<PrismaOperations<N>['update']['args']>;
 
 // Filters
 type PrismaFilters<N extends PrismaModelName> = PrismaArgs<N>['where'];
 type PrismaSelect<N extends PrismaModelName> = PrismaArgs<N>['select'];
-type PrismaInclude<N extends PrismaModelName> = PrismaArgs<N>['include'];
 export interface PrismaServiceParams<N extends PrismaModelName> {
   select?: DeepKey<PrismaModel<N>>[];
   filter?: PrismaFilters<N>;
@@ -25,7 +25,10 @@ export interface PrismaServiceParams<N extends PrismaModelName> {
 }
 
 // Prisma repository
-interface PrismaRepositoryBase<N extends PrismaModelName, T extends PrismaModel<N>> {
+interface PrismaRepositoryBase<
+  N extends PrismaModelName,
+  T extends PrismaModelExpanded<N> = PrismaModelExpanded<N>,
+> {
   findUnique: (args: PrismaArgs<N>) => Promise<T | null>;
   findUniqueOrThrow: (args: PrismaArgs<N>) => Promise<T>;
   findMany: (args: PrismaArgs<N>) => Promise<T[]>;
@@ -38,10 +41,7 @@ interface PrismaRepositoryBase<N extends PrismaModelName, T extends PrismaModel<
   update: (args: PrismaUpdateArgs<N>) => Promise<T>;
 }
 
-export default abstract class PrismaService<
-  N extends PrismaModelName,
-  M extends PrismaModel<N> = PrismaModel<N>,
-> {
+export default abstract class PrismaService<N extends PrismaModelName> {
   private static buildSelects<N extends PrismaModelName>(
     selects: DeepKey<PrismaModel<N>>[],
   ): Prisma.TypeMap['model'][N]['operations']['findUnique']['args']['where'] {
@@ -61,13 +61,11 @@ export default abstract class PrismaService<
 
   protected abstract lookup(): object | undefined;
 
-  protected abstract fields(): (keyof M)[];
-
   private get repositoryBase() {
-    return this.repository as unknown as PrismaRepositoryBase<N, M>;
+    return this.repository as unknown as PrismaRepositoryBase<N>;
   }
 
-  public async getOne(id: string): Promise<M> {
+  public async getOne(id: string): Promise<PrismaModelExpanded<N>> {
     return this.repositoryBase.findUniqueOrThrow({
       where: { id },
     } as PrismaArgs<N>);
@@ -76,13 +74,13 @@ export default abstract class PrismaService<
   public async getOneByProperty<K extends keyof PrismaModel<N>>(
     property: K,
     value: PrismaModel<N>[K],
-  ): Promise<M> {
+  ): Promise<PrismaModelExpanded<N>> {
     return this.repositoryBase.findUniqueOrThrow({
       where: { [property]: value } as unknown as PrismaFilters<N>,
     } as PrismaArgs<N>);
   }
 
-  public async getMany(params: PrismaServiceParams<N> = {}): Promise<M[]> {
+  public async getMany(params: PrismaServiceParams<N> = {}): Promise<PrismaModelExpanded<N>[]> {
     const { select, filter, omit, include, skip, take } = params;
     const mergedSelectInclude = merge(
       {},
@@ -119,8 +117,8 @@ export default abstract class PrismaService<
     return !!result;
   }
 
-  public async searchOne(query: string, fuzzy?: boolean): Promise<M | null> {
-    return ((
+  public async searchOne(query: string, fuzzy?: boolean): Promise<PrismaModelExpanded<N> | null> {
+    const searchResult = (
       await this.repository.aggregateRaw({
         pipeline: [
           {
@@ -143,22 +141,21 @@ export default abstract class PrismaService<
             : {},
           {
             $project: {
-              _id: false,
-              id: { $toString: '_id' },
-              ...fromPairs(this.fields().map((f) => [f, true])),
+              _id: true,
             },
           },
         ],
       })
-    )[0] ?? null) as M | null;
+    )[0];
+    if (searchResult) {
+      const { id } = searchResult as IdParams;
+      return this.getOne(id);
+    }
+    return null;
   }
 
-  public async searchMany(
-    query: string,
-    include: PrismaInclude<N> = {},
-    fuzzy?: boolean,
-  ): Promise<M[]> {
-    return (await this.repository.aggregateRaw({
+  public async searchMany(query: string, fuzzy?: boolean): Promise<PrismaModelExpanded<N>[]> {
+    const searchResults = (await this.repository.aggregateRaw({
       pipeline: [
         {
           $search: {
@@ -180,23 +177,25 @@ export default abstract class PrismaService<
           : {},
         {
           $project: {
-            _id: false,
-            id: { $toString: '_id' },
-            ...fromPairs(this.fields().map((f) => [f, true])),
-            ...include,
+            _id: true,
           } as Prisma.InputJsonValue,
         },
       ],
-    })) as unknown as M[];
+    })) as unknown as IdParams[];
+    if (searchResults.length) {
+      const ids = searchResults.map((x) => x.id);
+      return this.getMany({ filter: { id: { in: ids } } });
+    }
+    return [];
   }
 
-  public async createOne(data: Omit<PrismaModel<N>, 'id'>): Promise<M> {
+  public async createOne(data: Omit<PrismaModel<N>, 'id'>): Promise<PrismaModelExpanded<N>> {
     return this.repositoryBase.create({
       data,
     } as unknown as PrismaCreateArgs<N>);
   }
 
-  public async createMany(data: Omit<PrismaModel<N>, 'id'>[]): Promise<M[]> {
+  public async createMany(data: Omit<PrismaModel<N>, 'id'>[]): Promise<PrismaModelExpanded<N>[]> {
     await this.repositoryBase.createMany({
       data,
     } as unknown as PrismaCreateArgs<N>);
@@ -208,7 +207,10 @@ export default abstract class PrismaService<
     } as PrismaArgs<N>);
   }
 
-  public async updateOne(id: string, data: Partial<Omit<PrismaModel<N>, 'id'>>): Promise<M> {
+  public async updateOne(
+    id: string,
+    data: Partial<Omit<PrismaModel<N>, 'id'>>,
+  ): Promise<PrismaModelExpanded<N>> {
     return this.repositoryBase.update({
       where: { id },
       data,
