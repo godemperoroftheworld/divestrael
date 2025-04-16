@@ -12,6 +12,7 @@ import fastifySwaggerUI from '@fastify/swagger-ui';
 import loadConfig from '@/config/env.config';
 import { handleServerError } from '@/helpers/errors.helper';
 import routes from '@/routes';
+import { initDMMF } from '@/prisma';
 
 loadConfig();
 
@@ -81,7 +82,7 @@ function startServer() {
   });
 }
 
-startServer();
+initDMMF().then(startServer);
 
 // Handle unhandled rejections
 process.on('unhandledRejection', (err) => {
