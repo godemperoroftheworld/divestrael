@@ -30,14 +30,23 @@ export default class PrismaRoute<
 
   protected routes(server: FastifyInstance) {
     server.post(
-      '/getAll',
+      '/all',
       {
         schema: {
           body: prismaBody.nullable().optional(),
           response: { 200: z.array(this.responseSchema) },
         },
       },
-      this.controller.getAll as RouteHandlerMethod,
+      this.controller.getWithPost as RouteHandlerMethod,
+    );
+    server.post(
+      '/count',
+      {
+        schema: {
+          body: prismaBody.pick({ filter: true }).nullable().optional(),
+        },
+      },
+      this.controller.count as RouteHandlerMethod,
     );
     server.post(
       '/',
@@ -60,6 +69,16 @@ export default class PrismaRoute<
         },
       },
       this.controller.put as RouteHandlerMethod,
+    );
+    server.get(
+      '/',
+      {
+        schema: {
+          querystring: prismaBody.nullable().optional(),
+          response: { 200: z.array(this.responseSchema) },
+        },
+      },
+      this.controller.getAll as RouteHandlerMethod,
     );
     server.get(
       '/:id',

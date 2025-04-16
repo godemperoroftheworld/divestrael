@@ -43,6 +43,7 @@ interface PrismaRepositoryBase<
     options?: Prisma.InputJsonValue;
   }) => Promise<Prisma.JsonObject>;
   update: (args: PrismaUpdateArgs<N>) => Promise<T>;
+  count: (args: PrismaArgs<N>) => Promise<number>;
 }
 
 export default abstract class PrismaService<N extends PrismaModelName> {
@@ -142,12 +143,11 @@ export default abstract class PrismaService<N extends PrismaModelName> {
     params: Omit<PrismaServiceParams<N>, 'filter' | 'take' | 'skip'> = {},
   ): Promise<PrismaModelExpanded<N>> {
     const { include, select } = params;
-    const fixedParams = {
+    return this.repositoryBase.findUniqueOrThrow({
       where: { id },
       select: select ? this.buildSelects(select) : undefined,
       include: include && !select ? this.buildIncludes(include) : undefined,
-    } as PrismaArgs<N>;
-    return this.repositoryBase.findUniqueOrThrow(fixedParams);
+    } as PrismaArgs<N>);
   }
 
   public async getOneByProperty<K extends keyof PrismaModel<N>>(
@@ -156,53 +156,47 @@ export default abstract class PrismaService<N extends PrismaModelName> {
     params: Omit<PrismaServiceParams<N>, 'filter' | 'take' | 'skip'> = {},
   ): Promise<PrismaModelExpanded<N>> {
     const { include, select } = params;
-    const mergedSelectInclude = merge(
-      {},
-      select ? this.buildIncludes(select) : {},
-      include ? this.buildIncludes(include) : {},
-    );
     return this.repositoryBase.findUniqueOrThrow({
       where: { [property]: value } as unknown as PrismaFilter<N>,
-      select: select ? mergedSelectInclude : undefined,
-      include: !select ? mergedSelectInclude : undefined,
+      select: select ? this.buildSelects(select) : undefined,
+      include: include && !select ? this.buildIncludes(include) : undefined,
     } as PrismaArgs<N>);
   }
 
   public async getMany(params: PrismaServiceParams<N> = {}): Promise<PrismaModelExpanded<N>[]> {
     const { select, filter, include, skip, take } = params;
     const fixedFilter = typeof filter === 'string' ? PrismaService.buildFilter(filter) : filter;
-    const mergedSelectInclude = merge(
-      {},
-      select ? this.buildIncludes(select) : {},
-      include ? this.buildIncludes(include) : {},
-    );
 
     return this.repositoryBase.findMany({
       where: fixedFilter,
-      select: select ? mergedSelectInclude : undefined,
-      include: !select ? mergedSelectInclude : undefined,
+      select: select ? this.buildSelects(select) : undefined,
+      include: include && !select ? this.buildIncludes(include) : undefined,
       skip,
       take,
     } as PrismaArgs<N>);
   }
 
-  public async hasOne(id: string): Promise<boolean> {
-    const result = await this.repositoryBase.findUnique({
-      where: { id } as PrismaFilter<N>,
-      select: { id: true },
+  public async count(params: Pick<PrismaServiceParams<N>, 'filter'> = {}): Promise<number> {
+    const { filter } = params;
+    const fixedFilter = typeof filter === 'string' ? PrismaService.buildFilter(filter) : filter;
+    return this.repositoryBase.count({
+      where: fixedFilter,
     } as PrismaArgs<N>);
-    return !!result;
+  }
+
+  public async hasOne(id: string): Promise<boolean> {
+    const count = await this.count({ filter: { id } });
+    return count > 0;
   }
 
   public async hasOneByProperty<K extends keyof PrismaModel<N>>(
     property: K,
     value: PrismaModel<N>[K],
   ): Promise<boolean> {
-    const result = await this.repositoryBase.findUnique({
-      where: { [property]: value } as unknown as PrismaFilter<N>,
-      select: { id: true } as PrismaSelect<N>,
-    } as PrismaArgs<N>);
-    return !!result;
+    const count = await this.count({
+      filter: { [property]: value },
+    });
+    return count > 0;
   }
 
   public async searchOne(
