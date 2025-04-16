@@ -1,16 +1,10 @@
-import { BarcodeResponse } from '@/schemas/barcode.schema';
-import BarcodeService, { BarcodeWithData } from '@/services/barcode.service';
-import barcodeMapper from '@/controllers/mappers/barcode.mapper';
+import BarcodeService from '@/services/barcode.service';
 import PrismaController from '@/controllers/PrismaController';
 
-export default class BarcodeController extends PrismaController<'Barcode', BarcodeResponse> {
+export default class BarcodeController extends PrismaController<'Barcode'> {
   public static readonly instance = new BarcodeController();
 
   private constructor() {
     super(BarcodeService.instance);
-  }
-
-  protected mapData(data: BarcodeWithData): BarcodeResponse {
-    return barcodeMapper(data);
   }
 }

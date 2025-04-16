@@ -1,16 +1,10 @@
-import { ProductResponse } from '@/schemas/product.schema';
-import ProductService, { ProductWithBrand } from '@/services/product.service';
-import productMapper from '@/controllers/mappers/product.mapper';
+import ProductService from '@/services/product.service';
 import PrismaController from '@/controllers/PrismaController';
 
-export default class ProductController extends PrismaController<'Product', ProductResponse> {
+export default class ProductController extends PrismaController<'Product'> {
   public static readonly instance = new ProductController();
 
   private constructor() {
     super(ProductService.instance);
-  }
-
-  protected mapData(data: ProductWithBrand): ProductResponse {
-    return productMapper(data);
   }
 }
