@@ -41,8 +41,14 @@ export default abstract class PrismaController<N extends PrismaModelName> {
     res.status(HttpStatusCode.Ok).send(result);
   };
 
-  // Get with POST
   public readonly getAll: RouteHandler<{
+    Querystring: PrismaQueryParams<N>;
+  }> = async (req, res) => {
+    const result = await this.service.getMany(req.query);
+    res.status(HttpStatusCode.Ok).send(result);
+  };
+
+  public readonly getWithPost: RouteHandler<{
     Body: PrismaServiceParams<N>;
   }> = async (req, res) => {
     const result = await this.service.getMany(req.body);
@@ -54,6 +60,13 @@ export default abstract class PrismaController<N extends PrismaModelName> {
   }> = async (req, res) => {
     const { query, ...params } = req.query;
     const result = await this.service.searchMany(query, false, params);
+    res.status(HttpStatusCode.Ok).send(result);
+  };
+
+  public readonly count: RouteHandler<{
+    Body: Pick<PrismaServiceParams<N>, 'filter'>;
+  }> = async (req, res) => {
+    const result = await this.service.count(req.body);
     res.status(HttpStatusCode.Ok).send(result);
   };
 }
