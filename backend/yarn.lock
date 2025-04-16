@@ -1890,26 +1890,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/qs@npm:^6":
-  version: 6.9.18
-  resolution: "@types/qs@npm:6.9.18"
-  checksum: 10c0/790b9091348e06dde2c8e4118b5771ab386a8c22a952139a2eb0675360a2070d0b155663bf6f75b23f258fd0a1f7ffc0ba0f059d99a719332c03c40d9e9cd63b
-  languageName: node
-  linkType: hard
-
 "@types/retry@npm:0.12.0":
   version: 0.12.0
   resolution: "@types/retry@npm:0.12.0"
   checksum: 10c0/7c5c9086369826f569b83a4683661557cab1361bac0897a1cefa1a915ff739acd10ca0d62b01071046fe3f5a3f7f2aec80785fe283b75602dc6726781ea3e328
-  languageName: node
-  linkType: hard
-
-"@types/tap@npm:~15.0.11":
-  version: 15.0.12
-  resolution: "@types/tap@npm:15.0.12"
-  dependencies:
-    "@types/node": "npm:*"
-  checksum: 10c0/6c13692a35fcac6677e681c7b28f1a84b84aebe8ed6ac9c35e8465b78e4131772f2d5d0b3ad3ac35ebc3308e8a1379ed04988dfe494845e0e1488ae6f548a44e
   languageName: node
   linkType: hard
 
@@ -2781,13 +2765,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"class-transformer@npm:^0.5.1":
-  version: 0.5.1
-  resolution: "class-transformer@npm:0.5.1"
-  checksum: 10c0/19809914e51c6db42c036166839906420bb60367df14e15f49c45c8c1231bf25ae661ebe94736ee29cc688b77101ef851a8acca299375cc52fc141b64acde18a
-  languageName: node
-  linkType: hard
-
 "clean-stack@npm:^2.0.0":
   version: 2.2.0
   resolution: "clean-stack@npm:2.2.0"
@@ -3299,11 +3276,8 @@ __metadata:
     "@types/node": "npm:^22.13.10"
     "@types/nodemon": "npm:1.19.6"
     "@types/prettier": "npm:2.7.3"
-    "@types/qs": "npm:^6"
-    "@types/tap": "npm:~15.0.11"
     "@typescript-eslint/parser": "npm:^8.26.1"
     axios: "npm:^1.8.4"
-    class-transformer: "npm:^0.5.1"
     dotenv: "npm:^16.4.5"
     eslint: "npm:^9.22.0"
     eslint-config-prettier: "npm:^10.1.1"
@@ -3323,7 +3297,6 @@ __metadata:
     pino-pretty: "npm:^13.0.0"
     prettier: "npm:3.3.3"
     prisma: "npm:^6.5.0"
-    reflect-metadata: "npm:^0.2.2"
     tap: "npm:21.0.0"
     ts-node: "npm:10.9.2"
     tsc-alias: "npm:^1.8.8"
@@ -7486,13 +7459,6 @@ __metadata:
   version: 0.2.0
   resolution: "real-require@npm:0.2.0"
   checksum: 10c0/23eea5623642f0477412ef8b91acd3969015a1501ed34992ada0e3af521d3c865bb2fe4cdbfec5fe4b505f6d1ef6a03e5c3652520837a8c3b53decff7e74b6a0
-  languageName: node
-  linkType: hard
-
-"reflect-metadata@npm:^0.2.2":
-  version: 0.2.2
-  resolution: "reflect-metadata@npm:0.2.2"
-  checksum: 10c0/1cd93a15ea291e420204955544637c264c216e7aac527470e393d54b4bb075f10a17e60d8168ec96600c7e0b9fcc0cb0bb6e91c3fbf5b0d8c9056f04e6ac1ec2
   languageName: node
   linkType: hard
 
