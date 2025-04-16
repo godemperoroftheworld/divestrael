@@ -27,7 +27,8 @@ export default class PrismaRoute<
       '/all',
       {
         schema: {
-          body: prismaBody.nullable().optional(),
+          tags: [this.prefix],
+          body: prismaBody.nullable(),
           response: { 200: z.array(this.responseSchema) },
         },
       },
@@ -37,6 +38,7 @@ export default class PrismaRoute<
       '/count',
       {
         schema: {
+          tags: [this.prefix],
           body: prismaBody.pick({ filter: true }).nullable().optional(),
         },
       },
@@ -46,6 +48,7 @@ export default class PrismaRoute<
       '/',
       {
         schema: {
+          tags: [this.prefix],
           params: idParams,
           body: this.requestSchema,
           response: { 200: this.responseSchema },
@@ -57,6 +60,7 @@ export default class PrismaRoute<
       '/:id',
       {
         schema: {
+          tags: [this.prefix],
           params: idParams,
           body: this.requestSchema.partial(),
           response: { 200: this.responseSchema },
@@ -68,7 +72,8 @@ export default class PrismaRoute<
       '/',
       {
         schema: {
-          querystring: prismaBody.nullable().optional(),
+          tags: [this.prefix],
+          querystring: prismaBody.nullable(),
           response: { 200: z.array(this.responseSchema) },
         },
       },
@@ -78,8 +83,9 @@ export default class PrismaRoute<
       '/:id',
       {
         schema: {
+          tags: [this.prefix],
           params: idParams,
-          querystring: prismaBody.nullable().optional(),
+          querystring: prismaBody.nullable(),
           response: { 200: this.responseSchema },
         },
       },
@@ -89,6 +95,7 @@ export default class PrismaRoute<
       '/search',
       {
         schema: {
+          tags: [this.prefix],
           querystring: searchQuery.merge(prismaBody),
           response: { 200: this.responseSchema },
         },
