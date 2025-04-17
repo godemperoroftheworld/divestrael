@@ -23,6 +23,7 @@ export interface PrismaServiceParams<N extends PrismaModelName> {
   select?: DeepKey<Required<PrismaModelExpanded<N>>>[];
   filter?: PrismaFilter<N> | string;
   include?: DeepKey<Required<PrismaModelExpanded<N>>>[];
+  omit?: DeepKey<Required<PrismaModelExpanded<N>>>[];
   take?: number;
   skip?: number;
 }
@@ -73,7 +74,7 @@ export default abstract class PrismaService<N extends PrismaModelName> {
     this.repository = prisma[property];
   }
 
-  private keysToObject<N extends PrismaModelName>(
+  private buildComplexObject(
     keys: DeepKey<Required<PrismaModelExpanded<N>>>[],
     type: 'include' | 'select',
   ) {
@@ -103,14 +104,21 @@ export default abstract class PrismaService<N extends PrismaModelName> {
     return PrismaService.mergeSelectAndInclude<N>(flexibleObject);
   }
 
+  private buildSimpleObject(keys: DeepKey<Required<PrismaModelExpanded<N>>>[]) {
+    const mapped = keys.map((key) => {
+      return set({}, key, true);
+    });
+    return merge({}, ...mapped);
+  }
+
   private buildIncludes(keys: DeepKey<Required<PrismaModelExpanded<N>>>[]): PrismaFilter<N> {
-    return this.keysToObject(keys, 'include');
+    return this.buildComplexObject(keys, 'include');
   }
 
   private buildSelects<N extends PrismaModelName>(
     keys: DeepKey<Required<PrismaModelExpanded<N>>>[],
   ): object {
-    return this.keysToObject(keys, 'select');
+    return this.buildComplexObject(keys, 'select');
   }
 
   private get repositoryBase() {
@@ -135,11 +143,12 @@ export default abstract class PrismaService<N extends PrismaModelName> {
     id: string,
     params: Omit<PrismaServiceParams<N>, 'filter' | 'take' | 'skip'> = {},
   ): Promise<PrismaModelExpanded<N>> {
-    const { include, select } = params;
+    const { include, select, omit } = params;
     return this.repositoryBase.findUniqueOrThrow({
       where: { id },
       select: select ? this.buildSelects(select) : undefined,
       include: include && !select ? this.buildIncludes(include) : undefined,
+      omit: omit ? this.buildSimpleObject(omit) : undefined,
     } as PrismaArgs<N>);
   }
 
@@ -148,16 +157,17 @@ export default abstract class PrismaService<N extends PrismaModelName> {
     value: PrismaModel<N>[K],
     params: Omit<PrismaServiceParams<N>, 'filter' | 'take' | 'skip'> = {},
   ): Promise<PrismaModelExpanded<N>> {
-    const { include, select } = params;
+    const { include, select, omit } = params;
     return this.repositoryBase.findUniqueOrThrow({
       where: { [property]: value } as unknown as PrismaFilter<N>,
       select: select ? this.buildSelects(select) : undefined,
       include: include && !select ? this.buildIncludes(include) : undefined,
+      omit: omit ? this.buildSimpleObject(omit) : undefined,
     } as PrismaArgs<N>);
   }
 
   public async getMany(params: PrismaServiceParams<N> = {}): Promise<PrismaModelExpanded<N>[]> {
-    const { select, filter, include, skip, take } = params;
+    const { select, filter, include, skip, take, omit } = params;
     const fixedFilter = typeof filter === 'string' ? PrismaService.buildFilter(filter) : filter;
 
     return this.repositoryBase.findMany({
@@ -166,6 +176,7 @@ export default abstract class PrismaService<N extends PrismaModelName> {
       include: include && !select ? this.buildIncludes(include) : undefined,
       skip,
       take,
+      omit: omit ? this.buildSimpleObject(omit) : undefined,
     } as PrismaArgs<N>);
   }
 
@@ -175,21 +186,6 @@ export default abstract class PrismaService<N extends PrismaModelName> {
     return this.repositoryBase.count({
       where: fixedFilter,
     } as PrismaArgs<N>);
-  }
-
-  public async hasOne(id: string): Promise<boolean> {
-    const count = await this.count({ filter: { id } });
-    return count > 0;
-  }
-
-  public async hasOneByProperty<K extends keyof PrismaModel<N>>(
-    property: K,
-    value: PrismaModel<N>[K],
-  ): Promise<boolean> {
-    const count = await this.count({
-      filter: { [property]: value },
-    });
-    return count > 0;
   }
 
   public async searchOne(
@@ -266,7 +262,7 @@ export default abstract class PrismaService<N extends PrismaModelName> {
 
   public async createOne(
     data: Omit<PrismaModel<N>, 'id'>,
-    params: Pick<PrismaServiceParams<N>, 'select' | 'include'> = {},
+    params: Pick<PrismaServiceParams<N>, 'select' | 'include' | 'omit'> = {},
   ): Promise<PrismaModelExpanded<N>> {
     const { id } = await this.repositoryBase.create({
       data,
@@ -276,7 +272,7 @@ export default abstract class PrismaService<N extends PrismaModelName> {
 
   public async createMany(
     data: Omit<PrismaModel<N>, 'id'>[],
-    params: Pick<PrismaServiceParams<N>, 'select' | 'include'> = {},
+    params: Pick<PrismaServiceParams<N>, 'select' | 'include' | 'omit'> = {},
   ): Promise<PrismaModelExpanded<N>[]> {
     await this.repositoryBase.createMany({
       data,
