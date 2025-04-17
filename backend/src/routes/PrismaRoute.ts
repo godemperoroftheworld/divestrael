@@ -44,6 +44,7 @@ export default class PrismaRoute<N extends PrismaModelName> {
         schema: {
           tags: [this.prefix],
           params: idParams,
+          querystring: prismaBody.nullable(),
           body: this.requestSchema,
           response: { 200: this.responseSchema },
         },
@@ -56,6 +57,7 @@ export default class PrismaRoute<N extends PrismaModelName> {
         schema: {
           tags: [this.prefix],
           params: idParams,
+          querystring: prismaBody.nullable(),
           body: this.requestSchema.partial(),
           response: { 200: this.responseSchema },
         },
