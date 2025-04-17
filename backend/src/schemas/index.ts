@@ -1,6 +1,7 @@
 import z from 'zod';
 
 import { coerceArray } from '@/helpers/zod.helper';
+import { SortOrderSchema } from '@/schemas/zod';
 
 export const idParams = z.object({
   id: z.string().nonempty(),
@@ -20,5 +21,6 @@ export const prismaBody = z
     omit: coerceArray(z.string().nonempty()),
     take: z.coerce.number(),
     skip: z.coerce.number(),
+    orderBy: coerceArray(z.tuple([z.string(), SortOrderSchema])),
   })
   .partial();
