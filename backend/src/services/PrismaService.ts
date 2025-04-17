@@ -73,6 +73,52 @@ export default abstract class PrismaService<N extends PrismaModelName> {
     this.repository = prisma[property];
   }
 
+  private keysToObject<N extends PrismaModelName>(
+    keys: DeepKey<Required<PrismaModelExpanded<N>>>[],
+    type: 'include' | 'select',
+  ) {
+    let currentModel = this.model;
+    // Pad keys with type
+    const mapped = keys.map((key) => {
+      // Split key since each part is an additional level of nesting
+      const splitKey = key.split('.');
+      const fixedKey = splitKey.reduce((result: string, keySegment, idx, arr) => {
+        // Get the field from the model
+        const field = currentModel.fields.find((f) => f.name === keySegment)!;
+        if (field.relationName && idx + 1 !== arr.length) {
+          // Relation fields we try and nest, unless its the last segment of the key
+          currentModel = this.findModel(field.type.toLowerCase() as Lowercase<PrismaModelName>)!;
+          return result + (result.length ? '.' : '') + `${keySegment}.${type}`;
+        } else {
+          // Otherwise we just append the key segment
+          return result + (result.length ? '.' : '') + `${keySegment}`;
+        }
+      }, '');
+      // Build an object from the padded out string
+      return set({}, fixedKey, true);
+    });
+    // Merge mapped objects
+    const flexibleObject = merge({}, ...mapped);
+    // We have to fold in select / include in the cases where there's both
+    return PrismaService.mergeSelectAndInclude<N>(flexibleObject);
+  }
+
+  private buildIncludes(keys: DeepKey<Required<PrismaModelExpanded<N>>>[]): PrismaFilter<N> {
+    return this.keysToObject(keys, 'include');
+  }
+
+  private buildSelects<N extends PrismaModelName>(
+    keys: DeepKey<Required<PrismaModelExpanded<N>>>[],
+  ): object {
+    return this.keysToObject(keys, 'select');
+  }
+
+  private get repositoryBase() {
+    return this.repository as unknown as PrismaRepositoryBase<N>;
+  }
+
+  protected abstract searchPaths(): string[];
+
   protected get models() {
     return dmmf!.datamodel.models;
   }
@@ -83,58 +129,6 @@ export default abstract class PrismaService<N extends PrismaModelName> {
 
   protected findModel(name: Lowercase<PrismaModelName>) {
     return this.models.find((model) => model.name.toLowerCase() === name);
-  }
-
-  private buildIncludes(keys: DeepKey<Required<PrismaModelExpanded<N>>>[]): PrismaFilter<N> {
-    const mapped = keys.map((key) => {
-      let currentModel = this.model;
-      const splitKey = key.split('.');
-      const fixedKey = splitKey.reduce((result: string, keySegment, idx, arr) => {
-        const field = currentModel.fields.find((f) => f.name === keySegment)!;
-        if (field.relationName && idx + 1 !== arr.length) {
-          currentModel = this.findModel(field.type.toLowerCase() as Lowercase<PrismaModelName>)!;
-          return result + (result.length ? '.' : '') + `${keySegment}.include`;
-        } else {
-          return result + (result.length ? '.' : '') + `${keySegment}`;
-        }
-      }, '');
-      return set({}, fixedKey, true);
-    });
-
-    const flexibleObject = merge({}, ...mapped);
-
-    // We have to fold in select / include in the cases where there's both
-    return PrismaService.mergeSelectAndInclude<N>(flexibleObject);
-  }
-
-  private buildSelects<N extends PrismaModelName>(
-    keys: DeepKey<Required<PrismaModelExpanded<N>>>[],
-  ): object {
-    const mapped = keys.map((key) => {
-      let currentModel = this.model;
-      const splitKey = key.split('.');
-      const fixedKey = splitKey.reduce((result: string, keySegment, idx, arr) => {
-        const field = currentModel.fields.find((f) => f.name === keySegment)!;
-        if (field.relationName && idx + 1 != arr.length) {
-          currentModel = this.findModel(field.type.toLowerCase() as Lowercase<PrismaModelName>)!;
-          return result + (result.length ? '.' : '') + `${keySegment}.select`;
-        } else {
-          return result + (result.length ? '.' : '') + `${keySegment}`;
-        }
-      }, '');
-      return set({}, fixedKey, true);
-    });
-
-    const flexibleObject = merge({}, ...mapped);
-
-    // We have to fold in select / include in the cases where there's both
-    return PrismaService.mergeSelectAndInclude<N>(flexibleObject);
-  }
-
-  protected abstract searchPaths(): string[];
-
-  private get repositoryBase() {
-    return this.repository as unknown as PrismaRepositoryBase<N>;
   }
 
   public async getOne(
