@@ -1,6 +1,7 @@
 import { Prisma, PrismaClient } from '@prisma/client';
 import { isPlainObject, mapValues, merge, set } from 'lodash';
 import prismaFQP from '@krsbx/prisma-fqp';
+import z from 'zod';
 
 import prisma, { dmmf } from '@/prisma';
 import { DeepKey } from '@/helpers/types.helper';
@@ -11,6 +12,7 @@ import {
   PrismaModelName,
 } from '@/helpers/prisma.helper';
 import { IdParams } from '@/schemas';
+import SortOrderSchema from '@/schemas/zod/inputTypeSchemas/SortOrderSchema';
 
 // Args
 type PrismaOperations<N extends PrismaModelName> = Prisma.TypeMap['model'][N]['operations'];
@@ -19,14 +21,15 @@ type PrismaCreateArgs<N extends PrismaModelName> = Partial<PrismaOperations<N>['
 type PrismaUpdateArgs<N extends PrismaModelName> = Partial<PrismaOperations<N>['update']['args']>;
 
 // Filters
-export interface PrismaServiceParams<N extends PrismaModelName> {
-  select?: DeepKey<Required<PrismaModelExpanded<N>>>[];
-  filter?: PrismaFilter<N> | string;
-  include?: DeepKey<Required<PrismaModelExpanded<N>>>[];
-  omit?: DeepKey<Required<PrismaModelExpanded<N>>>[];
-  take?: number;
-  skip?: number;
-}
+export type PrismaServiceParams<N extends PrismaModelName> = Partial<{
+  select: DeepKey<Required<PrismaModelExpanded<N>>>[];
+  filter: PrismaFilter<N> | string;
+  include: DeepKey<Required<PrismaModelExpanded<N>>>[];
+  omit: DeepKey<Required<PrismaModelExpanded<N>>>[];
+  take: number;
+  skip: number;
+  orderBy: Array<[DeepKey<Required<PrismaModelExpanded<N>>>, z.infer<typeof SortOrderSchema>]>;
+}>;
 
 // Prisma repository
 interface PrismaRepositoryBase<
@@ -115,10 +118,16 @@ export default abstract class PrismaService<N extends PrismaModelName> {
     return this.buildComplexObject(keys, 'include');
   }
 
-  private buildSelects<N extends PrismaModelName>(
-    keys: DeepKey<Required<PrismaModelExpanded<N>>>[],
-  ): object {
+  private buildSelects(keys: DeepKey<Required<PrismaModelExpanded<N>>>[]): object {
     return this.buildComplexObject(keys, 'select');
+  }
+
+  private buildOrderBy(
+    orders: Array<[DeepKey<Required<PrismaModelExpanded<N>>>, z.infer<typeof SortOrderSchema>]>,
+  ) {
+    return orders.map(([key, order]) => {
+      return { [key]: order };
+    });
   }
 
   private get repositoryBase() {
@@ -143,12 +152,14 @@ export default abstract class PrismaService<N extends PrismaModelName> {
     id: string,
     params: Omit<PrismaServiceParams<N>, 'filter' | 'take' | 'skip'> = {},
   ): Promise<PrismaModelExpanded<N>> {
-    const { include, select, omit } = params;
+    const { include, select, omit, orderBy, ...rest } = params;
     return this.repositoryBase.findUniqueOrThrow({
       where: { id },
       select: select ? this.buildSelects(select) : undefined,
       include: include && !select ? this.buildIncludes(include) : undefined,
       omit: omit ? this.buildSimpleObject(omit) : undefined,
+      orderBy: orderBy ? this.buildOrderBy(orderBy) : undefined,
+      ...rest,
     } as PrismaArgs<N>);
   }
 
@@ -157,26 +168,28 @@ export default abstract class PrismaService<N extends PrismaModelName> {
     value: PrismaModel<N>[K],
     params: Omit<PrismaServiceParams<N>, 'filter' | 'take' | 'skip'> = {},
   ): Promise<PrismaModelExpanded<N>> {
-    const { include, select, omit } = params;
+    const { include, select, omit, orderBy, ...rest } = params;
     return this.repositoryBase.findUniqueOrThrow({
       where: { [property]: value } as unknown as PrismaFilter<N>,
       select: select ? this.buildSelects(select) : undefined,
       include: include && !select ? this.buildIncludes(include) : undefined,
       omit: omit ? this.buildSimpleObject(omit) : undefined,
+      orderBy: orderBy ? this.buildOrderBy(orderBy) : undefined,
+      ...rest,
     } as PrismaArgs<N>);
   }
 
   public async getMany(params: PrismaServiceParams<N> = {}): Promise<PrismaModelExpanded<N>[]> {
-    const { select, filter, include, skip, take, omit } = params;
+    const { select, filter, include, omit, orderBy, ...rest } = params;
     const fixedFilter = typeof filter === 'string' ? PrismaService.buildFilter(filter) : filter;
 
     return this.repositoryBase.findMany({
       where: fixedFilter,
       select: select ? this.buildSelects(select) : undefined,
       include: include && !select ? this.buildIncludes(include) : undefined,
-      skip,
-      take,
       omit: omit ? this.buildSimpleObject(omit) : undefined,
+      orderBy: orderBy ? this.buildOrderBy(orderBy) : undefined,
+      ...rest,
     } as PrismaArgs<N>);
   }
 
@@ -191,7 +204,7 @@ export default abstract class PrismaService<N extends PrismaModelName> {
   public async searchOne(
     query: string,
     fuzzy: boolean = true,
-    params: Omit<PrismaServiceParams<N>, 'filter' | 'take' | 'skip'> = {},
+    params: Pick<PrismaServiceParams<N>, 'include' | 'select' | 'omit'> = {},
   ): Promise<PrismaModelExpanded<N> | null> {
     const searchResult = (
       await this.repository.aggregateRaw({
@@ -272,7 +285,7 @@ export default abstract class PrismaService<N extends PrismaModelName> {
 
   public async createMany(
     data: Omit<PrismaModel<N>, 'id'>[],
-    params: Pick<PrismaServiceParams<N>, 'select' | 'include' | 'omit'> = {},
+    params: Omit<PrismaServiceParams<N>, 'filter' | 'take' | 'skip'> = {},
   ): Promise<PrismaModelExpanded<N>[]> {
     await this.repositoryBase.createMany({
       data,
