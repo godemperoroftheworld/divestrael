@@ -1,45 +1,48 @@
 {
-    "name": "frontend",
-    "version": "0.1.0",
-    "private": true,
-    "scripts": {
-        "dev": "NODE_OPTIONS=--require reflect-metadata next dev --turbopack",
-        "build": "NODE_OPTIONS=--require reflect-metadata next build",
-        "start": "NODE_OPTIONS=--require reflect-metadata next start",
-        "lint": "next lint",
-        "format": "prettier --write src/",
-        "prepare": "cd .. && husky frontend/.husky/",
-        "type-check": "tsc --jsx react-jsx --noEmit"
-    },
-    "dependencies": {
-        "@headlessui/react": "^2.2.1",
-        "@tanstack/react-query": "^5.74.3",
-        "class-transformer": "^0.5.1",
-        "next": "15.2.4",
-        "react": "^19.0.0",
-        "react-dom": "^19.0.0",
-        "reflect-metadata": "^0.2.2"
-    },
-    "devDependencies": {
-        "@commitlint/cli": "^19.8.0",
-        "@commitlint/config-conventional": "^19.8.0",
-        "@eslint/eslintrc": "^3",
-        "@tailwindcss/postcss": "^4",
-        "@types/node": "^20",
-        "@types/react": "^19",
-        "@types/react-dom": "^19",
-        "commitizen": "^4.3.1",
-        "cz-conventional-changelog": "^3.3.0",
-        "eslint": "^9",
-        "eslint-config-next": "15.2.4",
-        "husky": "^9.1.7",
-        "tailwindcss": "^4",
-        "typescript": "^5"
-    },
-    "packageManager": "yarn@4.7.0",
-    "config": {
-        "commitizen": {
-            "path": "cz-conventional-changelog"
-        }
+  "name": "frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "NODE_OPTIONS=--require reflect-metadata next dev --turbopack",
+    "build": "NODE_OPTIONS=--require reflect-metadata next build",
+    "start": "NODE_OPTIONS=--require reflect-metadata next start",
+    "lint": "next lint",
+    "format": "prettier --write src/",
+    "prepare": "cd .. && husky frontend/.husky/",
+    "type-check": "tsc --jsx react-jsx --noEmit"
+  },
+  "dependencies": {
+    "@headlessui/react": "^2.2.1",
+    "@tanstack/react-query": "^5.74.3",
+    "axios": "^1.8.4",
+    "class-transformer": "^0.5.1",
+    "lodash": "^4.17.21",
+    "next": "15.2.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "reflect-metadata": "^0.2.2"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.8.0",
+    "@commitlint/config-conventional": "^19.8.0",
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/lodash": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "commitizen": "^4.3.1",
+    "cz-conventional-changelog": "^3.3.0",
+    "eslint": "^9",
+    "eslint-config-next": "15.2.4",
+    "husky": "^9.1.7",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  },
+  "packageManager": "yarn@4.7.0",
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
     }
+  }
 }
