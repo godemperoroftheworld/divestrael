@@ -302,21 +302,27 @@ export default abstract class PrismaService<N extends PrismaModelName> {
   public async updateOne(
     id: string,
     data: Partial<Omit<PrismaModel<N>, 'id'>>,
+    params: Pick<PrismaServiceParams<N>, 'select' | 'include' | 'omit'> = {},
   ): Promise<PrismaModelExpanded<N>> {
-    return this.repositoryBase.update({
+    await this.repositoryBase.update({
       where: { id },
+      select: { id: true },
       data,
     } as PrismaUpdateArgs<N>);
+    return this.getOne(id, params);
   }
 
   public async updateOneByProperty<K extends keyof PrismaModel<N>>(
     key: K,
     value: PrismaModel<N>[K],
     data: Partial<Omit<PrismaModel<N>, 'id'>>,
+    params: Pick<PrismaServiceParams<N>, 'select' | 'include' | 'omit'> = {},
   ) {
-    return this.repositoryBase.update({
+    const { id } = await this.repositoryBase.update({
       where: { [key]: value } as unknown as PrismaFilter<N>,
+      select: { id: true },
       data,
     } as PrismaUpdateArgs<N>);
+    return this.getOne(id, params);
   }
 }

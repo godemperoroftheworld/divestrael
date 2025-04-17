@@ -16,19 +16,21 @@ export default abstract class PrismaController<N extends PrismaModelName> {
 
   public readonly post: RouteHandler<{
     Body: PrismaModel<N>;
+    Querystring: PrismaQueryParams<N>;
   }> = async (req, res) => {
     const data = req.body as PrismaModel<N>;
-    const result = await this.service.createOne(data);
+    const result = await this.service.createOne(data, req.query);
     res.status(HttpStatusCode.Ok).send(result);
   };
 
   public readonly put: RouteHandler<{
     Params: IdParams;
+    Querystring: PrismaQueryParams<N>;
     Body: Partial<PrismaModel<N>>;
   }> = async (req, res) => {
     const { id } = req.params;
     const data = req.body as Partial<PrismaModel<N>>;
-    const result = await this.service.updateOne(id, data);
+    const result = await this.service.updateOne(id, data, req.query);
     res.status(HttpStatusCode.Ok).send(result);
   };
 
