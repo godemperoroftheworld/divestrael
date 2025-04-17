@@ -1,7 +1,14 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  async rewrites() {
+    return [
+      {
+        source: '/about',
+        destination: process.env.DIVESTRAEL_BACKEND_URL as string,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
