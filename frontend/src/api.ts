@@ -12,7 +12,9 @@ export default class DivestraelApi {
   private axiosInstance: AxiosInstance;
 
   private constructor() {
-    this.axiosInstance = axios.create();
+    this.axiosInstance = axios.create({
+      baseURL: '/api/',
+    });
   }
 
   static get instance() {
