@@ -1,4 +1,6 @@
 'use client';
+import 'reflect-metadata';
+
 import React from 'react';
 import {
   isServer,

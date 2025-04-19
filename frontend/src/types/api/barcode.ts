@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import Product from '@/types/api/product';
 import { Type } from 'class-transformer';
 
