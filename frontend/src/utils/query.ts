@@ -4,10 +4,16 @@ import { ClassConstructor } from 'class-transformer';
 import { ArrayElement } from '@/types/globals';
 import { AxiosRequestConfig } from 'axios';
 import { useMemo } from 'react';
+import { merge } from 'lodash';
 
 type QueryAllFunction<T extends object> = (
-  params?: QueryParams<ArrayElement<T>>,
-) => UseQueryResult<T>;
+  params?: QueryParams<T>,
+) => UseQueryResult<T[]>;
+
+type QuerySearchFunction<T extends object> = (
+  query: string,
+  params?: Omit<QueryParams<T>, 'filter' | 'orderBy'>,
+) => UseQueryResult<T[]>;
 
 type QueryOneFunction<T extends object> = (
   id: string,
@@ -15,12 +21,30 @@ type QueryOneFunction<T extends object> = (
 ) => UseQueryResult<T>;
 
 export function createAllQuery<T extends object>(
-  model: ClassConstructor<ArrayElement<T>>,
+  model: ClassConstructor<T>,
   url: string,
   config: Omit<AxiosRequestConfig, 'url'> = {},
 ): QueryAllFunction<T> {
-  console.log('query');
-  return (params = {}) => useDivestraelQuery<T>(model, url, config, params);
+  return (params = {}) => useDivestraelQuery<T[]>(model, url, config, params);
+}
+
+export function createSearchQuery<T extends object>(
+  model: ClassConstructor<T>,
+  url: string,
+  config: Omit<AxiosRequestConfig, 'url'> = {},
+): QuerySearchFunction<T> {
+  return (query, params = {}) => {
+    const configFixed = useMemo(
+      () =>
+        merge({}, config, {
+          params: {
+            query,
+          },
+        }),
+      [query],
+    );
+    return useDivestraelQuery<T[]>(model, `${url}/search`, configFixed, params);
+  };
 }
 
 export function createOneQuery<T extends object>(

@@ -27,7 +27,7 @@ export interface FilterRule<T> {
 }
 
 export interface Filter<T> {
-  condition?: 'AND' | 'OR';
+  combinator?: 'AND' | 'OR';
   rules: Array<FilterRule<T> | Filter<T>>;
   not?: boolean;
 }
