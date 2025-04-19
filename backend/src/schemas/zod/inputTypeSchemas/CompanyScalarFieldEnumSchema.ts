@@ -7,7 +7,7 @@ export const CompanyScalarFieldEnumSchema = z.enum([
   'name',
   'description',
   'country',
-  'image',
+  'url',
   'reasons',
   'source',
 ]);

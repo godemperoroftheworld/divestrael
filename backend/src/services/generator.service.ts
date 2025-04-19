@@ -56,7 +56,7 @@ export default class AIService {
     const resultItem = result.data.itemListElement[0]?.result;
     return {
       description: resultItem.detailedDescription?.articleBody || resultItem?.description || query,
-      image: resultItem?.image?.contentUrl,
+      url: resultItem?.url,
     };
   }
 

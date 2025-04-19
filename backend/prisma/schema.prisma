@@ -55,7 +55,7 @@ model Company {
   description String
   country Country
   brands Brand[]
-  image String?
+  url String?
   reasons BoycottReason[]
   source String?
 }
