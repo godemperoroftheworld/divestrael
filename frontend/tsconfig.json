@@ -14,6 +14,7 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": false,
     "jsx": "preserve",
+    "strictNullChecks": true,
     "incremental": true,
     "plugins": [
       {

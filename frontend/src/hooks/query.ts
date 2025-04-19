@@ -5,6 +5,8 @@ import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
 import DivestraelApi from '@/api';
 import { merge } from 'lodash';
+import { Filter } from '@/types/filter';
+import stringify from '@/utils/filter';
 
 type SortOrder = 'asc' | 'desc';
 
@@ -13,7 +15,7 @@ export interface QueryParams<T> {
   include?: DeepKey<T>[];
   omit?: DeepKey<T>[];
   orderBy?: Array<[DeepKey<T>, SortOrder]>;
-  filter?: string;
+  filter?: Filter<T>;
 }
 
 export function useDivestraelQuery<T extends object>(
@@ -32,11 +34,14 @@ export function useDivestraelQuery<T extends object>(
     ];
   }, [url, config, params]);
   const queryFn = useCallback(async () => {
+    console.log('query fn');
+    const filter = params.filter ? stringify(params.filter) : undefined;
+    const fixedParams = merge({}, params, { filter });
     const response = await DivestraelApi.instance.request(
       {
         url,
         ...config,
-        params: merge({}, config.params, params),
+        params: merge({}, config.params, fixedParams),
       },
       model,
     );
