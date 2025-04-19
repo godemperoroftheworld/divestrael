@@ -7,7 +7,7 @@ function stringifyFilter<T>(filter: Filter<T>): string {
       if ('rules' in fr) return stringifyFilter(fr);
       else return stringifyRule(fr);
     })
-    .join(filter.condition ?? ' AND ');
+    .join(filter.combinator ?? ' AND ');
   return `${filterPrefix}(${filterContent})`;
 }
 

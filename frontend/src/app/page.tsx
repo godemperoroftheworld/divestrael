@@ -1,21 +1,22 @@
 'use client';
-import { useBrands } from '@/services/brand/queries';
-import { FilterOperator } from '@/types/filter';
+import { useSearchBrands } from '@/services/brand/queries';
+import { useState } from 'react';
 
 export default function Home() {
-  const { data } = useBrands({
-    filter: {
-      condition: 'AND',
-      not: false,
-      rules: [
-        {
-          field: 'name',
-          operator: FilterOperator.CONTAINS,
-          value: 'lar',
-        },
-      ],
-    },
-  });
+  const [query, setQuery] = useState('');
+  const { data } = useSearchBrands(query);
 
-  return <div>{JSON.stringify(data)}</div>;
+  return (
+    <div>
+      <input
+        onChange={(e) => setQuery(e.target.value)}
+        value={query}
+      />
+      <div>
+        {data?.map((x) => {
+          return <div key={x.id}>{x.name}</div>;
+        })}
+      </div>
+    </div>
+  );
 }
