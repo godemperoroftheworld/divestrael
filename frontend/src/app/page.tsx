@@ -1,5 +1,5 @@
 'use client';
-import { useBrands } from '@/services/company/queries';
+import { useBrands } from '@/services/brand/queries';
 
 export default function Home() {
   const { data } = useBrands({});

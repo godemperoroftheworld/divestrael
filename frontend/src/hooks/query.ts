@@ -20,7 +20,7 @@ export function useDivestraelQuery<T extends object>(
   model: ClassConstructor<ArrayElement<T>>,
   url: string,
   config: Omit<AxiosRequestConfig, 'url'>,
-  params: QueryParams<T>,
+  params: QueryParams<ArrayElement<T>>,
 ): UseQueryResult<T> {
   const queryKey = useMemo(() => {
     return [

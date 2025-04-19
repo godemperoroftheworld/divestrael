@@ -1,6 +1,7 @@
-import { createQuery } from '@/utils/query';
-import Brand from '@/types/api/brand';
+import { createAllQuery, createOneQuery } from '@/utils/query';
+import Company from '@/types/api/company';
 
-const useBrands = createQuery(Brand, 'brand');
+const useCompanies = createAllQuery(Company, 'company');
+const useCompany = createOneQuery(Company, 'company');
 
-export { useBrands };
+export { useCompanies, useCompany };
