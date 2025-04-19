@@ -19,6 +19,7 @@ export function createAllQuery<T extends object>(
   url: string,
   config: Omit<AxiosRequestConfig, 'url'> = {},
 ): QueryAllFunction<T> {
+  console.log('query');
   return (params = {}) => useDivestraelQuery<T>(model, url, config, params);
 }
 
