@@ -22,13 +22,13 @@ export default class CompanyService extends PrismaService<'Company'> {
     }
 
     const corpwatch = await CorpwatchService.instance.findTopCompany(name);
-    const { description, image } = await AIService.instance.getMetadata(name);
+    const { description, url } = await AIService.instance.getMetadata(name);
 
     return this.createOne(
       {
         name,
         description,
-        image,
+        url,
         reasons: [],
         cik: corpwatch?.cik ?? null,
         cw_id: corpwatch?.cw_id ?? null,
