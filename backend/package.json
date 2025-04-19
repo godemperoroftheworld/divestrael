@@ -7,7 +7,7 @@
   "main": "main.js",
   "private": true,
   "scripts": {
-    "prebuild": "prisma generate && eslint 'src/schemas/zod' --fix",
+    "prebuild": "prisma generate && eslint --fix 'src/schemas/zod/**/*.ts'",
     "build": "tsc -p tsconfig.json && tsc-alias",
     "start": "node dist/main.js",
     "dev": "nodemon | pino-pretty",

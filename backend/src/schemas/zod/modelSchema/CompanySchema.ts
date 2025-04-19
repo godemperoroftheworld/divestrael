@@ -17,7 +17,7 @@ export const CompanySchema = z.object({
   cw_id: z.string().nullable(),
   name: z.string(),
   description: z.string(),
-  image: z.string().nullable(),
+  url: z.string().nullable(),
   source: z.string().nullable(),
 });
 
