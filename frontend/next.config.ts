@@ -4,8 +4,8 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
-        source: '/about',
-        destination: process.env.DIVESTRAEL_BACKEND_URL as string,
+        source: '/api/:route*',
+        destination: `${process.env.DIVESTRAEL_BACKEND_URL as string}/api/:route*`,
       },
     ];
   },
