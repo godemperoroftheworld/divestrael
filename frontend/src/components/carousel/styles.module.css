@@ -1,0 +1,4 @@
+.embla__container {
+    touch-action: pan-y pinch-zoom;
+}
+
