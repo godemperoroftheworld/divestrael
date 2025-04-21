@@ -1,4 +1,4 @@
-import { Filter, FilterRule } from '@/types/filter';
+import { Filter, FilterOperator, FilterRule } from '@/types/filter';
 
 function stringifyFilter<T>(filter: Filter<T>): string {
   const filterPrefix = filter.not ? '!' : '';
@@ -12,6 +12,12 @@ function stringifyFilter<T>(filter: Filter<T>): string {
 }
 
 function stringifyRule<T>(filter: FilterRule<T>): string {
+  if (
+    filter.operator === FilterOperator.NOT_NULL ||
+    filter.operator === FilterOperator.NULL
+  ) {
+    return `${filter.field} ${filter.operator}`;
+  }
   const fixedValue =
     typeof filter.value === 'string' ? `"${filter.value}"` : filter.value;
   return `${filter.field} ${filter.operator} ${fixedValue}`;
