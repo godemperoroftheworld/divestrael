@@ -1,9 +1,10 @@
 import { Brand } from '.prisma/client';
 
-import PrismaService from '@/services/PrismaService';
+import PrismaService, { PrismaServiceParams } from '@/services/PrismaService';
 import { ERRORS } from '@/helpers/errors.helper';
 import AIService from '@/services/generator.service';
 import CompanyService from '@/services/company.service';
+import { BrandPartialWithRelations } from '@/schemas/zod';
 
 export default class BrandService extends PrismaService<'Brand'> {
   public static readonly instance = new BrandService();
@@ -14,6 +15,14 @@ export default class BrandService extends PrismaService<'Brand'> {
 
   private constructor() {
     super('brand');
+  }
+
+  public async createForCompany(
+    companyId: string,
+    params: Pick<PrismaServiceParams<'Brand'>, 'select' | 'include' | 'omit'> = {},
+  ): Promise<BrandPartialWithRelations[]> {
+    const brands = await AIService.instance.generateBrands(companyId);
+    return this.createMany(brands, params);
   }
 
   public async getOrCreateByName(name: string, product?: string) {
