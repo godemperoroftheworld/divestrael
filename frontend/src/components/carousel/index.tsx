@@ -1,5 +1,6 @@
 import React from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
+import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures';
 
 import './styles.module.css';
 
@@ -8,7 +9,9 @@ interface CarouselProps {
 }
 
 export default function Carousel({ children }: CarouselProps) {
-  const [emblaRef] = useEmblaCarousel({ loop: true, skipSnaps: true });
+  const [emblaRef] = useEmblaCarousel({ loop: true, skipSnaps: true }, [
+    WheelGesturesPlugin(),
+  ]);
 
   return (
     <div className="embla">

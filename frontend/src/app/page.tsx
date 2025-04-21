@@ -8,6 +8,7 @@ import Carousel from '@/components/carousel';
 
 export default function Home() {
   const { data } = useCompanies({
+    take: 10,
     filter: {
       rules: [
         {
@@ -26,14 +27,17 @@ export default function Home() {
     <div className="mx-auto overflow-hidden">
       <Carousel>
         {companyLogos.map((company) => (
-          <Image
-            className="h-32 aspect-square"
-            src={company.image_url}
-            alt={company.name}
+          <div
             key={company.id}
-            width={100}
-            height={100}
-          />
+            className="rounded-lg overflow-hidden">
+            <Image
+              className="w-32 aspect-square"
+              src={company.image_url}
+              alt={company.name}
+              width={100}
+              height={100}
+            />
+          </div>
         ))}
       </Carousel>
     </div>

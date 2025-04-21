@@ -16,6 +16,8 @@ export interface QueryParams<T> {
   omit?: DeepKey<T>[];
   orderBy?: Array<[DeepKey<T>, SortOrder]>;
   filter?: Filter<T>;
+  take?: number;
+  skip?: number;
 }
 
 export function useDivestraelQuery<T extends object>(
