@@ -5,7 +5,10 @@ import { PrismaModel, PrismaModelName } from '@/helpers/prisma.helper';
 import { IdParams, SearchQuery } from '@/schemas';
 import { RouteHandler } from '@/helpers/types.helper';
 
-type PrismaQueryParams<N extends PrismaModelName> = Omit<PrismaServiceParams<N>, 'filter'> & {
+export type PrismaQueryParams<N extends PrismaModelName> = Omit<
+  PrismaServiceParams<N>,
+  'filter'
+> & {
   filter?: string;
 };
 
