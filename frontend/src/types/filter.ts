@@ -23,7 +23,7 @@ export enum FilterOperator {
 export interface FilterRule<T> {
   field: DeepKey<T>;
   operator: FilterOperator;
-  value: unknown;
+  value?: unknown;
 }
 
 export interface Filter<T> {
