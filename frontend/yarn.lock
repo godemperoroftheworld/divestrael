@@ -2652,6 +2652,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"embla-carousel-wheel-gestures@npm:^8.0.2":
+  version: 8.0.2
+  resolution: "embla-carousel-wheel-gestures@npm:8.0.2"
+  dependencies:
+    wheel-gestures: "npm:^2.2.5"
+  peerDependencies:
+    embla-carousel: ^8.0.0 || ~8.0.0-rc03
+  checksum: 10c0/9094ab22378d2ca32d819929fb0d5ba43dd6265f23279351669fbd97e624ce52b0b09bcd98b0fbf4ae79d7a52b75464ef6e29092dc1d7c9b0c79999a6512a1a7
+  languageName: node
+  linkType: hard
+
 "embla-carousel@npm:8.6.0":
   version: 8.6.0
   resolution: "embla-carousel@npm:8.6.0"
@@ -3376,6 +3387,7 @@ __metadata:
     commitizen: "npm:^4.3.1"
     cz-conventional-changelog: "npm:^3.3.0"
     embla-carousel-react: "npm:^8.6.0"
+    embla-carousel-wheel-gestures: "npm:^8.0.2"
     eslint: "npm:^9"
     eslint-config-next: "npm:15.2.4"
     husky: "npm:^9.1.7"
@@ -6145,6 +6157,13 @@ __metadata:
   dependencies:
     defaults: "npm:^1.0.3"
   checksum: 10c0/5b61ca583a95e2dd85d7078400190efd452e05751a64accb8c06ce4db65d7e0b0cde9917d705e826a2e05cc2548f61efde115ffa374c3e436d04be45c889e5b4
+  languageName: node
+  linkType: hard
+
+"wheel-gestures@npm:^2.2.5":
+  version: 2.2.48
+  resolution: "wheel-gestures@npm:2.2.48"
+  checksum: 10c0/03dcd4aa3df8a4cbfdee51a44fe7899a1e6019f0b43adf5ab21bbade1d5a9560dd5deb402dfcac8bf31f7bf64c663e36f08fdd8476c9712defc7e9aa0821327a
   languageName: node
   linkType: hard
 
