@@ -36,7 +36,6 @@ export function useDivestraelQuery<T extends object>(
     ];
   }, [url, config, params]);
   const queryFn = useCallback(async () => {
-    console.log('query fn');
     const filter = params.filter ? stringify(params.filter) : undefined;
     const fixedParams = merge({}, params, { filter });
     const response = await DivestraelApi.instance.request(
