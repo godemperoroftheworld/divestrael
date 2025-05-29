@@ -1,4 +1,4 @@
-import { UseQueryResult } from '@tanstack/react-query';
+import { QueryObserverOptions, UseQueryResult } from '@tanstack/react-query';
 import { QueryParams, useDivestraelQuery } from '@/hooks/query';
 import { ClassConstructor } from 'class-transformer';
 import { ArrayElement } from '@/types/globals';
@@ -8,6 +8,7 @@ import { merge } from 'lodash';
 
 type QueryAllFunction<T extends object> = (
   params?: QueryParams<T>,
+  config?: QueryObserverOptions<T>,
 ) => UseQueryResult<T[]>;
 
 type QuerySearchFunction<T extends object> = (
@@ -25,7 +26,8 @@ export function createAllQuery<T extends object>(
   url: string,
   config: Omit<AxiosRequestConfig, 'url'> = {},
 ): QueryAllFunction<T> {
-  return (params = {}) => useDivestraelQuery<T[]>(model, url, config, params);
+  return (params = {}) =>
+    useDivestraelQuery<T[]>(model, url, config, params, {});
 }
 
 export function createSearchQuery<T extends object>(
@@ -43,7 +45,14 @@ export function createSearchQuery<T extends object>(
         }),
       [query],
     );
-    return useDivestraelQuery<T[]>(model, `${url}/search`, configFixed, params);
+    const isEnabled = useMemo(() => !!query.length, [query]);
+    return useDivestraelQuery<T[]>(
+      model,
+      `${url}/search`,
+      configFixed,
+      params,
+      { enabled: isEnabled },
+    );
   };
 }
 
@@ -54,6 +63,6 @@ export function createOneQuery<T extends object>(
 ): QueryOneFunction<T> {
   return (id, params = {}) => {
     const urlFixed = useMemo(() => `${url}/${id}`, [id]);
-    return useDivestraelQuery(model, urlFixed, config, params);
+    return useDivestraelQuery(model, urlFixed, config, params, {});
   };
 }

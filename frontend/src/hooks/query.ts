@@ -1,7 +1,11 @@
 import { ArrayElement, DeepKey } from '@/types/globals';
 import { ClassConstructor } from 'class-transformer';
 import { AxiosRequestConfig } from 'axios';
-import { useQuery, UseQueryResult } from '@tanstack/react-query';
+import {
+  QueryObserverOptions,
+  useQuery,
+  UseQueryResult,
+} from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
 import DivestraelApi from '@/api';
 import { merge } from 'lodash';
@@ -25,6 +29,7 @@ export function useDivestraelQuery<T extends object>(
   url: string,
   config: Omit<AxiosRequestConfig, 'url'>,
   params: QueryParams<ArrayElement<T>>,
+  options: Partial<QueryObserverOptions<T>>,
 ): UseQueryResult<T> {
   const queryKey = useMemo(() => {
     return [
@@ -49,6 +54,7 @@ export function useDivestraelQuery<T extends object>(
     return response.data;
   }, [url, config, params, model]);
   return useQuery({
+    ...options,
     queryKey,
     queryFn,
   });
