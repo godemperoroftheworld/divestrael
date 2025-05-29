@@ -24,8 +24,8 @@ export default function Home() {
   }, [data]);
 
   return (
-    <div className="mx-auto overflow-hidden">
-      <Carousel>
+    <div>
+      <Carousel className="mx-auto overflow-hidden">
         {companyLogos.map((company) => (
           <div
             key={company.id}
