@@ -2,6 +2,7 @@ import { Prisma, PrismaClient } from '@prisma/client';
 import { isPlainObject, mapValues, merge, set } from 'lodash';
 import prismaFQP from '@krsbx/prisma-fqp';
 import z from 'zod';
+import { keyBy } from 'lodash';
 
 import prisma, { dmmf } from '@/prisma';
 import { DeepKey } from '@/helpers/types.helper';
@@ -252,6 +253,8 @@ export default abstract class PrismaService<N extends PrismaModelName> {
               path: this.searchPaths(),
               fuzzy: {},
             },
+
+            sort: { score: { $meta: 'searchScore', order: -1 } },
           },
         },
         {
@@ -264,12 +267,17 @@ export default abstract class PrismaService<N extends PrismaModelName> {
       ],
     })) as unknown as IdParams[];
     if (searchResults.length) {
-      const ids = searchResults.map((x) => x.id);
+      const ids = searchResults
+        .slice(params.skip ?? 0)
+        .slice(0, params.take)
+        .map((x) => x.id);
       const results = await this.getMany({
         filter: { id: { in: ids } },
         ...params,
       });
-      return results.reverse();
+      // Results is not in the same order, restore the order here
+      const keyedResults = keyBy(results, 'id');
+      return ids.map((id) => keyedResults[id]);
     }
     return [];
   }
