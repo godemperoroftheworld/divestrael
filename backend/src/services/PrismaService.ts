@@ -240,7 +240,6 @@ export default abstract class PrismaService<N extends PrismaModelName> {
 
   public async searchMany(
     query: string,
-    fuzzy: boolean = true,
     params: Omit<PrismaServiceParams<N>, 'filter'> = {},
   ): Promise<PrismaModelExpanded<N>[]> {
     const searchResults = (await this.repository.aggregateRaw({
@@ -251,7 +250,7 @@ export default abstract class PrismaService<N extends PrismaModelName> {
             text: {
               query,
               path: this.searchPaths(),
-              fuzzy: fuzzy ? {} : undefined,
+              fuzzy: {},
             },
           },
         },
@@ -259,16 +258,18 @@ export default abstract class PrismaService<N extends PrismaModelName> {
           $project: {
             _id: false,
             id: { $toString: '$_id' },
+            name: true,
           } as Prisma.InputJsonValue,
         },
       ],
     })) as unknown as IdParams[];
     if (searchResults.length) {
       const ids = searchResults.map((x) => x.id);
-      return this.getMany({
+      const results = await this.getMany({
         filter: { id: { in: ids } },
         ...params,
       });
+      return results.reverse();
     }
     return [];
   }

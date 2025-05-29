@@ -64,7 +64,7 @@ export default abstract class PrismaController<N extends PrismaModelName> {
     Querystring: SearchQuery & PrismaQueryParams<N>;
   }> = async (req, res) => {
     const { query, ...params } = req.query;
-    const result = await this.service.searchMany(query, true, params);
+    const result = await this.service.searchMany(query, params);
     res.status(HttpStatusCode.Ok).send(result);
   };
 
