@@ -5,6 +5,7 @@ import { useCompanies } from '@/services/company/queries';
 import Image from 'next/image';
 import Carousel from '@/components/carousel';
 import Search from '@/components/search';
+import Scan from '@/components/scan';
 
 export default function Home() {
   const { data } = useCompanies();
@@ -50,6 +51,10 @@ export default function Home() {
       <div>
         <h2 className="text-center text-xl">Search</h2>
         <Search />
+      </div>
+      <div>
+        <h2 className="text-center text-xl">Scan</h2>
+        <Scan />
       </div>
     </div>
   );

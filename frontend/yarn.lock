@@ -1056,6 +1056,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@preflower/barcode-detector-polyfill@npm:^0.9.21":
+  version: 0.9.21
+  resolution: "@preflower/barcode-detector-polyfill@npm:0.9.21"
+  dependencies:
+    "@undecaf/zbar-wasm": "npm:^0.11.0"
+  checksum: 10c0/ce4fe3ea32f65a1c8809e407e1a86ed7f8bf95d14f34503113eab7f3a31c4512b26482dba82891ab5852af27e0843a2d49b63e1f9bae597fcd18b81299d363cf
+  languageName: node
+  linkType: hard
+
 "@react-aria/focus@npm:^3.17.1":
   version: 3.20.2
   resolution: "@react-aria/focus@npm:3.20.2"
@@ -1589,6 +1598,13 @@ __metadata:
     "@typescript-eslint/types": "npm:8.30.1"
     eslint-visitor-keys: "npm:^4.2.0"
   checksum: 10c0/bdc182289c68a5c8f891f9aecf6ccb59743c3f2b1bbe57f57f8c7ce1688f4381182e301919895cefc929539eea914eeb847f7d351cdc3f685ed6c5ee67a10c9e
+  languageName: node
+  linkType: hard
+
+"@undecaf/zbar-wasm@npm:^0.11.0":
+  version: 0.11.0
+  resolution: "@undecaf/zbar-wasm@npm:0.11.0"
+  checksum: 10c0/a0a376552fb2aaa7706f8418a534d3b7d606f78deaf2a3457598660507e3770a1d82e36e317717dd0ec2f35905ccc04bdaa5b5e224ee3f7532175babd38a20a2
   languageName: node
   linkType: hard
 
@@ -3395,6 +3411,7 @@ __metadata:
     lodash: "npm:^4.17.21"
     next: "npm:^15.3.1"
     react: "npm:^19.0.0"
+    react-barcode-scanner: "npm:^4.0.0"
     react-datepicker: "npm:^8.3.0"
     react-dom: "npm:^19.0.0"
     react-select: "npm:^5.10.1"
@@ -5096,6 +5113,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-barcode-scanner@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "react-barcode-scanner@npm:4.0.0"
+  dependencies:
+    "@preflower/barcode-detector-polyfill": "npm:^0.9.21"
+    tslib: "npm:^2.6.3"
+    webrtc-adapter: "npm:^9.0.1"
+  peerDependencies:
+    react: "*"
+    react-dom: "*"
+  checksum: 10c0/57e259b9f4c93a96a9df8e8e58eec8a748379af0d53308b82c2c5b80e2b7a61fd0d63657cb19227cee9f7e7980a215219a7e62aa7ce9183f4c2e493b2e8c3a39
+  languageName: node
+  linkType: hard
+
 "react-datepicker@npm:^8.3.0":
   version: 8.3.0
   resolution: "react-datepicker@npm:8.3.0"
@@ -5416,6 +5447,13 @@ __metadata:
   version: 0.26.0
   resolution: "scheduler@npm:0.26.0"
   checksum: 10c0/5b8d5bfddaae3513410eda54f2268e98a376a429931921a81b5c3a2873aab7ca4d775a8caac5498f8cbc7d0daeab947cf923dbd8e215d61671f9f4e392d34356
+  languageName: node
+  linkType: hard
+
+"sdp@npm:^3.2.0":
+  version: 3.2.1
+  resolution: "sdp@npm:3.2.1"
+  checksum: 10c0/a534d91972d6c26016f0e814d8e0ca4db6ae714d1da58056d3bcf4660137aeddb71d9085a5dd5eb764d5cffca83ab3ee7446cb6eed36411cd1e93d2c929d7d80
   languageName: node
   linkType: hard
 
@@ -5930,7 +5968,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.1.0, tslib@npm:^2.4.0, tslib@npm:^2.8.0":
+"tslib@npm:^2.1.0, tslib@npm:^2.4.0, tslib@npm:^2.6.3, tslib@npm:^2.8.0":
   version: 2.8.1
   resolution: "tslib@npm:2.8.1"
   checksum: 10c0/9c4759110a19c53f992d9aae23aac5ced636e99887b51b9e61def52611732872ff7668757d4e4c61f19691e36f4da981cd9485e869b4a7408d689f6bf1f14e62
@@ -6157,6 +6195,15 @@ __metadata:
   dependencies:
     defaults: "npm:^1.0.3"
   checksum: 10c0/5b61ca583a95e2dd85d7078400190efd452e05751a64accb8c06ce4db65d7e0b0cde9917d705e826a2e05cc2548f61efde115ffa374c3e436d04be45c889e5b4
+  languageName: node
+  linkType: hard
+
+"webrtc-adapter@npm:^9.0.1":
+  version: 9.0.3
+  resolution: "webrtc-adapter@npm:9.0.3"
+  dependencies:
+    sdp: "npm:^3.2.0"
+  checksum: 10c0/bb8c1626cc0e18bd34c03074fc6a541666dbe473c8f063c5d0ea2a3a3a4887f498212a131c936777f660382185f44941476609a50df5f1543015240623375725
   languageName: node
   linkType: hard
 
