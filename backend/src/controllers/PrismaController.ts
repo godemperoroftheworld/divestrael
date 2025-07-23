@@ -68,6 +68,14 @@ export default abstract class PrismaController<N extends PrismaModelName> {
     res.status(HttpStatusCode.Ok).send(result);
   };
 
+  public readonly searchOne: RouteHandler<{
+    Querystring: SearchQuery;
+  }> = async (req, res) => {
+    const { query } = req.query;
+    const result = await this.service.searchOne(query);
+    res.status(HttpStatusCode.Ok).send(result);
+  };
+
   public readonly count: RouteHandler<{
     Body: Pick<PrismaServiceParams<N>, 'filter'>;
   }> = async (req, res) => {
