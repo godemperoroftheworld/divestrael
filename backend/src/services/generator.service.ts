@@ -4,10 +4,14 @@ import process from 'node:process';
 
 import CompanyService from '@/services/company.service';
 
+interface ProductApiResult {
+  name: string;
+  brand: string;
+  company: string;
+}
 interface CompanyApiResult {
   name: string;
   country: Country;
-  brand: string;
 }
 interface BrandsApiResult {
   names: string[];
@@ -60,11 +64,61 @@ export default class AIService {
     };
   }
 
+  public async generateProduct(image: string) {
+    const result = await this.generatorInstance.post('chat/completions', {
+      model: 'google/gemini-2.5-flash',
+      messages: [
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'image_url',
+              image_url: {
+                url: image,
+              },
+            },
+            {
+              type: 'text',
+              text: 'I am giving you a picture of a product. I want you to give me the product name, and the brand.',
+            },
+          ],
+        },
+      ],
+      provider: {
+        require_parameters: true,
+      },
+      response_format: {
+        type: 'json_schema',
+        json_schema: {
+          name: 'product',
+          strict: true,
+          schema: {
+            type: 'object',
+            properties: {
+              name: {
+                type: 'string',
+                description: 'The name of the product',
+              },
+              brand: {
+                type: 'string',
+                description: 'The brand of the product',
+              },
+            },
+            required: ['name', 'brand'],
+            additionalProperties: false,
+          },
+        },
+      },
+    });
+    const { name, brand, company } = JSON.parse(result.data.choices[0].message.content);
+    return { name, brand, company } as ProductApiResult;
+  }
+
   public async generateBrands(companyId: string) {
     const company = await CompanyService.instance.getOne(companyId);
     const prompt = `I am going to give you some company information. I want you to give me all of the brands (in english) that belong to that company. The list should be exhaustive. If you don't know the company, or don't know any subsidiaries for the company, return an empty list. Company: ${company.name}, Country: ${company.country}`;
     const brandsResult = await this.generatorInstance.post('chat/completions', {
-      model: 'google/gemini-2.0-flash-001',
+      model: 'google/gemini-2.5-flash',
       messages: [
         {
           role: 'user',
