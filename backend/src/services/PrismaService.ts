@@ -216,7 +216,12 @@ export default abstract class PrismaService<N extends PrismaModelName> {
               text: {
                 query,
                 path: this.searchPaths(),
-                fuzzy: fuzzy ? {} : undefined,
+                fuzzy: fuzzy
+                  ? {
+                      maxEdits: 2,
+                      prefixLength: 1,
+                    }
+                  : undefined,
               },
             },
           },

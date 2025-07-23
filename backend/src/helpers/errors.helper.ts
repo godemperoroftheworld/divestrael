@@ -19,6 +19,10 @@ export const ERRORS = {
     'Cannot generate company information',
     HttpStatusCode.InternalServerError,
   ),
+  noProductFound: new AppError(
+    'Cannot generate product information',
+    HttpStatusCode.InternalServerError,
+  ),
   internalServerError: new AppError('Internal Server Error', HttpStatusCode.InternalServerError),
 };
 
