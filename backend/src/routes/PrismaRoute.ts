@@ -98,6 +98,17 @@ export default class PrismaRoute<N extends PrismaModelName> {
       },
       this.controller.search as RouteHandlerMethod,
     );
+    server.get(
+      '/searchOne',
+      {
+        schema: {
+          tags: [this.prefix],
+          querystring: searchQuery.merge(prismaBody),
+          response: { 200: z.nullable(this.responseSchema) },
+        },
+      },
+      this.controller.searchOne as RouteHandlerMethod,
+    );
   }
 
   public register(fastify: FastifyInstance) {
