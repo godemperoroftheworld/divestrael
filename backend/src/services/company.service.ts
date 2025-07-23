@@ -3,7 +3,6 @@ import { Country } from '@prisma/client';
 import PrismaService from '@/services/PrismaService';
 import AIService from '@/services/generator.service';
 import CorpwatchService from '@/services/corpwatch.service';
-import BrandService from '@/services/brand.service';
 
 export default class CompanyService extends PrismaService<'Company'> {
   public static readonly instance: CompanyService = new CompanyService();
@@ -40,7 +39,6 @@ export default class CompanyService extends PrismaService<'Company'> {
         select: ['id'],
       },
     );
-    await BrandService.instance.createForCompany(id);
-    return this.getOne(id, { include: ['brands'] });
+    return this.getOne(id);
   }
 }
