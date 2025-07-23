@@ -37,10 +37,10 @@ export default class CompanyService extends PrismaService<'Company'> {
         source: null,
       },
       {
-        include: ['id'],
+        select: ['id'],
       },
     );
-    await BrandService.instance.createForCompany(id, { include: ['id'] });
+    await BrandService.instance.createForCompany(id, { select: ['id'] });
     return this.getOne(id, { include: ['brands'] });
   }
 }
