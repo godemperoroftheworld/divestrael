@@ -3,7 +3,6 @@ import axios, { AxiosInstance } from 'axios';
 import ProductService from '@/services/product.service';
 import PrismaService from '@/services/PrismaService';
 import { PrismaModelExpanded } from '@/helpers/prisma.helper';
-import { ERRORS } from '@/helpers/errors.helper';
 
 interface BarcodeAPIResponse {
   total: number;
@@ -47,7 +46,7 @@ export default class BarcodeService extends PrismaService<'Barcode'> {
         params: { upc: code },
       });
       if (!data.items?.length) {
-        throw ERRORS.noProductFound;
+        return { code, id: '', productId: '' };
       }
       const { title, brand } = data.items[0];
       let product: PrismaModelExpanded<'Product'>;
