@@ -16,6 +16,10 @@ interface CompanyApiResult {
 interface BrandsApiResult {
   names: string[];
 }
+interface CompanyMetadataApiResult {
+  description: string;
+  url: string;
+}
 
 // Service to get product company name
 export default class AIService {
@@ -58,10 +62,52 @@ export default class AIService {
       },
     });
     const resultItem = result.data.itemListElement[0]?.result;
-    return {
-      description: resultItem.detailedDescription?.articleBody || resultItem?.description || query,
-      url: resultItem?.url,
-    };
+    if (resultItem) {
+      return {
+        description:
+          resultItem.detailedDescription?.articleBody || resultItem?.description || query,
+        url: resultItem?.url,
+      } as CompanyMetadataApiResult;
+    }
+    const fallback = await this.generatorInstance.post('chat/completions', {
+      model: 'openai/gpt-4o-mini-search-preview',
+      messages: [
+        {
+          role: 'user',
+          content:
+            'I am going to give you the name of a company. I want you to find me a brief description of it, and the url for the company website. Here is an example description:\n' +
+            'Airbnb, Inc. is an American company operating an online marketplace for short-and-long-term homestays and experiences in various countries and regions. It acts as a broker and charges a commission from each booking. Airbnb was founded in 2008 by Brian Chesky, Nathan Blecharczyk, and Joe Gebbia. It is the best-known company for short-term housing rentals.\n' +
+            `Query: ${query}`,
+        },
+      ],
+      provider: {
+        require_parameters: true,
+      },
+      response_format: {
+        type: 'json_schema',
+        json_schema: {
+          name: 'company',
+          strict: true,
+          schema: {
+            type: 'object',
+            properties: {
+              description: {
+                type: 'string',
+                description: 'The description of the company',
+              },
+              url: {
+                type: 'string',
+                description: 'The URL for the company website',
+              },
+            },
+            required: ['description', 'url'],
+            additionalProperties: false,
+          },
+        },
+      },
+    });
+    const { description, url } = JSON.parse(fallback.data.choices[0].message.content);
+    return { description, url } as CompanyMetadataApiResult;
   }
 
   public async generateProduct(image: string) {
