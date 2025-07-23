@@ -216,7 +216,11 @@ export default abstract class PrismaService<N extends PrismaModelName> {
               text: {
                 query,
                 path: this.searchPaths(),
-                fuzzy: fuzzy ? {} : undefined,
+                fuzzy: fuzzy
+                  ? {
+                      prefixLength: 1,
+                    }
+                  : undefined,
               },
               sort: { score: { $meta: 'searchScore', order: -1 } },
             },
@@ -228,7 +232,7 @@ export default abstract class PrismaService<N extends PrismaModelName> {
           },
           {
             $match: {
-              score: { $gt: 2 },
+              score: { $gt: 3 },
             },
           },
           {
@@ -263,7 +267,9 @@ export default abstract class PrismaService<N extends PrismaModelName> {
             text: {
               query,
               path: this.searchPaths(),
-              fuzzy: {},
+              fuzzy: {
+                prefixLength: 1,
+              },
             },
             sort: { score: { $meta: 'searchScore', order: -1 } },
           },
@@ -275,14 +281,14 @@ export default abstract class PrismaService<N extends PrismaModelName> {
         },
         {
           $match: {
-            score: { $gt: 2 },
+            score: { $gt: 3 },
           },
         },
         {
           $project: {
             _id: false,
             id: { $toString: '$_id' },
-            name: true,
+            score: true,
           } as Prisma.InputJsonValue,
         },
       ],
