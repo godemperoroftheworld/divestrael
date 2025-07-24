@@ -45,7 +45,7 @@ export default function Search() {
     <Select
       id="select"
       options={typeof window !== undefined ? searchOptions : []}
-      getOptionLabel={getOptionLabel}
+      getOptionLabel={getOptionLabel as GetOptionLabel<unknown>}
       inputValue={searchQuery}
       filterOption={filterOption}
       onInputChange={setSearchQuery}

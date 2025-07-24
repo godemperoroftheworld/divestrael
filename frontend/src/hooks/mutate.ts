@@ -4,9 +4,10 @@ import { useCallback } from 'react';
 import DivestraelApi from '@/api';
 import { AxiosRequestConfig } from 'axios';
 import type { MutationObserverOptions } from '@tanstack/query-core';
+import { ArrayElement } from '@/types/globals';
 
 export function useDivestraelMutation<T extends object, B extends object>(
-  model: ClassConstructor<T>,
+  model: ClassConstructor<ArrayElement<T>>,
   url: string,
   config: Omit<AxiosRequestConfig<B>, 'url' | 'data'>,
   data: B,
