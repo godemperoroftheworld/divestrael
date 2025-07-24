@@ -135,7 +135,7 @@ export default abstract class PrismaService<N extends PrismaModelName> {
     return this.repository as unknown as PrismaRepositoryBase<N>;
   }
 
-  protected abstract searchPaths(): string[];
+  protected abstract searchPath(): string;
 
   protected get models() {
     return dmmf!.datamodel.models;
@@ -215,7 +215,7 @@ export default abstract class PrismaService<N extends PrismaModelName> {
               index: 'search',
               text: {
                 query,
-                path: this.searchPaths(),
+                path: this.searchPath(),
                 fuzzy: fuzzy
                   ? {
                       prefixLength: 1,
@@ -264,9 +264,9 @@ export default abstract class PrismaService<N extends PrismaModelName> {
         {
           $search: {
             index: 'search',
-            text: {
+            autocomplete: {
               query,
-              path: this.searchPaths(),
+              path: this.searchPath(),
               fuzzy: {
                 prefixLength: 1,
               },
@@ -281,7 +281,7 @@ export default abstract class PrismaService<N extends PrismaModelName> {
         },
         {
           $match: {
-            score: { $gt: 3 },
+            score: { $gte: 1 },
           },
         },
         {
@@ -326,7 +326,7 @@ export default abstract class PrismaService<N extends PrismaModelName> {
     await this.repositoryBase.createMany({
       data,
     } as unknown as PrismaCreateArgs<N>);
-    const searchPath = this.searchPaths()[0] as keyof Omit<PrismaModel<N>, 'id'>;
+    const searchPath = this.searchPath()[0] as keyof Omit<PrismaModel<N>, 'id'>;
     return this.repositoryBase.findMany({
       where: {
         [searchPath]: { in: data.map((d) => d[searchPath]) },
