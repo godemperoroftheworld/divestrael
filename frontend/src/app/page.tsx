@@ -14,7 +14,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="font-heading font-bold text-xl text-center">
+      <div className="font-heading font-bold text-xl text-center bg-paper p-8 border-gray-200 border rounded">
         Since{' '}
         <a
           href="https://en.wikipedia.org/wiki/Nakba"

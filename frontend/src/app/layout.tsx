@@ -26,7 +26,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html
+      lang="en"
+      className="bg-white">
       <body className="px-4 py-8 font-body">
         <Image
           className="w-128 mx-auto mb-4"

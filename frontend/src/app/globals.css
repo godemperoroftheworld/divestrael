@@ -55,5 +55,8 @@
     --color-danger-800: oklch(26.53% 0.09115 31.055);
     --color-danger-900: oklch(16.031% 0.04562 34.291);
     --color-danger-950: oklch(9.0035% 0.02591 44.622);
+
+    --color-white: hsl(0 56.3% 99%);
+    --color-paper: hsl(0 0 99%);
 }
 
