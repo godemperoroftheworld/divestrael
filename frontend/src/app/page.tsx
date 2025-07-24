@@ -1,20 +1,9 @@
-'use client';
-
-import React, { useMemo } from 'react';
-import { useCompanies } from '@/services/company/queries';
-import Image from 'next/image';
-import Carousel from '@/components/carousel';
-import Search from '@/components/search';
-import ConditionalLink from '@/components/conditional-link';
+import React from 'react';
+import Search from '@/components/home/search';
 import Link from 'next/link';
+import CompanyCarousel from '@/components/home/company-carousel';
 
 export default function Home() {
-  const { data } = useCompanies();
-
-  const companyLogos = useMemo(() => {
-    return data?.filter((x) => !!x.url) ?? [];
-  }, [data]);
-
   return (
     <div className="flex flex-col gap-6">
       <div className="font-heading font-bold text-xl text-center">
@@ -63,26 +52,7 @@ export default function Home() {
         <p className="text-center mb-2">
           The following companies are boycotted. Click on them to learn more.
         </p>
-        <Carousel className="mx-auto overflow-hidden">
-          {companyLogos.map((company) => (
-            <div
-              key={company.id}
-              className="rounded-lg overflow-hidden">
-              <ConditionalLink
-                href={company.url}
-                target="_blank">
-                <Image
-                  className="w-32 aspect-square"
-                  title={company.name}
-                  src={company.image_url}
-                  alt={company.name}
-                  width={100}
-                  height={100}
-                />
-              </ConditionalLink>
-            </div>
-          ))}
-        </Carousel>
+        <CompanyCarousel />
       </div>
     </div>
   );
