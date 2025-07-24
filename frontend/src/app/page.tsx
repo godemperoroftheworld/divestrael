@@ -6,6 +6,7 @@ import Image from 'next/image';
 import Carousel from '@/components/carousel';
 import Search from '@/components/search';
 import ConditionalLink from '@/components/conditional-link';
+import Link from 'next/link';
 
 export default function Home() {
   const { data } = useCompanies();
@@ -18,29 +19,29 @@ export default function Home() {
     <div className="flex flex-col gap-6">
       <div className="font-heading font-bold text-xl text-center">
         Since{' '}
-        <a
+        <Link
           href="https://en.wikipedia.org/wiki/Nakba"
           target="_blank"
-          className="text-primary font-black hover:text-primary-400">
+          className="text-danger font-black hover:text-danger-600">
           December 31st, 1937
-        </a>
+        </Link>
         , the Israeli ethnostate has been carrying out a{' '}
-        <a
+        <Link
           href="https://en.wikipedia.org/wiki/Palestinian_genocide_accusation"
           target="_blank"
-          className="text-primary font-black hover:text-primary-400">
+          className="text-danger font-black hover:text-danger-600">
           genocide
-        </a>{' '}
+        </Link>{' '}
         against the Palestinian people.
         <br />
         The goal of this site is to provide a tool to divest from companies are
         actively contributing to the ongoing{' '}
-        <a
+        <Link
           href="https://en.wikipedia.org/wiki/Palestinian_genocide_accusation"
           target="_blank"
-          className="text-primary font-black hover:text-primary-400">
+          className="text-danger font-black hover:text-danger-600">
           genocide
-        </a>
+        </Link>
         .
       </div>
       <div>
