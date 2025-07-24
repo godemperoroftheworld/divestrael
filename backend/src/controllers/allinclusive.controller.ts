@@ -6,6 +6,7 @@ import ProductService from '@/services/product.service';
 import { RouteHandler } from '@/helpers/types.helper';
 import { PrismaModelExpanded } from '@/helpers/prisma.helper';
 import AIService from '@/services/generator.service';
+import { ERRORS } from '@/helpers/errors.helper';
 
 export const postCompany: RouteHandler<{
   Body: AllInclusiveCompany;
@@ -31,6 +32,9 @@ export const postProduct: RouteHandler<{
     // Generating from name, brand
     name = req.body.name;
     brand = req.body.brand;
+  }
+  if (!name || name === 'N/A') {
+    throw ERRORS.noProductFound;
   }
   const result = await ProductService.instance.getOrCreateByName(name, brand);
   res.status(HttpStatusCode.Ok).send(result);
