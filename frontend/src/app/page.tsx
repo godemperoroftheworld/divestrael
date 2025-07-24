@@ -4,6 +4,7 @@ import React, { useMemo } from 'react';
 import { useCompanies } from '@/services/company/queries';
 import Image from 'next/image';
 import Carousel from '@/components/carousel';
+import Search from '@/components/search';
 
 export default function Home() {
   const { data } = useCompanies();
@@ -13,8 +14,8 @@ export default function Home() {
   }, [data]);
 
   return (
-    <div className="flex flex-col gap-8">
-      <div className="font-heading font-bold text-xl text-center bg-paper p-8 border-gray-200 border rounded">
+    <div className="flex flex-col gap-6">
+      <div className="font-heading font-bold text-xl text-center">
         Since{' '}
         <a
           href="https://en.wikipedia.org/wiki/Nakba"
@@ -42,9 +43,22 @@ export default function Home() {
         .
       </div>
       <div>
-        <h2 className="text-center text-xl font-black text-primary font-heading mb-2">
+        <h2 className="text-center text-xl font-black text-primary font-heading">
+          Search for Something
+        </h2>
+        <p className="text-center mb-2">
+          It can be a product, a brand, or a company. We&#39;ll tell you if you
+          should boycott it.
+        </p>
+        <Search />
+      </div>
+      <div>
+        <h2 className="text-center text-xl font-black text-primary font-heading">
           Boycotted Companies
         </h2>
+        <p className="text-center mb-2">
+          The following companies are boycotted. Click on them to learn more.
+        </p>
         <Carousel className="mx-auto overflow-hidden">
           {companyLogos.map((company) => (
             <div
