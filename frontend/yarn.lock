@@ -628,6 +628,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@heroicons/react@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "@heroicons/react@npm:2.2.0"
+  peerDependencies:
+    react: ">= 16 || ^19.0.0-rc"
+  checksum: 10c0/f8d3cf689b56716339c91df3542f3948115042d1e70e6bc940a3f3e347c0bc78b56aa563917fbd7ce097fe2f38ebb21bffb0db39be914cbc545a754bddae9ab4
+  languageName: node
+  linkType: hard
+
 "@humanfs/core@npm:^0.19.1":
   version: 0.19.1
   resolution: "@humanfs/core@npm:0.19.1"
@@ -3392,6 +3401,7 @@ __metadata:
     "@commitlint/config-conventional": "npm:^19.8.0"
     "@eslint/eslintrc": "npm:^3"
     "@headlessui/react": "npm:^2.2.1"
+    "@heroicons/react": "npm:^2.2.0"
     "@tailwindcss/postcss": "npm:^4"
     "@tanstack/react-query": "npm:^5.74.3"
     "@types/lodash": "npm:^4"
@@ -3415,6 +3425,7 @@ __metadata:
     react-datepicker: "npm:^8.3.0"
     react-dom: "npm:^19.0.0"
     react-select: "npm:^5.10.1"
+    react-webcam: "npm:^7.2.0"
     reflect-metadata: "npm:^0.2.2"
     tailwindcss: "npm:^4"
     typescript: "npm:^5"
@@ -5191,6 +5202,16 @@ __metadata:
     react: ">=16.6.0"
     react-dom: ">=16.6.0"
   checksum: 10c0/2ba754ba748faefa15f87c96dfa700d5525054a0141de8c75763aae6734af0740e77e11261a1e8f4ffc08fd9ab78510122e05c21c2d79066c38bb6861a886c82
+  languageName: node
+  linkType: hard
+
+"react-webcam@npm:^7.2.0":
+  version: 7.2.0
+  resolution: "react-webcam@npm:7.2.0"
+  peerDependencies:
+    react: ">=16.2.0"
+    react-dom: ">=16.2.0"
+  checksum: 10c0/d639a9e4cd545f66a5ecbfdc6c38344f6ae40e6609ba5fb26db730b48723158dedeeecdecba94e4d117517f4db0be828169db270c329b9b71d847e54aba6f7f0
   languageName: node
   linkType: hard
 

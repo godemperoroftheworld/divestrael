@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import Brand from '@/types/api/brand';
 import Barcode from '@/types/api/barcode';
 import { Type } from 'class-transformer';

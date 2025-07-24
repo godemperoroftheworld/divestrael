@@ -2,10 +2,12 @@ import React from 'react';
 import Search from '@/components/home/search';
 import Link from 'next/link';
 import CompanyCarousel from '@/components/home/company-carousel';
+import { CameraIcon } from '@heroicons/react/24/solid';
+import Button from '@/components/ui/button';
 
 export default function Home() {
   return (
-    <div className="flex flex-col gap-6">
+    <>
       <div className="font-heading font-bold text-xl text-center">
         Since{' '}
         <Link
@@ -33,27 +35,28 @@ export default function Home() {
         </Link>
         .
       </div>
-      <div>
+      <div className="flex flex-col gap-4 items-center w-full">
         <h2 className="text-center text-xl font-black text-primary font-heading">
-          Search for Something
+          Boycott Lookup
         </h2>
-        <p className="text-center mb-2">
-          It can be a product, a brand, or a company. We&#39;ll tell you if you
-          should boycott it.
-        </p>
-        <div className="max-w-2xl mx-auto">
-          <Search />
-        </div>
+        <Search />
+        <span className="text-lg text-gray-500 font-black italic">OR</span>
+        <Link href="/snap">
+          <Button>
+            <CameraIcon className="w-8" />
+            Take a Picture
+          </Button>
+        </Link>
       </div>
-      <div>
+      <div className="w-full">
         <h2 className="text-center text-xl font-black text-primary font-heading">
-          Boycotted Companies
+          List of Shame
         </h2>
         <p className="text-center mb-2">
           The following companies are boycotted. Click on them to learn more.
         </p>
         <CompanyCarousel />
       </div>
-    </div>
+    </>
   );
 }

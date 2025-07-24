@@ -1,31 +1,37 @@
 import { ClassConstructor } from 'class-transformer';
-import { useMutation, UseMutationResult } from '@tanstack/react-query';
+import {
+  MutateFunction,
+  useMutation,
+  UseMutationResult,
+} from '@tanstack/react-query';
 import { useCallback } from 'react';
 import DivestraelApi from '@/api';
 import { AxiosRequestConfig } from 'axios';
 import type { MutationObserverOptions } from '@tanstack/query-core';
 import { ArrayElement } from '@/types/globals';
 
-export function useDivestraelMutation<T extends object, B extends object>(
-  model: ClassConstructor<ArrayElement<T>>,
+export function useDivestraelMutation<R extends object, V extends object>(
+  model: ClassConstructor<ArrayElement<R>>,
   url: string,
-  config: Omit<AxiosRequestConfig<B>, 'url' | 'data'>,
-  data: B,
-  options: Partial<MutationObserverOptions<T>>,
-): UseMutationResult<T, Error, void> {
-  const mutationFn = useCallback(async () => {
-    const response = await DivestraelApi.instance.request(
-      {
-        url,
-        ...config,
-        data,
-      },
-      model,
-    );
-    return response.data;
-  }, [url, config, model]);
+  config: Omit<AxiosRequestConfig, 'url' | 'data'>,
+  options: Partial<MutationObserverOptions<R, Error, V>>,
+): UseMutationResult<R, Error, V> {
+  const mutationFn: MutateFunction<R, Error, V> = useCallback(
+    async (data: V) => {
+      const response = await DivestraelApi.instance.request(
+        {
+          url,
+          ...config,
+          data,
+        },
+        model,
+      );
+      return response.data as R;
+    },
+    [url, config, model],
+  );
 
-  return useMutation({
+  return useMutation<R, Error, V>({
     ...options,
     mutationFn,
   });
