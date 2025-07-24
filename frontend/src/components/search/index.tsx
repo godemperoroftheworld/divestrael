@@ -49,6 +49,7 @@ export default function Search() {
       inputValue={searchQuery}
       filterOption={filterOption}
       onInputChange={setSearchQuery}
+      placeholder="Search for a product, a brand, or a company."
       maxMenuHeight={5000}
     />
   );

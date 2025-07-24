@@ -50,7 +50,9 @@ export default function Home() {
           It can be a product, a brand, or a company. We&#39;ll tell you if you
           should boycott it.
         </p>
-        <Search />
+        <div className="max-w-2xl mx-auto">
+          <Search />
+        </div>
       </div>
       <div>
         <h2 className="text-center text-xl font-black text-primary font-heading">
@@ -70,6 +72,7 @@ export default function Home() {
                   target="_blank">
                   <Image
                     className="w-32 aspect-square"
+                    title={company.name}
                     src={company.image_url}
                     alt={company.name}
                     width={100}
@@ -79,6 +82,7 @@ export default function Home() {
               ) : (
                 <Image
                   className="w-32 aspect-square"
+                  title={company.name}
                   src={company.image_url}
                   alt={company.name}
                   width={100}
