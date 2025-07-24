@@ -5,6 +5,7 @@ import { useCompanies } from '@/services/company/queries';
 import Image from 'next/image';
 import Carousel from '@/components/carousel';
 import Search from '@/components/search';
+import ConditionalLink from '@/components/conditional-link';
 
 export default function Home() {
   const { data } = useCompanies();
@@ -66,20 +67,9 @@ export default function Home() {
             <div
               key={company.id}
               className="rounded-lg overflow-hidden">
-              {company.url ? (
-                <a
-                  href={company.url}
-                  target="_blank">
-                  <Image
-                    className="w-32 aspect-square"
-                    title={company.name}
-                    src={company.image_url}
-                    alt={company.name}
-                    width={100}
-                    height={100}
-                  />
-                </a>
-              ) : (
+              <ConditionalLink
+                href={company.url}
+                target="_blank">
                 <Image
                   className="w-32 aspect-square"
                   title={company.name}
@@ -88,7 +78,7 @@ export default function Home() {
                   width={100}
                   height={100}
                 />
-              )}
+              </ConditionalLink>
             </div>
           ))}
         </Carousel>
