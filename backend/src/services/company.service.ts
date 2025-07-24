@@ -7,8 +7,8 @@ import CorpwatchService from '@/services/corpwatch.service';
 export default class CompanyService extends PrismaService<'Company'> {
   public static readonly instance: CompanyService = new CompanyService();
 
-  protected searchPaths(): string[] {
-    return ['name'];
+  protected override searchPath(): string {
+    return 'name';
   }
 
   private constructor() {

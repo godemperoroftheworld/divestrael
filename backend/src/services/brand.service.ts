@@ -8,8 +8,8 @@ import CompanyService from '@/services/company.service';
 export default class BrandService extends PrismaService<'Brand'> {
   public static readonly instance = new BrandService();
 
-  protected override searchPaths(): (keyof Brand)[] {
-    return ['name'];
+  protected override searchPath(): keyof Brand {
+    return 'name';
   }
 
   private constructor() {

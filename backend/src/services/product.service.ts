@@ -6,8 +6,8 @@ import { PrismaModelExpanded } from '@/helpers/prisma.helper';
 export default class ProductService extends PrismaService<'Product'> {
   public static readonly instance = new ProductService();
 
-  protected override searchPaths(): string[] {
-    return ['name'];
+  protected override searchPath(): string {
+    return 'name';
   }
 
   private constructor() {
