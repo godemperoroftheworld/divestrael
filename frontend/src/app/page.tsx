@@ -1,11 +1,9 @@
 'use client';
 
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useCompanies } from '@/services/company/queries';
 import Image from 'next/image';
 import Carousel from '@/components/carousel';
-import Search from '@/components/search';
-import Scan from '@/components/scan';
 
 export default function Home() {
   const { data } = useCompanies();
@@ -15,9 +13,38 @@ export default function Home() {
   }, [data]);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-8">
+      <div className="font-heading font-bold text-xl text-center">
+        Since{' '}
+        <a
+          href="https://en.wikipedia.org/wiki/Nakba"
+          target="_blank"
+          className="text-primary font-black hover:text-primary-400">
+          December 31st, 1937
+        </a>
+        , the Israeli ethnostate has been carrying out a{' '}
+        <a
+          href="https://en.wikipedia.org/wiki/Palestinian_genocide_accusation"
+          target="_blank"
+          className="text-primary font-black hover:text-primary-400">
+          genocide
+        </a>{' '}
+        against the Palestinian people.
+        <br />
+        The goal of this site is to provide a tool to divest from companies are
+        actively contributing to the ongoing{' '}
+        <a
+          href="https://en.wikipedia.org/wiki/Palestinian_genocide_accusation"
+          target="_blank"
+          className="text-primary font-black hover:text-primary-400">
+          genocide
+        </a>
+        .
+      </div>
       <div>
-        <h2 className="text-center text-2xl">Boycotted Companies</h2>
+        <h2 className="text-center text-xl font-black text-primary font-heading mb-2">
+          Boycotted Companies
+        </h2>
         <Carousel className="mx-auto overflow-hidden">
           {companyLogos.map((company) => (
             <div
@@ -47,14 +74,6 @@ export default function Home() {
             </div>
           ))}
         </Carousel>
-      </div>
-      <div>
-        <h2 className="text-center text-xl">Search</h2>
-        <Search />
-      </div>
-      <div>
-        <h2 className="text-center text-xl">Scan</h2>
-        <Scan />
       </div>
     </div>
   );
