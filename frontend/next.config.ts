@@ -13,6 +13,19 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async headers() {
+    return [
+      {
+        source: '/api/:route*',
+        headers: [
+          {
+            key: 'x-api-key',
+            value: process.env.API_KEY as string,
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;
