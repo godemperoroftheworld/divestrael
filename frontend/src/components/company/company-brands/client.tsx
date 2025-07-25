@@ -32,7 +32,7 @@ export default function BrandCarousel({
 
   return (
     <Carousel
-      options={{ loop: true, watchDrag: false }}
+      options={{ loop: true, watchDrag: false, align: 'center' }}
       scroll={{ playOnInit: true, speed: 0.5, stopOnInteraction: false }}
       className={`${className ?? ''} mx-auto overflow-hidden`}
       {...rest}>

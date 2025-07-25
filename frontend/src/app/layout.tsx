@@ -38,6 +38,7 @@ export default function RootLayout({
               className="w-128 mx-auto mb-4"
               src="/logo.png"
               priority={true}
+              fetchPriority="high"
               alt="Logo"
               width={1526}
               height={600}

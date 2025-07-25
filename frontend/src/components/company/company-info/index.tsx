@@ -30,7 +30,7 @@ export default async function CompanyInfo({ companyId, brandId }: Props) {
         <CompanyPicture companyId={companyId} />
         {!brandId ? (
           <CompanyBrands
-            className="py-2"
+            className="py-2 w-fit"
             companyId={companyId}
           />
         ) : null}
