@@ -9,7 +9,7 @@
   "scripts": {
     "prebuild": "prisma generate && eslint --fix 'src/schemas/zod/**/*.ts'",
     "build": "tsc -p tsconfig.json && tsc-alias",
-    "start": "node dist/main.js",
+    "start": "node dist/index.js",
     "dev": "nodemon | pino-pretty",
     "type-check": "tsc --build --force",
     "update:packages": "yarn npm-check-updates -u",
