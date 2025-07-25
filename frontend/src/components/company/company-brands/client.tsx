@@ -1,3 +1,5 @@
+'use client';
+
 import { useBrands } from '@/services/brand/queries';
 import { FilterOperator } from '@/types/filter';
 import Carousel from '@/components/ui/carousel';

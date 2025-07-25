@@ -29,13 +29,7 @@ export function createQueryKey<T extends object>(
   config: Omit<AxiosRequestConfig, 'url'>,
   params: QueryParams<ArrayElement<T>>,
 ) {
-  return [
-    url,
-    config.params,
-    config.data,
-    config.headers,
-    ...Object.entries(params),
-  ];
+  return [url, config, ...Object.entries(params)];
 }
 export function useQueryKey<T extends object>(
   url: string,

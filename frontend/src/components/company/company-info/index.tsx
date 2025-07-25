@@ -1,31 +1,41 @@
 import { prefetchCompany } from '@/services/company/queries';
 import { prefetchBrand } from '@/services/brand/queries';
-import {
-  dehydrate,
-  HydrationBoundary,
-  QueryClient,
-} from '@tanstack/react-query';
-import Client from './client';
+import CompanyBrands from '@/components/company/company-brands';
+import getQueryClient from '@/services/query';
+import CompanyInfoDisplay from '@/components/company/company-info/display';
+import CompanyPicture from '@/components/company/company-info/picture';
+import CompanyDetails from '@/components/company/company-info/details';
+import Hydrater from '@/components/hydrater';
 
 interface Props {
   brandId?: string;
   companyId: string;
 }
 
-export default async function CompanyInfo({ companyId, brandId }: Props) {
-  const queryClient = new QueryClient();
+const queryClient = getQueryClient();
 
+export default async function CompanyInfo({ companyId, brandId }: Props) {
   await Promise.all([
     prefetchBrand(queryClient, brandId),
     prefetchCompany(queryClient, companyId),
   ]);
 
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <Client
-        companyId={companyId}
+    <Hydrater queryClient={queryClient}>
+      <CompanyInfoDisplay
         brandId={brandId}
+        companyId={companyId}
       />
-    </HydrationBoundary>
+      <div className="w-full">
+        <CompanyPicture companyId={companyId} />
+        {!brandId ? (
+          <CompanyBrands
+            className="py-2"
+            companyId={companyId}
+          />
+        ) : null}
+      </div>
+      <CompanyDetails companyId={companyId} />
+    </Hydrater>
   );
 }

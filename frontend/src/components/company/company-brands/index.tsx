@@ -1,20 +1,17 @@
 import { prefetchBrands } from '@/services/brand/queries';
 import { FilterOperator } from '@/types/filter';
 import React, { HTMLAttributes } from 'react';
-import {
-  dehydrate,
-  HydrationBoundary,
-  QueryClient,
-} from '@tanstack/react-query';
 import Client from './client';
+import getQueryClient from '@/services/query';
+import Hydrater from '@/components/hydrater';
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
   companyId: string;
 }
 
-export default async function BrandCarousel({ companyId, ...rest }: Props) {
-  const queryClient = new QueryClient();
+const queryClient = getQueryClient();
 
+export default async function BrandCarousel({ companyId, ...rest }: Props) {
   await prefetchBrands(queryClient, {
     filter: {
       rules: [
@@ -28,11 +25,11 @@ export default async function BrandCarousel({ companyId, ...rest }: Props) {
   });
 
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
+    <Hydrater queryClient={queryClient}>
       <Client
         companyId={companyId}
         {...rest}
       />
-    </HydrationBoundary>
+    </Hydrater>
   );
 }
