@@ -5,8 +5,14 @@ import {
 } from '@/utils/query';
 import Brand from '@/types/api/brand';
 
-const useBrands = createAllQuery(Brand, 'brand');
-const useSearchBrands = createSearchQuery(Brand, 'brand');
-const useBrand = createOneQuery(Brand, 'brand');
+const { prefetchQuery: prefetchBrands, useQuery: useBrands } = createAllQuery(
+  Brand,
+  'brand',
+);
+const { useQuery: useSearchBrands } = createSearchQuery(Brand, 'brand');
+const { prefetchQuery: prefetchBrand, useQuery: useBrand } = createOneQuery(
+  Brand,
+  'brand',
+);
 
-export { useBrands, useSearchBrands, useBrand };
+export { useBrands, prefetchBrands, useSearchBrands, useBrand, prefetchBrand };

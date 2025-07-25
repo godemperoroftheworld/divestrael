@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { useCompany } from '@/services/company/queries';
 import { useBrand } from '@/services/brand/queries';
 import ConditionalLink from '@/components/ui/conditional-link';
-import CompanyBrands from './company-brands';
+import CompanyBrands from '../company-brands';
 import Link from 'next/link';
 
 interface Props {

@@ -1,8 +1,10 @@
-'use client';
-
-import { useBrand } from '@/services/brand/queries';
-import { use } from 'react';
-import CompanyInfo from '@/components/company/company-info';
+import { prefetchBrand } from '@/services/brand/queries';
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient,
+} from '@tanstack/react-query';
+import Client from './client';
 
 interface Props {
   params: Promise<{
@@ -10,18 +12,15 @@ interface Props {
   }>;
 }
 
-export default function BrandPage({ params }: Props) {
-  const { brandId } = use(params);
-  const { data: brand } = useBrand(brandId);
+export default async function BrandPage({ params }: Props) {
+  const { brandId } = await params;
+  const queryClient = new QueryClient();
+
+  await prefetchBrand(queryClient, brandId);
 
   return (
-    <>
-      {brand?.companyId ? (
-        <CompanyInfo
-          brandId={brandId}
-          companyId={brand?.companyId}
-        />
-      ) : null}
-    </>
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <Client brandId={brandId} />
+    </HydrationBoundary>
   );
 }
