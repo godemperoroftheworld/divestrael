@@ -10,4 +10,9 @@ export default class Brand {
   company?: Company;
   @Type(() => Product)
   products?: Product[];
+
+  get boycotted(): boolean | null {
+    if (!this.company) return null;
+    return this.company.boycotted;
+  }
 }

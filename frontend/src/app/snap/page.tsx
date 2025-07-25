@@ -6,17 +6,19 @@ import { MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 import { useRef } from 'react';
 import Webcam from 'react-webcam';
 import { usePostProduct } from '@/services/product/mutations';
+import { useRouter } from 'next/navigation';
 
 export default function Page() {
   const ref = useRef<Webcam>(null);
   const { mutateAsync, isPending } = usePostProduct();
+  const router = useRouter();
 
   async function onClick() {
     const image = ref.current?.getScreenshot() as string;
-    const product = await mutateAsync({
+    const { id } = await mutateAsync({
       image,
     });
-    console.log(product);
+    router.push(`/product/${id}`);
   }
 
   return (

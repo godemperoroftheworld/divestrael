@@ -17,6 +17,7 @@
     "@tanstack/react-query": "^5.74.3",
     "axios": "^1.8.4",
     "class-transformer": "^0.5.1",
+    "embla-carousel-auto-scroll": "^8.6.0",
     "embla-carousel-react": "^8.6.0",
     "embla-carousel-wheel-gestures": "^8.0.2",
     "inversify": "^7.5.1",

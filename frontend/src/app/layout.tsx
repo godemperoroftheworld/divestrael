@@ -29,12 +29,13 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className="bg-white">
+      className="bg-background">
       <body className="px-4 py-8 font-body">
         <Link href="/">
           <Image
             className="w-128 mx-auto mb-4"
             src="/logo.png"
+            priority={true}
             alt="Logo"
             width={1526}
             height={600}
