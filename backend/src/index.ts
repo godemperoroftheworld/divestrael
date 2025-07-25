@@ -11,7 +11,7 @@ import fastifySwaggerUI from '@fastify/swagger-ui';
 import process from 'node:process';
 
 import loadConfig from '@/config/env.config';
-import { handleServerError } from '@/helpers/errors.helper';
+import { ERRORS, handleServerError } from '@/helpers/errors.helper';
 import routes from '@/routes';
 import { initDMMF } from '@/prisma';
 
@@ -49,14 +49,18 @@ function startServer() {
     routePrefix: '/documentation',
   });
 
-  // Register middlewares
-  const origins = ['https://divestrael.vercel.app'];
-  if (process.env.NODE_ENV !== 'production') {
-    origins.push('http://localhost');
-    origins.push('127.0.0.1');
-  }
+  // Register security middlewares
+  const allowedOrigins = ['https://divestrael.vercel.app'];
   server.register(cors, {
-    origin: origins,
+    origin: (origin, cb) => {
+      if (process.env.NODE_ENV !== 'production') {
+        cb(null, true);
+      } else if (origin && allowedOrigins.includes(origin)) {
+        cb(null, true);
+      } else {
+        cb(ERRORS.cors, false);
+      }
+    },
   });
   server.register(helmet);
 

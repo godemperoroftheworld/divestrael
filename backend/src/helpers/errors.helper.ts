@@ -13,6 +13,8 @@ export class AppError extends Error {
 }
 
 export const ERRORS = {
+  cors: new AppError('Origin not allowed', HttpStatusCode.Forbidden),
+  apiKey: new AppError('Missing API key', HttpStatusCode.Forbidden),
   productExists: new AppError('Product already exists', HttpStatusCode.Conflict),
   companyExists: new AppError('Company already exists', HttpStatusCode.Conflict),
   noCompanyFound: new AppError(
