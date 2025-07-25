@@ -16,7 +16,7 @@ import { initDMMF } from '@/prisma';
 
 loadConfig();
 
-const port = Number(process.env.API_PORT) || 5001;
+const port = Number(process.env.API_PORT) || 8000;
 const host = String(process.env.API_HOST);
 let server: FastifyInstance;
 
