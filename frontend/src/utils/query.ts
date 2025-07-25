@@ -12,7 +12,7 @@ import { merge } from 'lodash';
 type QueryAllPrefetch<T extends object> = (
   queryClient: QueryClient,
   params?: QueryParams<T>,
-) => Promise<void>;
+) => Promise<T[]>;
 type QueryAllFunction<T extends object> = (
   params?: QueryParams<T>,
 ) => UseQueryResult<T[]>;
@@ -33,7 +33,7 @@ type QueryOnePrefetch<T extends object> = (
   queryClient: QueryClient,
   id?: string,
   params?: Omit<QueryParams<ArrayElement<T>>, 'filter' | 'orderBy'>,
-) => Promise<void>;
+) => Promise<T | null>;
 type QueryOneFunction<T extends object> = (
   id?: string,
   params?: Omit<QueryParams<ArrayElement<T>>, 'filter' | 'orderBy'>,
@@ -53,7 +53,7 @@ export function createAllQuery<T extends object>(
       const queryOptions = createQueryOptions<T[]>(model, url, config, params, {
         staleTime: 10 * 6000,
       });
-      await queryClient.prefetchQuery(queryOptions);
+      return await queryClient.fetchQuery(queryOptions);
     },
     useQuery: (params = {}) =>
       useDivestraelQuery<T[]>(model, url, config, params, {
@@ -99,7 +99,7 @@ export function createOneQuery<T extends object>(
 ): QueryOneResult<T> {
   return {
     prefetchQuery: async (queryClient, id, params = {}) => {
-      if (!id) return;
+      if (!id) return null;
       const queryOptions = createQueryOptions<T>(
         model,
         `${url}/${id}`,
@@ -109,7 +109,7 @@ export function createOneQuery<T extends object>(
           staleTime: 10 * 6000,
         },
       );
-      await queryClient.prefetchQuery(queryOptions);
+      return await queryClient.fetchQuery(queryOptions);
     },
     useQuery: (id, params = {}) => {
       const urlFixed = useMemo(() => `${url}/${id}`, [id]);
