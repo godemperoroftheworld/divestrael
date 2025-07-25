@@ -14,6 +14,7 @@ export const metadata: Metadata = {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const _archivo = Archivo({
   weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
+  subsets: ['latin'],
 });
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const _workSans = Work_Sans({
