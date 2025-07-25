@@ -17,7 +17,7 @@ type QuerySearchFunction<T extends object> = (
 ) => UseQueryResult<T[]>;
 
 type QueryOneFunction<T extends object> = (
-  id: string,
+  id?: string,
   params?: Omit<QueryParams<ArrayElement<T>>, 'filter' | 'orderBy'>,
 ) => UseQueryResult<T>;
 
@@ -63,6 +63,9 @@ export function createOneQuery<T extends object>(
 ): QueryOneFunction<T> {
   return (id, params = {}) => {
     const urlFixed = useMemo(() => `${url}/${id}`, [id]);
-    return useDivestraelQuery(model, urlFixed, config, params, {});
+    const isEnabled = useMemo(() => !!id, [id]);
+    return useDivestraelQuery(model, urlFixed, config, params, {
+      enabled: isEnabled,
+    });
   };
 }

@@ -2656,6 +2656,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"embla-carousel-auto-scroll@npm:^8.6.0":
+  version: 8.6.0
+  resolution: "embla-carousel-auto-scroll@npm:8.6.0"
+  peerDependencies:
+    embla-carousel: 8.6.0
+  checksum: 10c0/eeab4a1ee9a5732a620f7bd41af04de91f7095c49f4058864e6e64f8194d7730cafbd0a4c75df3eaa75e37f52c8c27418c9f0740706285514f8e389107fe0d09
+  languageName: node
+  linkType: hard
+
 "embla-carousel-react@npm:^8.6.0":
   version: 8.6.0
   resolution: "embla-carousel-react@npm:8.6.0"
@@ -3412,6 +3421,7 @@ __metadata:
     class-transformer: "npm:^0.5.1"
     commitizen: "npm:^4.3.1"
     cz-conventional-changelog: "npm:^3.3.0"
+    embla-carousel-auto-scroll: "npm:^8.6.0"
     embla-carousel-react: "npm:^8.6.0"
     embla-carousel-wheel-gestures: "npm:^8.0.2"
     eslint: "npm:^9"

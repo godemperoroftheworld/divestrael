@@ -8,7 +8,7 @@ import {
 } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
 import DivestraelApi from '@/api';
-import { merge } from 'lodash';
+import { mapValues, merge } from 'lodash';
 import { Filter } from '@/types/filter';
 import stringify from '@/utils/filter';
 
@@ -47,7 +47,12 @@ export function useDivestraelQuery<T extends object>(
       {
         url,
         ...config,
-        params: merge({}, config.params, fixedParams),
+        params: mapValues(merge({}, config.params, fixedParams), (val) => {
+          if (Array.isArray(val)) {
+            return val.join(',');
+          }
+          return val;
+        }),
       },
       model,
     );

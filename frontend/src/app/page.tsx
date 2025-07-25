@@ -39,7 +39,7 @@ export default function Home() {
         <h2 className="text-center text-xl font-black text-primary font-heading">
           Boycott Lookup
         </h2>
-        <Search />
+        <Search className="w-md" />
         <span className="text-lg text-gray-500 font-black italic">OR</span>
         <Link href="/snap">
           <Button>
