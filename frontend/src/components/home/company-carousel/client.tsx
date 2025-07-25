@@ -21,7 +21,7 @@ export default function CompanyCarousel() {
   return (
     <Carousel
       className="mx-auto overflow-hidden"
-      options={{ loop: true, align: 'start' }}
+      options={{ loop: true, align: 'start', skipSnaps: true }}
       scroll={{ playOnInit: true, speed: 1 }}>
       {companyLogos.map((company) => (
         <div
