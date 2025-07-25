@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "NODE_OPTIONS='--inspect' next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -14,7 +14,7 @@
   "dependencies": {
     "@headlessui/react": "^2.2.1",
     "@heroicons/react": "^2.2.0",
-    "@tanstack/react-query": "^5.74.3",
+    "@tanstack/react-query": "^5.83.0",
     "axios": "^1.8.4",
     "class-transformer": "^0.5.1",
     "embla-carousel-auto-scroll": "^8.6.0",
@@ -36,6 +36,7 @@
     "@commitlint/config-conventional": "^19.8.0",
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@tanstack/react-query-devtools": "^5.83.0",
     "@types/lodash": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

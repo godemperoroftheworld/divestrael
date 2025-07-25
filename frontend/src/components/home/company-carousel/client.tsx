@@ -8,11 +8,12 @@ import { useCompanies } from '@/services/company/queries';
 import { FilterOperator } from '@/types/filter';
 
 export default function CompanyCarousel() {
-  const { data } = useCompanies({
+  const query = useCompanies({
     filter: {
       rules: [{ field: 'source', operator: FilterOperator.NOT_NULL }],
     },
   });
+  const { data } = query;
 
   const companyLogos = useMemo(() => {
     return data?.filter((x) => !!x.url) ?? [];

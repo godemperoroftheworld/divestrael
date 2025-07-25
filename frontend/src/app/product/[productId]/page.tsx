@@ -1,10 +1,7 @@
 import { prefetchProduct } from '@/services/product/queries';
-import {
-  dehydrate,
-  HydrationBoundary,
-  QueryClient,
-} from '@tanstack/react-query';
 import Client from './client';
+import getQueryClient from '@/services/query';
+import Hydrater from '@/components/hydrater';
 
 interface Props {
   params: Promise<{
@@ -12,14 +9,15 @@ interface Props {
   }>;
 }
 
+const queryClient = getQueryClient();
+
 export default async function ProductPage({ params }: Props) {
   const { productId } = await params;
-  const queryClient = new QueryClient();
   await prefetchProduct(queryClient, productId, { include: ['brand'] });
 
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
+    <Hydrater queryClient={queryClient}>
       <Client productId={productId} />
-    </HydrationBoundary>
+    </Hydrater>
   );
 }

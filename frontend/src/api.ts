@@ -13,7 +13,7 @@ export default class DivestraelApi {
 
   private constructor() {
     this.axiosInstance = axios.create({
-      baseURL: '/api/',
+      baseURL: `${process.env.NEXT_PUBLIC_URL}/api/`,
     });
   }
 
@@ -28,19 +28,18 @@ export default class DivestraelApi {
     config: AxiosRequestConfig,
     model?: ClassConstructor<ArrayElement<T>>,
   ): Promise<ApiResponse<T>> {
-    return this.axiosInstance.request(config).then((r) => {
-      let data: T;
-      if (model && isClass(model)) {
-        const instanceData = plainToInstance(model, r.data) as T;
-        data = Object.freeze(instanceData);
-      } else {
-        data = Object.freeze(r.data);
-      }
-      const count = r.headers['x-total-count']
-        ? Number(r.headers['x-total-count'])
-        : undefined;
-      return { data, count };
-    });
+    const request = await this.axiosInstance.request(config);
+    let data: T;
+    if (model && isClass(model)) {
+      const instanceData = plainToInstance(model, request.data) as T;
+      data = Object.freeze(instanceData);
+    } else {
+      data = Object.freeze(request.data);
+    }
+    const count = request.headers['x-total-count']
+      ? Number(request.headers['x-total-count'])
+      : undefined;
+    return { data, count };
   }
 
   async get<T extends object>(

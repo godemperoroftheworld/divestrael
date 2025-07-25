@@ -3,7 +3,7 @@ import useDivestraelQuery, {
   createQueryOptions,
   QueryParams,
 } from '@/hooks/query';
-import { ClassConstructor } from 'class-transformer';
+import { ClassConstructor, plainToInstance } from 'class-transformer';
 import { ArrayElement } from '@/types/globals';
 import { AxiosRequestConfig } from 'axios';
 import { useMemo } from 'react';
@@ -49,18 +49,16 @@ export function createAllQuery<T extends object>(
   config: Omit<AxiosRequestConfig, 'url'> = {},
 ): QueryAllResult<T> {
   return {
-    prefetchQuery: async (queryClient: QueryClient, params = {}) => {
-      const queryOptions = createQueryOptions<T[]>(
-        model,
-        url,
-        config,
-        params,
-        {},
-      );
+    prefetchQuery: async (queryClient, params = {}) => {
+      const queryOptions = createQueryOptions<T[]>(model, url, config, params, {
+        staleTime: 10 * 6000,
+      });
       await queryClient.prefetchQuery(queryOptions);
     },
     useQuery: (params = {}) =>
-      useDivestraelQuery<T[]>(model, url, config, params, {}),
+      useDivestraelQuery<T[]>(model, url, config, params, {
+        select: (data) => data.map((d) => plainToInstance(model, d)),
+      }),
   };
 }
 
@@ -86,7 +84,9 @@ export function createSearchQuery<T extends object>(
         `${url}/search`,
         configFixed,
         params,
-        { enabled: isEnabled },
+        {
+          enabled: isEnabled,
+        },
       );
     },
   };
@@ -98,14 +98,16 @@ export function createOneQuery<T extends object>(
   config: Omit<AxiosRequestConfig, 'url'> = {},
 ): QueryOneResult<T> {
   return {
-    prefetchQuery: async (queryClient: QueryClient, id, params = {}) => {
+    prefetchQuery: async (queryClient, id, params = {}) => {
       if (!id) return;
       const queryOptions = createQueryOptions<T>(
         model,
         `${url}/${id}`,
         config,
         params,
-        {},
+        {
+          staleTime: 10 * 6000,
+        },
       );
       await queryClient.prefetchQuery(queryOptions);
     },
@@ -114,6 +116,7 @@ export function createOneQuery<T extends object>(
       const isEnabled = useMemo(() => !!id, [id]);
       return useDivestraelQuery(model, urlFixed, config, params, {
         enabled: isEnabled,
+        select: (data) => plainToInstance(model, data) as T,
       });
     },
   };

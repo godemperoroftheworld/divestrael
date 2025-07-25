@@ -1,16 +1,13 @@
 import React from 'react';
 import { prefetchCompanies } from '@/services/company/queries';
 import { FilterOperator } from '@/types/filter';
-import {
-  dehydrate,
-  HydrationBoundary,
-  QueryClient,
-} from '@tanstack/react-query';
 import Client from './client';
+import getQueryClient from '@/services/query';
+import Hydrater from '@/components/hydrater';
+
+const queryClient = getQueryClient();
 
 export default async function CompanyCarousel() {
-  const queryClient = new QueryClient();
-
   await prefetchCompanies(queryClient, {
     filter: {
       rules: [{ field: 'source', operator: FilterOperator.NOT_NULL }],
@@ -18,8 +15,8 @@ export default async function CompanyCarousel() {
   });
 
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
+    <Hydrater queryClient={queryClient}>
       <Client />
-    </HydrationBoundary>
+    </Hydrater>
   );
 }

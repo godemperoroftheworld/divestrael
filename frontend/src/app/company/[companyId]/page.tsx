@@ -1,5 +1,3 @@
-'use client';
-
 import { use } from 'react';
 import CompanyInfo from '@/components/company/company-info';
 
