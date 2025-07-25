@@ -1,3 +1,5 @@
+'use client';
+
 import ConditionalLink from '@/components/ui/conditional-link';
 import Image from 'next/image';
 import { useCompany } from '@/services/company/queries';

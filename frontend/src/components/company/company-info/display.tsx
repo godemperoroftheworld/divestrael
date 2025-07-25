@@ -1,3 +1,5 @@
+'use client';
+
 import { useBrand } from '@/services/brand/queries';
 import { useCompany } from '@/services/company/queries';
 
