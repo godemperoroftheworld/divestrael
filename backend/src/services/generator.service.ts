@@ -62,7 +62,7 @@ export default class AIService {
       },
     });
     const resultItem = result.data.itemListElement[0]?.result;
-    if (resultItem) {
+    if (resultItem?.url) {
       return {
         description:
           resultItem.detailedDescription?.articleBody || resultItem?.description || query,
