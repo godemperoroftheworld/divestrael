@@ -8,6 +8,7 @@ import {
 } from 'fastify-type-provider-zod';
 import fastifySwagger from '@fastify/swagger';
 import fastifySwaggerUI from '@fastify/swagger-ui';
+import process from 'node:process';
 
 import loadConfig from '@/config/env.config';
 import { handleServerError } from '@/helpers/errors.helper';
@@ -49,7 +50,14 @@ function startServer() {
   });
 
   // Register middlewares
-  server.register(cors);
+  const origins = ['https://divestrael.vercel.app'];
+  if (process.env.NODE_ENV !== 'production') {
+    origins.push('http://localhost');
+    origins.push('127.0.0.1');
+  }
+  server.register(cors, {
+    origin: origins,
+  });
   server.register(helmet);
 
   // Set Routes
