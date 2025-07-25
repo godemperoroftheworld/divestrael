@@ -8,19 +8,21 @@ import { useCompanies } from '@/services/company/queries';
 import { FilterOperator } from '@/types/filter';
 
 export default function CompanyCarousel() {
-  const query = useCompanies({
+  const { data } = useCompanies({
     filter: {
       rules: [{ field: 'source', operator: FilterOperator.NOT_NULL }],
     },
   });
-  const { data } = query;
 
   const companyLogos = useMemo(() => {
     return data?.filter((x) => !!x.url) ?? [];
   }, [data]);
 
   return (
-    <Carousel className="mx-auto overflow-hidden">
+    <Carousel
+      className="mx-auto overflow-hidden"
+      options={{ loop: true, align: 'start' }}
+      scroll={{ playOnInit: true, speed: 1 }}>
       {companyLogos.map((company) => (
         <div
           key={company.id}

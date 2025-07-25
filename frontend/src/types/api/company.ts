@@ -1,5 +1,5 @@
 import Country from '@/types/api/country';
-import BoycottReason from '@/types/api/reason';
+import BoycottReason, { BoycottMapping } from '@/types/api/reason';
 import Brand from '@/types/api/brand';
 import { Transform, Type } from 'class-transformer';
 
@@ -13,6 +13,9 @@ export default class Company {
       value.map((v: string) => BoycottReason[v as keyof typeof BoycottReason]),
     { toClassOnly: true },
   )
+  @Transform(({ value }) => value.map((v: BoycottReason) => v), {
+    toPlainOnly: true,
+  })
   public reasons!: BoycottReason[];
   public cik!: number | null;
   public cw_id!: number | null;
@@ -23,6 +26,10 @@ export default class Company {
 
   public get boycotted(): boolean {
     return this.reasons.length > 0;
+  }
+
+  public get reasonsFormatted() {
+    return this.reasons.map((r) => BoycottMapping[r]);
   }
 
   public get image_url() {

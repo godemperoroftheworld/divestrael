@@ -9,6 +9,7 @@ interface Props {
 
 export default function CompanyDetails({ companyId }: Props) {
   const { data: company } = useCompany(companyId);
+  console.log(JSON.stringify(company));
 
   return (
     <>
@@ -18,7 +19,7 @@ export default function CompanyDetails({ companyId }: Props) {
       {company?.boycotted ? (
         <>
           <div className="flex flex-wrap items-center justify-center gap-2">
-            {company?.reasons?.map((reason, idx) => (
+            {company?.reasonsFormatted?.map((reason, idx) => (
               <div
                 key={idx}
                 className="px-4 py-1 min-w-64 text-center text-white font-bold rounded bg-danger">
