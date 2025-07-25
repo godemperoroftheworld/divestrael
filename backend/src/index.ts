@@ -23,6 +23,7 @@ let server: FastifyInstance;
 function startServer() {
   server = fastify({
     logger: {
+      enabled: true,
       level: process.env.LOG_LEVEL,
     },
   });
@@ -86,6 +87,7 @@ initDMMF().then(startServer);
 
 // Handle unhandled rejections
 process.on('unhandledRejection', (err) => {
-  server.log.error('Unhandled Rejection', err);
+  // eslint-disable-next-line no-console
+  console.error('Unhandled Rejection', err);
   process.exit(1);
 });
