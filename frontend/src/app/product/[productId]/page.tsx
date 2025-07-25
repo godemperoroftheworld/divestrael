@@ -1,7 +1,6 @@
 import { prefetchProduct } from '@/services/product/queries';
-import Client from './client';
 import getQueryClient from '@/services/query';
-import Hydrater from '@/components/hydrater';
+import CompanyInfo from '@/components/company/company-info';
 
 interface Props {
   params: Promise<{
@@ -13,11 +12,17 @@ const queryClient = getQueryClient();
 
 export default async function ProductPage({ params }: Props) {
   const { productId } = await params;
-  await prefetchProduct(queryClient, productId, { include: ['brand'] });
+  const product = await prefetchProduct(queryClient, productId, {
+    include: ['brand'],
+  });
 
+  if (!product?.brand) {
+    return null;
+  }
   return (
-    <Hydrater queryClient={queryClient}>
-      <Client productId={productId} />
-    </Hydrater>
+    <CompanyInfo
+      companyId={product.brand.companyId}
+      brandId={product.brandId}
+    />
   );
 }
