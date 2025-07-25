@@ -9,13 +9,10 @@ interface Props {
 
 export default function CompanyDetails({ companyId }: Props) {
   const { data: company } = useCompany(companyId);
-  console.log(JSON.stringify(company));
 
   return (
     <>
-      <p className="mt-4 text-center mx-auto max-w-2xl">
-        {company?.description}
-      </p>
+      <p className="text-center mx-auto max-w-2xl">{company?.description}</p>
       {company?.boycotted ? (
         <>
           <div className="flex flex-wrap items-center justify-center gap-2">
@@ -28,7 +25,7 @@ export default function CompanyDetails({ companyId }: Props) {
             ))}
           </div>
           <Link
-            className="italic underline text-secondary"
+            className="italic font-medium underline text-secondary"
             href={company.source!}
             target="_blank">
             {company.source}

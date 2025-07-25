@@ -28,26 +28,36 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className="bg-background">
-      <body className="px-4 py-8 font-body">
-        <Link href="/">
-          <Image
-            className="w-128 mx-auto mb-4"
-            src="/logo.png"
-            priority={true}
-            alt="Logo"
-            width={1526}
-            height={600}
-          />
-        </Link>
-        <Providers>
-          <div className="flex flex-col gap-6 items-center w-full overflow-x-hidden relative">
-            {children}
-          </div>
-        </Providers>
-      </body>
-    </html>
+    <>
+      <html
+        lang="en"
+        className="bg-background">
+        <body className="px-4 py-8 font-body">
+          <Link href="/">
+            <Image
+              className="w-128 mx-auto mb-4"
+              src="/logo.png"
+              priority={true}
+              alt="Logo"
+              width={1526}
+              height={600}
+            />
+          </Link>
+          <Providers>
+            <div className="flex flex-col gap-6 items-center w-full overflow-x-hidden relative">
+              {children}
+            </div>
+          </Providers>
+        </body>
+      </html>
+      <footer className="flex absolute bottom-0 left-0 mb-4 w-dvw">
+        <a
+          className="mx-auto text-sm text-secondary italic text-center"
+          href="https://logo.dev"
+          title="Logo API">
+          Company logos provided by Logo.dev
+        </a>
+      </footer>
+    </>
   );
 }

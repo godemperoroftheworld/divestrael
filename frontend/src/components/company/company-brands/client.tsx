@@ -4,7 +4,6 @@ import { useBrands } from '@/services/brand/queries';
 import { FilterOperator } from '@/types/filter';
 import Carousel from '@/components/ui/carousel';
 import React, { HTMLAttributes } from 'react';
-import BoycottReason from '@/types/api/reason';
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
   companyId: string;
@@ -27,8 +26,9 @@ export default function BrandCarousel({
     },
   });
 
-  console.log(BoycottReason.CONSTRUCTION_OCCUPIED_LAND);
-  console.log(BoycottReason.CONSTRUCTION_OCCUPIED_LAND);
+  if (!brands?.length) {
+    return null;
+  }
 
   return (
     <Carousel
