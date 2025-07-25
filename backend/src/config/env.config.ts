@@ -5,11 +5,7 @@ import dotenv from 'dotenv';
 export default function loadConfig(): void {
   const envPath = path.join(__dirname, '..', '..', '.env');
 
-  const result = dotenv.config({ path: envPath });
-
-  if (result.error) {
-    throw new Error(`Failed to load .env file from path ${envPath}: ${result.error.message}`);
-  }
+  dotenv.config({ path: envPath });
 
   const schema = z
     .object({
