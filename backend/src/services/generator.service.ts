@@ -2,8 +2,6 @@ import axios, { AxiosInstance } from 'axios';
 import { Country } from '@prisma/client';
 import process from 'node:process';
 
-import CompanyService from '@/services/company.service';
-
 interface ProductApiResult {
   name: string;
   brand: string;
@@ -12,9 +10,6 @@ interface ProductApiResult {
 interface CompanyApiResult {
   name: string;
   country: Country;
-}
-interface BrandsApiResult {
-  names: string[];
 }
 interface CompanyMetadataApiResult {
   description: string;
@@ -125,7 +120,7 @@ export default class AIService {
             },
             {
               type: 'text',
-              text: 'I am giving you a picture of a product. I want you to give me the product name, and the brand.',
+              text: 'I am giving you a picture of a product. I want you to give me the product name, and the brand, if you are sure. If you cannot tell, return empty strings.',
             },
           ],
         },
@@ -160,50 +155,6 @@ export default class AIService {
     return { name, brand, company } as ProductApiResult;
   }
 
-  public async generateBrands(companyId: string) {
-    const company = await CompanyService.instance.getOne(companyId);
-    const prompt = `I am going to give you some company information. I want you to give me all of the brands (in english) that belong to that company. The list should be exhaustive. If you don't know the company, or don't know any subsidiaries for the company, return an empty list. Company: ${company.name}, Country: ${company.country}`;
-    const brandsResult = await this.generatorInstance.post('chat/completions', {
-      model: 'google/gemini-2.5-flash',
-      messages: [
-        {
-          role: 'user',
-          content: prompt,
-        },
-      ],
-      provider: {
-        require_parameters: true,
-      },
-      response_format: {
-        type: 'json_schema',
-        json_schema: {
-          name: 'brands',
-          strict: true,
-          schema: {
-            type: 'object',
-            properties: {
-              names: {
-                type: 'array',
-                description: 'The brand names',
-                items: {
-                  type: 'string',
-                },
-              },
-            },
-            required: ['names'],
-            additionalProperties: false,
-          },
-        },
-      },
-    });
-    const { names } = JSON.parse(brandsResult.data.choices[0].message.content) as BrandsApiResult;
-    const trimmedNames = names.map((name) => name.trim());
-    return trimmedNames.map((name) => ({
-      name,
-      companyId,
-    }));
-  }
-
   public async generateCompanyInfo(product?: string, brandName?: string) {
     const prompt = `I am going to give you some product/brand information. I want you to give me the country code and name of the company that owns that brand/product.`;
     const promptInfo = [];
@@ -215,7 +166,7 @@ export default class AIService {
     }
     const { country, name } = await this.generatorInstance
       .post('chat/completions', {
-        model: 'google/gemini-2.0-flash-001',
+        model: 'google/gemini-2.5-flash',
         messages: [
           {
             role: 'user',
