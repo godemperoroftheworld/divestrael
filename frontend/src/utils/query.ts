@@ -1,4 +1,8 @@
-import { QueryClient, UseQueryResult } from '@tanstack/react-query';
+import {
+  QueryClient,
+  UseQueryOptions,
+  UseQueryResult,
+} from '@tanstack/react-query';
 import useDivestraelQuery, {
   createQueryOptions,
   QueryParams,
@@ -24,6 +28,7 @@ interface QueryAllResult<T extends object> {
 type QuerySearchFunction<T extends object> = (
   query: string,
   params?: Omit<QueryParams<T>, 'filter' | 'orderBy'>,
+  options?: Partial<UseQueryOptions<T[]>>,
 ) => UseQueryResult<T[]>;
 interface QuerySearchResult<T extends object> {
   useQuery: QuerySearchFunction<T>;
@@ -68,7 +73,7 @@ export function createSearchQuery<T extends object>(
   config: Omit<AxiosRequestConfig, 'url'> = {},
 ): QuerySearchResult<T> {
   return {
-    useQuery: (query, params = {}) => {
+    useQuery: (query, params = {}, options = {}) => {
       const configFixed = useMemo(
         () =>
           merge({}, config, {
@@ -86,6 +91,7 @@ export function createSearchQuery<T extends object>(
         params,
         {
           enabled: isEnabled,
+          ...options,
         },
       );
     },

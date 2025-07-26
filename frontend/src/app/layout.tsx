@@ -32,7 +32,7 @@ export default function RootLayout({
       <html
         lang="en"
         className="bg-background">
-        <body className="px-4 py-8 font-body">
+        <body className="p-4 pt-8 font-body min-h-dvh flex flex-col">
           <Link href="/">
             <Image
               className="w-128 mx-auto mb-4"
@@ -44,21 +44,19 @@ export default function RootLayout({
               height={600}
             />
           </Link>
-          <Providers>
-            <div className="flex flex-col gap-6 items-center w-full overflow-x-hidden relative">
-              {children}
-            </div>
-          </Providers>
+          <div className="flex flex-col grow gap-4 items-center w-full overflow-x-hidden relative">
+            <Providers>{children}</Providers>
+          </div>
+          <footer className="flex w-dvw">
+            <a
+              className="mx-auto text-sm text-secondary italic text-center"
+              href="https://logo.dev"
+              title="Logo API">
+              Company logos provided by Logo.dev
+            </a>
+          </footer>
         </body>
       </html>
-      <footer className="flex absolute bottom-0 left-0 mb-4 w-dvw">
-        <a
-          className="mx-auto text-sm text-secondary italic text-center"
-          href="https://logo.dev"
-          title="Logo API">
-          Company logos provided by Logo.dev
-        </a>
-      </footer>
     </>
   );
 }
