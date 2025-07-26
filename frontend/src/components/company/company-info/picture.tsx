@@ -14,6 +14,7 @@ export default function CompanyPicture({ companyId }: Props) {
   return (
     <ConditionalLink
       href={company?.url}
+      className="block w-fit mx-auto"
       target="_blank">
       {company?.image_url ? (
         <Image

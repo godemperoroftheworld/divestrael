@@ -1,7 +1,9 @@
-import { PropsWithChildren } from 'react';
+import { HTMLAttributes, PropsWithChildren } from 'react';
 import Link, { LinkProps } from 'next/link';
 
-interface Props extends PropsWithChildren, Omit<LinkProps, 'href'> {
+interface Props
+  extends PropsWithChildren<HTMLAttributes<HTMLAnchorElement>>,
+    Omit<LinkProps, 'href'> {
   target?: string;
   href?: string | null;
 }
