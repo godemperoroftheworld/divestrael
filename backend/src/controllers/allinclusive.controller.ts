@@ -33,7 +33,7 @@ export const postProduct: RouteHandler<{
     name = req.body.name;
     brand = req.body.brand;
   }
-  if (!name || name === 'N/A') {
+  if (!name || !brand) {
     throw ERRORS.noProductFound;
   }
   const result = await ProductService.instance.getOrCreateByName(name, brand);
