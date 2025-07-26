@@ -71,7 +71,6 @@ export default function Search({
       onInputChange={setSearchQuery}
       placeholder="Search for a product, a brand, or a company."
       maxMenuHeight={5000}
-      styles={{}}
       onChange={onChange as (option: unknown) => void}
     />
   );
