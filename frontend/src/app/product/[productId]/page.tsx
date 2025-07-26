@@ -1,4 +1,4 @@
-import { prefetchProduct } from '@/services/product/queries';
+import { prefetchProduct, prefetchProducts } from '@/services/product/queries';
 import getQueryClient from '@/services/query';
 import CompanyInfo from '@/components/company/company-info';
 
@@ -9,6 +9,11 @@ interface Props {
 }
 
 const queryClient = getQueryClient();
+
+export async function generateStaticParams() {
+  const products = await prefetchProducts(queryClient, { select: ['id'] });
+  return products.map((p) => ({ productId: p.id }));
+}
 
 export default async function ProductPage({ params }: Props) {
   const { productId } = await params;
