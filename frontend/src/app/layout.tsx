@@ -47,7 +47,7 @@ export default function RootLayout({
           <div className="flex flex-col grow gap-4 items-center w-full overflow-x-hidden relative">
             <Providers>{children}</Providers>
           </div>
-          <footer className="flex w-dvw">
+          <footer className="flex w-full">
             <a
               className="mx-auto text-sm text-secondary italic text-center"
               href="https://logo.dev"
