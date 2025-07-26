@@ -10,6 +10,7 @@ function ProductCamera(
     <div {...props}>
       <Camera
         ref={ref}
+        videoConstraints={{ facingMode: 'environment' }}
         screenshotFormat="image/png"
         disablePictureInPicture={true}
       />
