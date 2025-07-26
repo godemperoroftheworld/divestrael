@@ -1,25 +1,20 @@
 'use client';
 
-import { useSearchCompanies } from '@/services/company/queries';
 import { useMemo, useState, useCallback, HTMLAttributes } from 'react';
-import { useSearchBrands } from '@/services/brand/queries';
-import { useSearchProducts } from '@/services/product/queries';
 import dynamic from 'next/dynamic';
 import Brand from '@/types/api/brand';
 import Company from '@/types/api/company';
 import Product from '@/types/api/product';
 import { GetOptionLabel } from 'react-select';
 import { useRouter } from 'next/navigation';
+import useGlobalSearch from '@/components/home/search/hook';
 const Select = dynamic(() => import('react-select'), { ssr: false });
 
 export default function Search(props: HTMLAttributes<HTMLDivElement>) {
   const router = useRouter();
 
   const [searchQuery, setSearchQuery] = useState<string>('');
-
-  const { data } = useSearchCompanies(searchQuery, { take: 5 });
-  const { data: brandData } = useSearchBrands(searchQuery, { take: 5 });
-  const { data: productData } = useSearchProducts(searchQuery, { take: 5 });
+  const { products, brands, companies } = useGlobalSearch(searchQuery);
 
   const filterOption = useCallback(() => true, []);
   const getOptionLabel: GetOptionLabel<Brand | Company | Product> = useCallback(
@@ -30,18 +25,18 @@ export default function Search(props: HTMLAttributes<HTMLDivElement>) {
     () => [
       {
         label: 'Products',
-        options: productData ?? [],
+        options: products,
       },
       {
         label: 'Brands',
-        options: brandData ?? [],
+        options: brands,
       },
       {
         label: 'Companies',
-        options: data ?? [],
+        options: companies,
       },
     ],
-    [data, brandData, productData],
+    [products, brands, companies],
   );
 
   const onChange = useCallback(
@@ -71,6 +66,7 @@ export default function Search(props: HTMLAttributes<HTMLDivElement>) {
       onInputChange={setSearchQuery}
       placeholder="Search for a product, a brand, or a company."
       maxMenuHeight={5000}
+      styles={{}}
       onChange={onChange as (option: unknown) => void}
     />
   );
