@@ -8,9 +8,13 @@ import Product from '@/types/api/product';
 import { GetOptionLabel } from 'react-select';
 import { useRouter } from 'next/navigation';
 import useGlobalSearch from '@/components/home/search/hook';
+import { mergeClasses } from '@/utils/class';
 const Select = dynamic(() => import('react-select'), { ssr: false });
 
-export default function Search(props: HTMLAttributes<HTMLDivElement>) {
+export default function Search({
+  className,
+  ...rest
+}: HTMLAttributes<HTMLDivElement>) {
   const router = useRouter();
 
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -57,7 +61,8 @@ export default function Search(props: HTMLAttributes<HTMLDivElement>) {
 
   return (
     <Select
-      {...props}
+      {...rest}
+      className={mergeClasses(className, 'max-w-full min-w-0 shrink')}
       id="select"
       options={typeof window !== undefined ? searchOptions : []}
       getOptionLabel={getOptionLabel as GetOptionLabel<unknown>}
