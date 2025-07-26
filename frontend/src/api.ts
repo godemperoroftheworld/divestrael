@@ -3,6 +3,7 @@ import axios from 'axios';
 import { type ClassConstructor, plainToInstance } from 'class-transformer';
 import { isClass } from '@/utils/globals';
 import { ArrayElement } from '@/types/globals';
+import { isServer } from '@tanstack/react-query';
 
 export type ApiResponse<T> = { data: T; count?: number };
 
@@ -13,8 +14,12 @@ export default class DivestraelApi {
 
   private constructor() {
     this.axiosInstance = axios.create({
-      baseURL: `${process.env.NEXT_PUBLIC_URL}/api/`,
+      baseURL: `${isServer ? process.env.DIVESTRAEL_BACKEND_URL : process.env.NEXT_PUBLIC_URL}/api/`,
     });
+    if (isServer) {
+      this.axiosInstance.defaults.headers.common['x-api-key'] =
+        process.env.API_KEY;
+    }
   }
 
   static get instance() {
