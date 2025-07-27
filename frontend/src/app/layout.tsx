@@ -5,6 +5,7 @@ import Providers from '@/components/providers';
 import Image from 'next/image';
 import { Work_Sans, Archivo } from 'next/font/google';
 import Link from 'next/link';
+import Loader from '@/components/loader';
 
 export const metadata: Metadata = {
   title: 'Divestrael',
@@ -44,9 +45,12 @@ export default function RootLayout({
               height={600}
             />
           </Link>
-          <div className="flex flex-col grow gap-4 items-center w-full overflow-x-hidden relative">
-            <Providers>{children}</Providers>
-          </div>
+          <Providers>
+            <div className="flex flex-col grow gap-4 items-center w-full overflow-x-hidden relative">
+              {children}
+            </div>
+            <Loader />
+          </Providers>
           <footer className="flex w-full">
             <a
               className="mx-auto text-sm text-secondary italic text-center"
