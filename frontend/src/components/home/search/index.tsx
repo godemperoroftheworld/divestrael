@@ -68,7 +68,7 @@ export default function Search({
       inputValue={searchQuery}
       filterOption={filterOption}
       onInputChange={setSearchQuery}
-      placeholder="Search for a product, a brand, or a company."
+      placeholder="Search for a product, brand, or company."
       maxMenuHeight={5000}
       onChange={onChange as (option: unknown) => void}
     />

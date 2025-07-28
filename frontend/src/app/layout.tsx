@@ -46,7 +46,7 @@ export default function RootLayout({
             />
           </Link>
           <Providers>
-            <div className="flex flex-col grow gap-4 items-center w-full overflow-x-hidden relative">
+            <div className="flex flex-col grow gap-6 items-center w-full overflow-x-hidden relative">
               {children}
             </div>
             <Loader />

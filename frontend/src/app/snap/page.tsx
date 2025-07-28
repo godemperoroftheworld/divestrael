@@ -24,7 +24,7 @@ export default function Page() {
   return (
     <>
       <ProductCamera
-        className="rounded overflow-hidden"
+        className="rounded overflow-hidden shrink"
         ref={ref}
       />
       <Button
