@@ -1,7 +1,6 @@
 'use client';
 
 import { useMemo, useState, useCallback, HTMLAttributes } from 'react';
-import dynamic from 'next/dynamic';
 import Brand from '@/types/api/brand';
 import Company from '@/types/api/company';
 import Product from '@/types/api/product';
@@ -9,7 +8,7 @@ import { GetOptionLabel } from 'react-select';
 import { useRouter } from 'next/navigation';
 import useGlobalSearch from '@/components/home/search/hook';
 import { mergeClasses } from '@/utils/class';
-const Select = dynamic(() => import('react-select'), { ssr: false });
+import Select from '@/components/ui/select';
 
 export default function Search({
   className,
