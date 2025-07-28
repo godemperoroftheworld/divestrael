@@ -1,8 +1,8 @@
 import { prefetchBrand, prefetchBrands } from '@/services/brand/queries';
-import Client from './client';
 import getQueryClient from '@/services/query';
 import Hydrater from '@/components/hydrater';
 import { Metadata } from 'next';
+import CompanyInfo from '@/components/company/info';
 
 interface Props {
   params: Promise<{
@@ -30,11 +30,16 @@ export async function generateStaticParams() {
 export default async function BrandPage({ params }: Props) {
   const { brandId } = await params;
 
-  await prefetchBrand(queryClient, brandId);
+  const brand = await prefetchBrand(queryClient, brandId, {
+    select: ['companyId'],
+  });
 
   return (
     <Hydrater queryClient={queryClient}>
-      <Client brandId={brandId} />
+      <CompanyInfo
+        brandId={brandId}
+        companyId={brand.companyId}
+      />
     </Hydrater>
   );
 }
