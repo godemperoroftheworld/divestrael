@@ -2,6 +2,7 @@ import { prefetchProduct, prefetchProducts } from '@/services/product/queries';
 import getQueryClient from '@/services/query';
 import CompanyInfo from '../../../components/company/info';
 import Hydrater from '@/components/hydrater';
+import { Metadata } from 'next';
 
 interface Props {
   params: Promise<{
@@ -10,6 +11,16 @@ interface Props {
 }
 
 const queryClient = getQueryClient();
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { productId } = await params;
+  const product = await prefetchProduct(queryClient, productId);
+
+  return {
+    title: product?.name,
+    description: `Should I boycott ${product?.name}?`,
+  };
+}
 
 export async function generateStaticParams() {
   const products = await prefetchProducts(queryClient, { select: ['id'] });
