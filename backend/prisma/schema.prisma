@@ -60,6 +60,11 @@ model Company {
   source String?
 }
 
+model Key {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  key String @unique
+}
+
 enum BoycottReason {
   CONSTRUCTION_OCCUPIED_LAND
   SETTLEMENT_PRODUCTION
