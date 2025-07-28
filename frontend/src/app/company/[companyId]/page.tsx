@@ -13,7 +13,9 @@ const queryClient = getQueryClient();
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { companyId } = await params;
-  const company = await prefetchCompany(queryClient, companyId);
+  const company = await prefetchCompany(queryClient, companyId, {
+    select: ['name'],
+  });
 
   return {
     title: company?.name,
