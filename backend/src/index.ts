@@ -55,7 +55,7 @@ function startServer() {
     origin: (origin, cb) => {
       if (process.env.NODE_ENV !== 'production') {
         cb(null, true);
-      } else if (origin && allowedOrigins.includes(origin)) {
+      } else if (!origin || allowedOrigins.includes(origin)) {
         cb(null, true);
       } else {
         cb(ERRORS.cors, false);
