@@ -38,7 +38,7 @@ type QueryOnePrefetch<T extends object> = (
   queryClient: QueryClient,
   id?: string,
   params?: Omit<QueryParams<ArrayElement<T>>, 'filter' | 'orderBy'>,
-) => Promise<T | null>;
+) => Promise<T>;
 type QueryOneFunction<T extends object> = (
   id?: string,
   params?: Omit<QueryParams<ArrayElement<T>>, 'filter' | 'orderBy'>,
@@ -105,7 +105,6 @@ export function createOneQuery<T extends object>(
 ): QueryOneResult<T> {
   return {
     prefetchQuery: async (queryClient, id, params = {}) => {
-      if (!id) return null;
       const queryOptions = createQueryOptions<T>(
         model,
         `${url}/${id}`,

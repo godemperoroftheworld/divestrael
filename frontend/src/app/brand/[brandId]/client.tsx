@@ -1,7 +1,7 @@
 'use client';
 
 import { useBrand } from '@/services/brand/queries';
-import CompanyInfo from '@/components/company/company-info';
+import CompanyInfo from '../../../components/company/info';
 
 interface Props {
   brandId: string;

@@ -1,5 +1,4 @@
-import { use } from 'react';
-import CompanyInfo from '@/components/company/company-info';
+import CompanyInfo from '../../../components/company/info';
 import { prefetchCompanies, prefetchCompany } from '@/services/company/queries';
 import getQueryClient from '@/services/query';
 import { Metadata } from 'next';
@@ -27,8 +26,8 @@ export async function generateStaticParams() {
   return companies.map((c) => ({ companyId: c.id }));
 }
 
-export default function CompanyPage({ params }: Props) {
-  const { companyId } = use(params);
+export default async function CompanyPage({ params }: Props) {
+  const { companyId } = await params;
 
   return <CompanyInfo companyId={companyId} />;
 }

@@ -1,6 +1,6 @@
 import { prefetchProduct, prefetchProducts } from '@/services/product/queries';
 import getQueryClient from '@/services/query';
-import CompanyInfo from '@/components/company/company-info';
+import CompanyInfo from '../../../components/company/info';
 
 interface Props {
   params: Promise<{
