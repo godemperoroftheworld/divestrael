@@ -1,4 +1,4 @@
-import CompanyInfo from '../../../components/company/info';
+import CompanyInfo from '../../../../components/company/info';
 import { prefetchCompanies, prefetchCompany } from '@/services/company/queries';
 import getQueryClient from '@/services/query';
 import { Metadata } from 'next';

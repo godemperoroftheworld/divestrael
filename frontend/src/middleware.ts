@@ -4,6 +4,7 @@ import { NextResponse, NextRequest } from 'next/server';
 export function middleware(request: NextRequest) {
   const headers = new Headers(request.headers);
   headers.set('x-api-key', process.env.API_KEY as string);
+  headers.set('x-url', request.nextUrl.pathname as string);
 
   return NextResponse.next({
     request: {
