@@ -8,7 +8,7 @@ import Button from '@/components/ui/button';
 export default function Home() {
   return (
     <>
-      <div className="font-heading font-bold text-xl text-center">
+      <div className="font-heading font-bold sm:text-xl text-center">
         Since{' '}
         <Link
           href="https://en.wikipedia.org/wiki/Nakba"
@@ -35,7 +35,7 @@ export default function Home() {
         </Link>
         .
       </div>
-      <div className="flex flex-col gap-4 items-center w-full">
+      <div className="flex flex-col gap-2 items-center w-full">
         <h2 className="text-center text-xl font-black text-primary font-heading">
           Boycott Lookup
         </h2>
