@@ -13,19 +13,17 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  async headers() {
-    return [
-      {
-        source: '/api/:route*',
-        headers: [
-          {
-            key: 'x-api-key',
-            value: process.env.API_KEY as string,
-          },
-        ],
-      },
-    ];
-  },
+  headers: async () => [
+    {
+      source: '/(.*).png',
+      headers: [
+        {
+          key: 'Cache-Control',
+          value: 'public, max-age=3600',
+        },
+      ],
+    },
+  ],
 };
 
 export default nextConfig;
