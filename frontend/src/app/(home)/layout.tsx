@@ -15,9 +15,11 @@ export default function RootLayout({
 }>) {
   return (
     <>
-      <Link href="/">
+      <Link
+        href="/"
+        className="mx-auto mb-6">
         <Image
-          className="w-md mx-auto mb-6"
+          className="w-md"
           src="/logo.png"
           priority={true}
           fetchPriority="high"
