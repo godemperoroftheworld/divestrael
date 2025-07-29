@@ -3,6 +3,7 @@ import Providers from '@/components/providers';
 import Loader from '@/components/loader';
 import React, { PropsWithChildren } from 'react';
 import { Work_Sans, Archivo } from 'next/font/google';
+import ThemeToggle from '@/components/theme-toggle';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const _archivo = Archivo({
@@ -18,21 +19,24 @@ const _workSans = Work_Sans({
 export default function Layout({ children }: PropsWithChildren) {
   return (
     <html
-      lang="en"
-      className="bg-background">
-      <body className="p-4 pt-8 font-body min-h-dvh flex flex-col">
+      suppressHydrationWarning
+      lang="en">
+      <body className="p-4 font-body min-h-dvh flex flex-col">
         <Providers>
-          {children}
+          <header>
+            <ThemeToggle />
+          </header>
+          <main className="flex flex-col relative">{children}</main>
           <Loader />
+          <footer className="flex w-full mt-5">
+            <a
+              className="mx-auto text-sm text-secondary italic text-center"
+              href="https://logo.dev"
+              title="Logo API">
+              Company logos provided by Logo.dev
+            </a>
+          </footer>
         </Providers>
-        <footer className="flex w-full mt-5">
-          <a
-            className="mx-auto text-sm text-secondary italic text-center"
-            href="https://logo.dev"
-            title="Logo API">
-            Company logos provided by Logo.dev
-          </a>
-        </footer>
       </body>
     </html>
   );
