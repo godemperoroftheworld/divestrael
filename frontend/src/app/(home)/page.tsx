@@ -5,6 +5,9 @@ import CompanyCarousel from '@/components/home/company-carousel';
 import { CameraIcon } from '@heroicons/react/24/solid';
 import Button from '@/components/ui/button';
 
+export const dynamic = 'force-static';
+export const revalidate = 3600;
+
 export default function Home() {
   return (
     <>

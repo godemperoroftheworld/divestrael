@@ -12,6 +12,8 @@ interface Props {
 
 const queryClient = getQueryClient();
 
+export const dynamic = 'force-static';
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { productId } = await params;
   const product = await prefetchProduct(queryClient, productId, {
