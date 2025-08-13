@@ -19,7 +19,7 @@ export default function Home() {
           className="text-danger font-black hover:text-danger-600">
           December 31st, 1937
         </Link>
-        , the Israeli ethnostate has been carrying out a{' '}
+        , the Israeli apartheid state has been carrying out a{' '}
         <Link
           href="https://en.wikipedia.org/wiki/Palestinian_genocide_accusation"
           target="_blank"
