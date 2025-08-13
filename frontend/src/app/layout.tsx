@@ -23,7 +23,7 @@ export default function Layout({ children }: PropsWithChildren) {
       lang="en">
       <body className="p-4 font-body min-h-dvh flex flex-col">
         <Providers>
-          <header>
+          <header className="flex justify-end">
             <ThemeToggle />
           </header>
           <main className="flex flex-col relative">{children}</main>
