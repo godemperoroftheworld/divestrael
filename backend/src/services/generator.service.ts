@@ -107,7 +107,7 @@ export default class AIService {
 
   public async generateProduct(image: string) {
     const result = await this.generatorInstance.post('chat/completions', {
-      model: 'google/gemini-2.5-flash',
+      model: 'openai/gpt-5-chat',
       messages: [
         {
           role: 'user',
@@ -166,7 +166,7 @@ export default class AIService {
     }
     const { country, name } = await this.generatorInstance
       .post('chat/completions', {
-        model: 'google/gemini-2.5-flash',
+        model: 'openai/gpt-5-chat',
         messages: [
           {
             role: 'user',
