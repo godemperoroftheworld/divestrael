@@ -18,6 +18,10 @@ export default function Select({ className, ...props }: Props) {
         placeholder: (base) => ({
           ...base,
         }),
+        option: (base) => ({
+          ...base,
+          color: 'black',
+        }),
       }}
       {...props}
     />
