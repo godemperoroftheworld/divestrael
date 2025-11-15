@@ -1,6 +1,6 @@
 import { ClassConstructor } from 'class-transformer';
 import {
-  MutateFunction,
+  MutationFunction,
   useMutation,
   UseMutationResult,
 } from '@tanstack/react-query';
@@ -16,7 +16,7 @@ export function useDivestraelMutation<R extends object, V extends object>(
   config: Omit<AxiosRequestConfig, 'url' | 'data'>,
   options: Partial<MutationObserverOptions<R, Error, V>>,
 ): UseMutationResult<R, Error, V> {
-  const mutationFn: MutateFunction<R, Error, V> = useCallback(
+  const mutationFn: MutationFunction<R, V> = useCallback(
     async (data: V) => {
       const response = await DivestraelApi.instance.request(
         {
