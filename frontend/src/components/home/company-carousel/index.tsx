@@ -13,6 +13,7 @@ export default async function CompanyCarousel() {
     filter: {
       rules: [{ field: 'source', operator: FilterOperator.NOT_NULL }],
     },
+    select: ['id', 'name', 'url'],
   });
 
   const companyLogos = companies.filter((x) => !!x.url) ?? [];

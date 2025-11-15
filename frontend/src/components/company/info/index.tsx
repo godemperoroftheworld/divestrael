@@ -1,11 +1,12 @@
 import { prefetchCompany } from '@/services/company/queries';
-import { prefetchBrand } from '@/services/brand/queries';
+import { prefetchBrand, prefetchBrands } from '@/services/brand/queries';
 import getQueryClient from '@/services/query';
 import Hydrater from '@/components/hydrater';
 import ConditionalLink from '@/components/ui/conditional-link';
 import Image from 'next/image';
 import CompanyBrands from '@/components/company/brands';
 import Link from 'next/link';
+import { FilterOperator } from '@/types/filter';
 
 interface Props {
   brandId?: string;
@@ -15,10 +16,25 @@ interface Props {
 const queryClient = getQueryClient();
 
 export default async function CompanyInfo({ companyId, brandId }: Props) {
-  const company = await prefetchCompany(queryClient, companyId, {
-    include: ['brands'],
-  });
-  const brand = brandId ? await prefetchBrand(queryClient, brandId) : undefined;
+  const company = await prefetchCompany(queryClient, companyId);
+  const brands = brandId
+    ? []
+    : await prefetchBrands(queryClient, {
+        filter: {
+          rules: [
+            {
+              field: 'companyId',
+              operator: FilterOperator.EQUALS,
+              value: companyId,
+            },
+          ],
+        },
+      });
+  const brand = brandId
+    ? await prefetchBrand(queryClient, brandId, {
+        select: ['name'],
+      })
+    : undefined;
 
   return (
     <Hydrater queryClient={queryClient}>
@@ -54,7 +70,7 @@ export default async function CompanyInfo({ companyId, brandId }: Props) {
         {!brand ? (
           <CompanyBrands
             className="py-2 w-fit"
-            brands={company.brands ?? []}
+            brands={brands}
           />
         ) : null}
       </div>
