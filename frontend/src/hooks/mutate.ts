@@ -26,7 +26,7 @@ export function useDivestraelMutation<R extends object, V extends object>(
         },
         model,
       );
-      return response.data as R;
+      return response.data;
     },
     [url, config, model],
   );
