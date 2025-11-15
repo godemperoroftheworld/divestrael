@@ -17,8 +17,21 @@ const queryClient = getQueryClient();
 export default async function CompanyInfo({ companyId, brandId }: Props) {
   const company = await prefetchCompany(queryClient, companyId, {
     include: ['brands'],
+    select: [
+      'name',
+      'url',
+      'description',
+      'reasons',
+      'description',
+      'source',
+      'brands.name',
+    ],
   });
-  const brand = brandId ? await prefetchBrand(queryClient, brandId) : undefined;
+  const brand = brandId
+    ? await prefetchBrand(queryClient, brandId, {
+        select: ['name'],
+      })
+    : undefined;
 
   return (
     <Hydrater queryClient={queryClient}>
