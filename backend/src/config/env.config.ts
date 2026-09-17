@@ -14,7 +14,6 @@ export default function loadConfig(): void {
       API_HOST: z.string(),
       API_PORT: z.string(),
       DATABASE_URL: z.string(),
-      BARCODE_API_KEY: z.string(),
       AI_API_KEY: z.string(),
       GOOGLE_API_KEY: z.string(),
       CORPWATCH_API_KEY: z.string(),
