@@ -51,7 +51,7 @@ function startServer() {
   });
 
   // Register security middlewares
-  const allowedOrigins = ['https://divestrael.vercel.app'];
+  const allowedOrigins = ['https://divestrael.tenzin.live'];
   server.register(cors, {
     origin: (origin, cb) => {
       if (process.env.NODE_ENV !== 'production') {
