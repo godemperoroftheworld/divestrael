@@ -26,6 +26,11 @@ export const ERRORS = {
     HttpStatusCode.InternalServerError,
   ),
   internalServerError: new AppError('Internal Server Error', HttpStatusCode.InternalServerError),
+  cannotGenerateBrand: new AppError('Unable to generate brand', HttpStatusCode.InternalServerError),
+  cannotGenerateProduct: new AppError(
+    'Unable to generate product',
+    HttpStatusCode.InternalServerError,
+  ),
 };
 
 export function handleServerError(reply: FastifyReply, error: Error) {

@@ -4,6 +4,14 @@ import { CountrySchema } from '../inputTypeSchemas/CountrySchema';
 import { BoycottReasonSchema } from '../inputTypeSchemas/BoycottReasonSchema';
 import { BrandWithRelationsSchema, BrandPartialWithRelationsSchema } from './BrandSchema';
 import type { BrandWithRelations, BrandPartialWithRelations } from './BrandSchema';
+import {
+  CompanyAliasWithRelationsSchema,
+  CompanyAliasPartialWithRelationsSchema,
+} from './CompanyAliasSchema';
+import type {
+  CompanyAliasWithRelations,
+  CompanyAliasPartialWithRelations,
+} from './CompanyAliasSchema';
 
 /////////////////////////////////////////
 // COMPANY SCHEMA
@@ -13,7 +21,6 @@ export const CompanySchema = z.object({
   country: CountrySchema,
   reasons: BoycottReasonSchema.array(),
   id: z.string(),
-  cik: z.number().int().nullable(),
   cw_id: z.string().nullable(),
   name: z.string(),
   description: z.string(),
@@ -37,6 +44,7 @@ export type CompanyPartial = z.infer<typeof CompanyPartialSchema>;
 
 export type CompanyRelations = {
   brands: BrandWithRelations[];
+  companyAlias: CompanyAliasWithRelations[];
 };
 
 export type CompanyWithRelations = z.infer<typeof CompanySchema> & CompanyRelations;
@@ -44,6 +52,7 @@ export type CompanyWithRelations = z.infer<typeof CompanySchema> & CompanyRelati
 export const CompanyWithRelationsSchema: z.ZodType<CompanyWithRelations> = CompanySchema.merge(
   z.object({
     brands: z.lazy(() => BrandWithRelationsSchema).array(),
+    companyAlias: z.lazy(() => CompanyAliasWithRelationsSchema).array(),
   }),
 );
 
@@ -53,6 +62,7 @@ export const CompanyWithRelationsSchema: z.ZodType<CompanyWithRelations> = Compa
 
 export type CompanyPartialRelations = {
   brands?: BrandPartialWithRelations[];
+  companyAlias?: CompanyAliasPartialWithRelations[];
 };
 
 export type CompanyPartialWithRelations = z.infer<typeof CompanyPartialSchema> &
@@ -62,6 +72,7 @@ export const CompanyPartialWithRelationsSchema: z.ZodType<CompanyPartialWithRela
   CompanyPartialSchema.merge(
     z.object({
       brands: z.lazy(() => BrandPartialWithRelationsSchema).array(),
+      companyAlias: z.lazy(() => CompanyAliasPartialWithRelationsSchema).array(),
     }),
   ).partial();
 
@@ -72,6 +83,7 @@ export const CompanyWithPartialRelationsSchema: z.ZodType<CompanyWithPartialRela
     z
       .object({
         brands: z.lazy(() => BrandPartialWithRelationsSchema).array(),
+        companyAlias: z.lazy(() => CompanyAliasPartialWithRelationsSchema).array(),
       })
       .partial(),
   );

@@ -1,6 +1,6 @@
-import BrandService from '@/services/brand.service';
 import PrismaService from '@/services/PrismaService';
 import { PrismaModelExpanded } from '@/helpers/prisma.helper';
+import BrandResolverPipeline from '@/resolver/brand.resolver';
 
 // Service to get barcode information
 export default class ProductService extends PrismaService<'Product'> {
@@ -25,7 +25,7 @@ export default class ProductService extends PrismaService<'Product'> {
       return result;
     }
 
-    const brand = await BrandService.instance.getOrCreateByName(brandName, name);
+    const brand = await BrandResolverPipeline.resolve({ name: brandName, product: name });
     return this.createOne({ name, brandId: brand.id }, { include: ['brand.company'] });
   }
 }

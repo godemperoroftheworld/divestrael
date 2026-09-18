@@ -14,6 +14,7 @@ import {
 } from '@/helpers/prisma.helper';
 import { IdParams } from '@/schemas';
 import SortOrderSchema from '@/schemas/zod/inputTypeSchemas/SortOrderSchema';
+import { uncapitalize } from '@/utils';
 
 // Args
 type PrismaOperations<N extends PrismaModelName> = Prisma.TypeMap['model'][N]['operations'];
@@ -73,8 +74,8 @@ export default abstract class PrismaService<N extends PrismaModelName> {
     );
   }
 
-  protected readonly repository: PrismaClient[Lowercase<N>];
-  protected constructor(private property: Lowercase<N>) {
+  protected readonly repository: PrismaClient[Uncapitalize<N>];
+  protected constructor(private property: Uncapitalize<N>) {
     this.repository = prisma[property];
   }
 
@@ -91,8 +92,8 @@ export default abstract class PrismaService<N extends PrismaModelName> {
         // Get the field from the model
         const field = currentModel.fields.find((f) => f.name === keySegment)!;
         if (field.relationName && idx + 1 !== arr.length) {
-          // Relation fields we try and nest, unless its the last segment of the key
-          currentModel = this.findModel(field.type.toLowerCase() as Lowercase<PrismaModelName>)!;
+          // Relation fields we try and nest, unless it's the last segment of the key
+          currentModel = this.findModel(uncapitalize(field.type) as Uncapitalize<PrismaModelName>)!;
           return result + (result.length ? '.' : '') + `${keySegment}.${type}`;
         } else {
           // Otherwise we just append the key segment
@@ -145,7 +146,7 @@ export default abstract class PrismaService<N extends PrismaModelName> {
     return this.findModel(this.property)!;
   }
 
-  protected findModel(name: Lowercase<PrismaModelName>) {
+  protected findModel(name: Uncapitalize<PrismaModelName>) {
     return this.models.find((model) => model.name.toLowerCase() === name);
   }
 

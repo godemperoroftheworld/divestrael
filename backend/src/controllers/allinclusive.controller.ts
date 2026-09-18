@@ -1,19 +1,19 @@
 import { HttpStatusCode } from 'axios';
 
 import { AllInclusiveProduct, AllInclusiveCompany } from '@/schemas/allinclusive.schema';
-import CompanyService from '@/services/company.service';
 import ProductService from '@/services/product.service';
 import { RouteHandler } from '@/helpers/types.helper';
 import { PrismaModelExpanded } from '@/helpers/prisma.helper';
 import AIService from '@/services/generator.service';
 import { ERRORS } from '@/helpers/errors.helper';
+import CompanyResolverPipeline from '@/resolver/company.resolver';
 
 export const postCompany: RouteHandler<{
   Body: AllInclusiveCompany;
   Reply: { 200: PrismaModelExpanded<'Company'> };
 }> = async (req, res) => {
-  const { country, name } = req.body;
-  const result = await CompanyService.instance.getOrCreateByName(name, country);
+  const query = req.body;
+  const result = await CompanyResolverPipeline.resolve(query);
   res.status(HttpStatusCode.Ok).send(result);
 };
 

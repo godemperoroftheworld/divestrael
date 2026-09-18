@@ -2,6 +2,7 @@ export { BarcodeScalarFieldEnumSchema } from './BarcodeScalarFieldEnumSchema';
 export { ProductScalarFieldEnumSchema } from './ProductScalarFieldEnumSchema';
 export { BrandScalarFieldEnumSchema } from './BrandScalarFieldEnumSchema';
 export { CompanyScalarFieldEnumSchema } from './CompanyScalarFieldEnumSchema';
+export { CompanyAliasScalarFieldEnumSchema } from './CompanyAliasScalarFieldEnumSchema';
 export { KeyScalarFieldEnumSchema } from './KeyScalarFieldEnumSchema';
 export { SortOrderSchema } from './SortOrderSchema';
 export { QueryModeSchema } from './QueryModeSchema';

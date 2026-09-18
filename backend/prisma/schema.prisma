@@ -9,14 +9,14 @@ generator client {
 }
 
 generator zod {
-  provider = "zod-prisma-types"
-  output = "../src/schemas/zod"
-  useMultipleFiles = true
-  createInputTypes = false
-  addIncludeType = false
-  addSelectType = false
+  provider                  = "zod-prisma-types"
+  output                    = "../src/schemas/zod"
+  useMultipleFiles          = true
+  createInputTypes          = false
+  addIncludeType            = false
+  addSelectType             = false
   createRelationValuesTypes = true
-  createPartialTypes = true
+  createPartialTypes        = true
 }
 
 datasource db {
@@ -25,43 +25,50 @@ datasource db {
 }
 
 model Barcode {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  code String @unique
-  product Product @relation(fields: [productId], references: [id])
-  productId String @db.ObjectId
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  code      String  @unique
+  product   Product @relation(fields: [productId], references: [id])
+  productId String  @db.ObjectId
 }
 
 model Product {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  name String @unique
-  brand Brand @relation(fields: [brandId], references: [id])
-  brandId String @db.ObjectId
+  id      String    @id @default(auto()) @map("_id") @db.ObjectId
+  name    String    @unique
+  brand   Brand     @relation(fields: [brandId], references: [id])
+  brandId String    @db.ObjectId
   barcode Barcode[]
 }
 
 model Brand {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  name String @unique
-  products Product[]
-  company Company @relation(fields: [companyId], references: [id])
-  companyId String @db.ObjectId
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  name      String    @unique
+  products  Product[]
+  company   Company   @relation(fields: [companyId], references: [id])
+  companyId String    @db.ObjectId
 }
 
 model Company {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  cik Int? @unique
-  cw_id String? @unique
-  name String @unique
-  description String
-  country Country
-  brands Brand[]
-  url String?
-  reasons BoycottReason[]
-  source String?
+  id           String          @id @default(auto()) @map("_id") @db.ObjectId
+  cw_id        String?         @unique
+  name         String          @unique
+  description  String
+  country      Country
+  brands       Brand[]
+  url          String?
+  reasons      BoycottReason[]
+  source       String?
+  companyAlias CompanyAlias[]
+}
+
+model CompanyAlias {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  name      String  @unique
+  company   Company @relation(fields: [companyId], references: [id])
+  companyId String  @db.ObjectId
 }
 
 model Key {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
+  id  String @id @default(auto()) @map("_id") @db.ObjectId
   key String @unique
 }
 

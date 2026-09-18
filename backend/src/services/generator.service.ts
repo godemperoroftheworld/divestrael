@@ -5,7 +5,6 @@ import process from 'node:process';
 interface ProductApiResult {
   name: string;
   brand: string;
-  company: string;
 }
 interface CompanyApiResult {
   name: string;
@@ -16,7 +15,6 @@ interface CompanyMetadataApiResult {
   url: string;
 }
 
-// Service to get product company name
 export default class AIService {
   private static _instance: AIService;
 
@@ -151,8 +149,45 @@ export default class AIService {
         },
       },
     });
-    const { name, brand, company } = JSON.parse(result.data.choices[0].message.content);
-    return { name, brand, company } as ProductApiResult;
+    const { name, brand } = JSON.parse(result.data.choices[0].message.content);
+    return { name, brand } as ProductApiResult;
+  }
+
+  public async generateBrand(product: string) {
+    const prompt = `I am giving you the name/description of a product. I want you to give me the brand name of the product, ONLY if it is clear enough without guessing.`;
+    const { name } = await this.generatorInstance
+      .post('chat/completions', {
+        model: 'openai/gpt-5-chat',
+        messages: [
+          {
+            role: 'user',
+            content: `${prompt}. Product: ${product}`,
+          },
+        ],
+        provider: {
+          require_parameters: true,
+        },
+        response_format: {
+          type: 'json_schema',
+          json_schema: {
+            name: 'brand',
+            strict: true,
+            schema: {
+              type: 'object',
+              properties: {
+                name: {
+                  type: 'string',
+                  description: 'The brand name of the product',
+                },
+              },
+              required: ['name'],
+              additionalProperties: false,
+            },
+          },
+        },
+      })
+      .then((r) => JSON.parse(r.data.choices[0].message.content) as { name: string });
+    return name;
   }
 
   public async generateCompanyInfo(product?: string, brandName?: string) {

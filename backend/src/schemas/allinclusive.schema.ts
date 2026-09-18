@@ -3,7 +3,9 @@ import { Country } from '@prisma/client';
 
 export const allInclusiveCompany = z.object({
   name: z.string().nonempty(),
-  country: z.nativeEnum(Country),
+  brand: z.string().nonempty().optional(),
+  product: z.string().nonempty().optional(),
+  country: z.nativeEnum(Country).optional(),
 });
 export type AllInclusiveCompany = z.infer<typeof allInclusiveCompany>;
 
