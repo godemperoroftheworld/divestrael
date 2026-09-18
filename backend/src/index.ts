@@ -14,6 +14,7 @@ import loadConfig from '@/config/env.config';
 import { ERRORS, handleServerError } from '@/helpers/errors.helper';
 import routes from '@/routes';
 import { initDMMF } from '@/prisma';
+import healthCheckRoute from '@/routes/healthcheck.route';
 
 loadConfig();
 
@@ -66,6 +67,7 @@ function startServer() {
 
   // Set Routes
   server.register(routes, { prefix: '/api' });
+  server.register(healthCheckRoute, { prefix: '/health' });
 
   // Set error handler
   server.setErrorHandler((error: Error, _request, reply) => {

@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import fs from 'fs';
-import { getDMMF } from '@prisma/sdk';
+import { getDMMF } from '@prisma/internals';
 import type { DMMF } from '@prisma/generator-helper';
 
 const prisma = new PrismaClient();

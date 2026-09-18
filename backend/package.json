@@ -37,7 +37,7 @@
     "@fastify/swagger-ui": "5.2.2",
     "@krsbx/prisma-fqp": "^0.2.8",
     "@prisma/client": "^6.5.0",
-    "@prisma/sdk": "^4.0.0",
+    "@prisma/internals": "^6.5.0",
     "axios": "^1.14.0",
     "dotenv": "^16.4.5",
     "fastify": "5.12.1",

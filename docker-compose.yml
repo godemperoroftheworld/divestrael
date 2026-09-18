@@ -1,0 +1,38 @@
+services:
+  divestrael-api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      API_PORT: 4000
+      DATABASE_URL: ${DATABASE_URL}
+      AI_API_KEY: ${AI_API_KEY}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY}
+      CORPWATCH_API_KEY: ${CORPWATCH_API_KEY}
+    expose:
+      - "4000"
+    ports:
+      - "4000:4000"
+  divestrael:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      network: host
+      args:
+        DIVESTRAEL_BACKEND_URL: http://localhost:4000
+        API_KEY: ${API_KEY}
+        IMAGE_TOKEN: ${IMAGE_TOKEN}
+    environment:
+      PORT: ${PORT:-8080}
+      DIVESTRAEL_BACKEND_URL: http://divestrael-api:4000
+      API_KEY: ${API_KEY}
+      IMAGE_TOKEN: ${IMAGE_TOKEN}
+      NEXT_PUBLIC_URL: ${NEXT_PUBLIC_URL}
+    ports:
+      - "${PORT:-8080}:${PORT:-8080}"
+    networks:
+      - divestrael-network
+networks:
+  divestrael-network:
+    name: divestrael-network
+    driver: bridge
