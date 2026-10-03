@@ -7,7 +7,7 @@ import { Company } from '@/schemas/zod';
 import CorpwatchService from '@/services/corpwatch.service';
 import CompanyService from '@/services/company.service';
 import CompanyAliasService from '@/services/company-alias.service';
-import { ERRORS } from '@/helpers/errors.helper';
+import { ERRORS, isUniqueViolation } from '@/helpers/errors.helper';
 
 export default class CompanyProvider extends Provider<CompanyQuery, Company> {
   public async provide(query: CompanyQuery): Promise<Company> {
@@ -43,6 +43,18 @@ export default class CompanyProvider extends Provider<CompanyQuery, Company> {
     }
     await CompanyAliasService.instance.createMany(aliases);
     // Return company
-    return await CompanyService.instance.getOne(id);
+    return await this.create(resolvedName, id);
+  }
+
+  private async create(name: string, id: string) {
+    try {
+      return await CompanyService.instance.getOne(id);
+    } catch (err) {
+      if (!isUniqueViolation(err)) throw err;
+      // Lost a race against a concurrent request.
+      const raced = await CompanyService.instance.getOneByProperty('name', name);
+      if (raced) return raced;
+      throw ERRORS.brandExists;
+    }
   }
 }
