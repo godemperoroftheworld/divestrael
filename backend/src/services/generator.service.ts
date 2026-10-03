@@ -15,6 +15,8 @@ interface CompanyMetadataApiResult {
   url: string;
 }
 
+const MODEL_SEARCH = 'perplexity/sonar-pro-search';
+
 export default class AIService {
   private static _instance: AIService;
 
@@ -63,7 +65,7 @@ export default class AIService {
       } as CompanyMetadataApiResult;
     }
     const fallback = await this.generatorInstance.post('chat/completions', {
-      model: 'openai/gpt-4o-mini-search-preview',
+      model: MODEL_SEARCH,
       messages: [
         {
           role: 'user',
@@ -105,7 +107,7 @@ export default class AIService {
 
   public async generateProduct(image: string) {
     const result = await this.generatorInstance.post('chat/completions', {
-      model: 'openai/gpt-5-chat',
+      model: MODEL_SEARCH,
       messages: [
         {
           role: 'user',
@@ -157,7 +159,7 @@ export default class AIService {
     const prompt = `I am giving you the name/description of a product. I want you to give me the brand name of the product, ONLY if it is clear enough without guessing.`;
     const { name } = await this.generatorInstance
       .post('chat/completions', {
-        model: 'openai/gpt-5-chat',
+        model: MODEL_SEARCH,
         messages: [
           {
             role: 'user',
@@ -201,7 +203,7 @@ export default class AIService {
     }
     const { country, name } = await this.generatorInstance
       .post('chat/completions', {
-        model: 'openai/gpt-5-chat',
+        model: MODEL_SEARCH,
         messages: [
           {
             role: 'user',
