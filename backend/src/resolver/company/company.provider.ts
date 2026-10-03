@@ -7,6 +7,7 @@ import { Company } from '@/schemas/zod';
 import CorpwatchService from '@/services/corpwatch.service';
 import CompanyService from '@/services/company.service';
 import CompanyAliasService from '@/services/company-alias.service';
+import { ERRORS } from '@/helpers/errors.helper';
 
 export default class CompanyProvider extends Provider<CompanyQuery, Company> {
   public async provide(query: CompanyQuery): Promise<Company> {
@@ -17,12 +18,17 @@ export default class CompanyProvider extends Provider<CompanyQuery, Company> {
       name = info.name;
       country = info.country;
     }
+    name = name?.trim();
+    if (!name) {
+      throw ERRORS.noCompanyFound;
+    }
 
-    const { description, url } = await AIService.instance.getMetadata(name!);
-    const corpwatch = await CorpwatchService.instance.findTopCompany(name!);
+    const { description, url } = await AIService.instance.getMetadata(name);
+    const corpwatch = await CorpwatchService.instance.findTopCompany(name);
 
+    const resolvedName = corpwatch?.company_name ?? name;
     const { id } = await CompanyService.instance.createOne({
-      name: corpwatch?.company_name ?? name!,
+      name: resolvedName,
       description,
       url,
       reasons: [],
@@ -31,9 +37,9 @@ export default class CompanyProvider extends Provider<CompanyQuery, Company> {
       source: null,
     });
     // Create aliases
-    const aliases = [{ name: name!, companyId: id }];
-    if (corpwatch) {
-      aliases.push({ name: corpwatch.company_name, companyId: id });
+    const aliases = [{ name, companyId: id }];
+    if (resolvedName !== name) {
+      aliases.push({ name: resolvedName, companyId: id });
     }
     await CompanyAliasService.instance.createMany(aliases);
     // Return company
