@@ -4,6 +4,7 @@ import { Product } from '@/schemas/zod';
 export interface ProductQuery {
   id?: string;
   name?: string;
+  brand?: string;
   image?: string;
 }
 

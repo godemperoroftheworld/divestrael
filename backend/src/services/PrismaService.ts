@@ -39,6 +39,7 @@ interface PrismaRepositoryBase<
   T extends PrismaModelExpanded<N> = PrismaModelExpanded<N>,
 > {
   findUnique: (args: PrismaArgs<N>) => Promise<T | null>;
+  findFirst: (args: PrismaArgs<N>) => Promise<T | null>;
   findUniqueOrThrow: (args: PrismaArgs<N>) => Promise<T>;
   findMany: (args: PrismaArgs<N>) => Promise<T[]>;
   create: (args: PrismaCreateArgs<N>) => Promise<T>;
@@ -169,9 +170,9 @@ export default abstract class PrismaService<N extends PrismaModelName> {
     property: K,
     value: PrismaModel<N>[K],
     params: Omit<PrismaServiceParams<N>, 'filter' | 'take' | 'skip'> = {},
-  ): Promise<PrismaModelExpanded<N>> {
+  ): Promise<PrismaModelExpanded<N> | null> {
     const { include, select, omit, orderBy, ...rest } = params;
-    return this.repositoryBase.findUniqueOrThrow({
+    return this.repositoryBase.findUnique({
       where: { [property]: value } as unknown as PrismaFilter<N>,
       select: select ? this.buildSelects(select) : undefined,
       include: include && !select ? this.buildIncludes(include) : undefined,
@@ -207,6 +208,7 @@ export default abstract class PrismaService<N extends PrismaModelName> {
     query: string,
     fuzzy: boolean = true,
     params: Pick<PrismaServiceParams<N>, 'include' | 'select' | 'omit'> = {},
+    minScore: number = 3,
   ): Promise<PrismaModelExpanded<N> | null> {
     const searchResult = (
       await this.repository.aggregateRaw({
@@ -233,7 +235,7 @@ export default abstract class PrismaService<N extends PrismaModelName> {
           },
           {
             $match: {
-              score: { $gt: 3 },
+              score: { $gt: minScore },
             },
           },
           {

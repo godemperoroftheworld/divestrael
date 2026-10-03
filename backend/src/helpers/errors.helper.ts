@@ -1,6 +1,11 @@
 import { FastifyReply } from 'fastify';
 import { AxiosError, HttpStatusCode } from 'axios';
+import { Prisma } from '@prisma/client';
 import { ZodError } from 'zod';
+
+export function isUniqueViolation(error: unknown): error is Prisma.PrismaClientKnownRequestError {
+  return error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002';
+}
 
 export class AppError extends Error {
   statusCode: number;
@@ -17,6 +22,7 @@ export const ERRORS = {
   apiKey: new AppError('Missing API key', HttpStatusCode.Forbidden),
   productExists: new AppError('Product already exists', HttpStatusCode.Conflict),
   companyExists: new AppError('Company already exists', HttpStatusCode.Conflict),
+  brandExists: new AppError('Brand already exists', HttpStatusCode.Conflict),
   noCompanyFound: new AppError(
     'Cannot generate company information',
     HttpStatusCode.InternalServerError,
@@ -50,6 +56,8 @@ export function handleServerError(reply: FastifyReply, error: Error) {
     return reply.status(error.statusCode).send({ message: error.message });
   } else if (error instanceof AxiosError) {
     return reply.status(HttpStatusCode.InternalServerError).send({ message: error.message });
+  } else if (isUniqueViolation(error)) {
+    return reply.status(HttpStatusCode.Conflict).send({ message: 'Resource already exists' });
   }
 
   return reply
