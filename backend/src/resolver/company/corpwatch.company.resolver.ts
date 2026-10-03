@@ -8,7 +8,7 @@ export default class CorpwatchCompanyResolver extends CompanyResolver {
     if (name) {
       const corpwatch = await CorpwatchService.instance.findTopCompany(name);
       if (corpwatch) {
-        return await CompanyAliasService.instance.searchOneCompany(corpwatch.company_name);
+        return await CompanyAliasService.instance.findCompanyByAlias(corpwatch.company_name);
       }
     }
     return null;
