@@ -307,7 +307,7 @@ export default abstract class PrismaService<N extends PrismaModelName> {
       });
       // Results is not in the same order, restore the order here
       const keyedResults = keyBy(results, 'id');
-      return ids.map((id) => keyedResults[id]);
+      return ids.map((id) => keyedResults[id]).filter((r) => r !== undefined);
     }
     return [];
   }
@@ -329,7 +329,7 @@ export default abstract class PrismaService<N extends PrismaModelName> {
     await this.repositoryBase.createMany({
       data,
     } as unknown as PrismaCreateArgs<N>);
-    const searchPath = this.searchPath()[0] as keyof Omit<PrismaModel<N>, 'id'>;
+    const searchPath = this.searchPath() as keyof Omit<PrismaModel<N>, 'id'>;
     return this.repositoryBase.findMany({
       where: {
         [searchPath]: { in: data.map((d) => d[searchPath]) },

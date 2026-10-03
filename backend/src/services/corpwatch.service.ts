@@ -58,7 +58,7 @@ export default class CorpwatchService {
         company_name: company,
       },
     });
-    const { companies } = result;
+    const companies = result?.companies;
     const companyValues: CorpwatchCompanyResponse[] = Object.values(companies ?? {});
     if (companyValues.length) {
       const companyParents = countBy(companyValues, 'top_parent_id');
@@ -71,10 +71,14 @@ export default class CorpwatchService {
     const {
       data: { result },
     } = await this.axiosInstance.get(`/companies/${id}.json`);
-    const response = result['companies'][id];
+    const companies = result?.['companies'];
+    const response = companies?.[id];
+    if (!response) {
+      throw new Error(`Company not found: ${id}`);
+    }
     return {
       ...response,
-      cik: isNaN(response.cik) ? null : Number(response.cik),
+      cik: response.cik && !isNaN(response.cik) ? Number(response.cik) : null,
     };
   }
 
@@ -100,7 +104,7 @@ export default class CorpwatchService {
         top_parent_id: topCompany.cw_id,
       },
     });
-    const { companies } = result;
+    const companies = result?.companies;
     return Object.values(companies ?? {});
   }
 }

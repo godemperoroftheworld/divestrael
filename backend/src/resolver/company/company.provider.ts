@@ -54,7 +54,7 @@ export default class CompanyProvider extends Provider<CompanyQuery, Company> {
       // Lost a race against a concurrent request.
       const raced = await CompanyService.instance.getOneByProperty('name', name);
       if (raced) return raced;
-      throw ERRORS.brandExists;
+      throw ERRORS.companyExists;
     }
   }
 }

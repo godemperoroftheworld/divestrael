@@ -56,7 +56,8 @@ export default class AIService {
         limit: 1,
       },
     });
-    const resultItem = result.data.itemListElement[0]?.result;
+    const itemListElement = result.data?.itemListElement;
+    const resultItem = Array.isArray(itemListElement) ? itemListElement[0]?.result : undefined;
     if (resultItem?.url) {
       return {
         description:
@@ -101,8 +102,13 @@ export default class AIService {
         },
       },
     });
-    const { description, url } = JSON.parse(fallback.data.choices[0].message.content);
-    return { description, url } as CompanyMetadataApiResult;
+    try {
+      const content = fallback.data?.choices?.[0]?.message?.content;
+      const { description, url } = JSON.parse(content || '{}');
+      return { description, url } as CompanyMetadataApiResult;
+    } catch {
+      return { description: query, url: '' } as CompanyMetadataApiResult;
+    }
   }
 
   public async generateProduct(image: string) {
@@ -151,45 +157,57 @@ export default class AIService {
         },
       },
     });
-    const { name, brand } = JSON.parse(result.data.choices[0].message.content);
-    return { name, brand } as ProductApiResult;
+    try {
+      const content = result.data?.choices?.[0]?.message?.content;
+      const { name, brand } = JSON.parse(content || '{}');
+      return { name, brand } as ProductApiResult;
+    } catch {
+      return { name: '', brand: '' } as ProductApiResult;
+    }
   }
 
   public async generateBrand(product: string) {
     const prompt = `I am giving you the name/description of a product. I want you to give me the brand name of the product, ONLY if it is clear enough without guessing.`;
-    const { name } = await this.generatorInstance
-      .post('chat/completions', {
-        model: MODEL_SEARCH,
-        messages: [
-          {
-            role: 'user',
-            content: `${prompt}. Product: ${product}`,
+    try {
+      const { name } = await this.generatorInstance
+        .post('chat/completions', {
+          model: MODEL_SEARCH,
+          messages: [
+            {
+              role: 'user',
+              content: `${prompt}. Product: ${product}`,
+            },
+          ],
+          provider: {
+            require_parameters: true,
           },
-        ],
-        provider: {
-          require_parameters: true,
-        },
-        response_format: {
-          type: 'json_schema',
-          json_schema: {
-            name: 'brand',
-            strict: true,
-            schema: {
-              type: 'object',
-              properties: {
-                name: {
-                  type: 'string',
-                  description: 'The brand name of the product',
+          response_format: {
+            type: 'json_schema',
+            json_schema: {
+              name: 'brand',
+              strict: true,
+              schema: {
+                type: 'object',
+                properties: {
+                  name: {
+                    type: 'string',
+                    description: 'The brand name of the product',
+                  },
                 },
+                required: ['name'],
+                additionalProperties: false,
               },
-              required: ['name'],
-              additionalProperties: false,
             },
           },
-        },
-      })
-      .then((r) => JSON.parse(r.data.choices[0].message.content) as { name: string });
-    return name;
+        })
+        .then((r) => {
+          const content = r.data?.choices?.[0]?.message?.content;
+          return JSON.parse(content || '{}') as { name: string };
+        });
+      return name;
+    } catch {
+      return '';
+    }
   }
 
   public async generateCompanyInfo(product?: string, brandName?: string) {
@@ -201,42 +219,49 @@ export default class AIService {
     if (brandName) {
       promptInfo.push(`Brand: ${brandName}`);
     }
-    const { country, name } = await this.generatorInstance
-      .post('chat/completions', {
-        model: MODEL_SEARCH,
-        messages: [
-          {
-            role: 'user',
-            content: `${prompt} ${promptInfo.join(', ')}`,
+    try {
+      const { country, name } = await this.generatorInstance
+        .post('chat/completions', {
+          model: MODEL_SEARCH,
+          messages: [
+            {
+              role: 'user',
+              content: `${prompt} ${promptInfo.join(', ')}`,
+            },
+          ],
+          provider: {
+            require_parameters: true,
           },
-        ],
-        provider: {
-          require_parameters: true,
-        },
-        response_format: {
-          type: 'json_schema',
-          json_schema: {
-            name: 'company',
-            strict: true,
-            schema: {
-              type: 'object',
-              properties: {
-                name: {
-                  type: 'string',
-                  description: 'The company name',
+          response_format: {
+            type: 'json_schema',
+            json_schema: {
+              name: 'company',
+              strict: true,
+              schema: {
+                type: 'object',
+                properties: {
+                  name: {
+                    type: 'string',
+                    description: 'The company name',
+                  },
+                  country: {
+                    type: 'string',
+                    description: 'The country the company is from, as a 2 letter code',
+                  },
                 },
-                country: {
-                  type: 'string',
-                  description: 'The country the company is from, as a 2 letter code',
-                },
+                required: ['name', 'country'],
+                additionalProperties: false,
               },
-              required: ['name', 'country'],
-              additionalProperties: false,
             },
           },
-        },
-      })
-      .then((r) => JSON.parse(r.data.choices[0].message.content) as CompanyApiResult);
-    return { country, name };
+        })
+        .then((r) => {
+          const content = r.data?.choices?.[0]?.message?.content;
+          return JSON.parse(content || '{}') as CompanyApiResult;
+        });
+      return { country, name };
+    } catch {
+      return { country: 'US' as Country, name: '' };
+    }
   }
 }
